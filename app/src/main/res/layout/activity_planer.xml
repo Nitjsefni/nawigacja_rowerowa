@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Wyznaczanie trasy"
+        android:id="@+id/textView6"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/imageView4"
+        android:src="@drawable/marker_departure"
+        android:layout_alignBottom="@+id/space10"
+        android:layout_toRightOf="@+id/space10"
+        android:layout_toEndOf="@+id/space10" />
+
+    <Space
+        android:layout_width="30dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/textView6"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:id="@+id/space10" />
+
+    <AutoCompleteTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/atcptv_od"
+        android:layout_alignBottom="@+id/imageView4"
+        android:layout_toRightOf="@+id/imageView4"
+        android:layout_marginLeft="15dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="30dp"
+        android:hint="Początek trasy..."
+        android:textSize="15dp"
+        android:layout_alignTop="@+id/imageView4" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/imageView5"
+        android:layout_below="@+id/imageView4"
+        android:layout_toRightOf="@+id/space10"
+        android:layout_toEndOf="@+id/space10"
+        android:src="@drawable/marker_via"
+        android:layout_marginTop="15dp"
+        android:visibility="gone" />
+
+    <AutoCompleteTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/atcptv_przez"
+        android:layout_alignBottom="@+id/imageView5"
+        android:layout_alignLeft="@+id/atcptv_od"
+        android:layout_alignStart="@+id/textView6"
+        android:layout_alignRight="@+id/atcptv_od"
+        android:layout_alignEnd="@+id/atcptv_od"
+        android:layout_alignTop="@+id/imageView5"
+        android:hint="Przez..."
+        android:textSize="15dp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/imageView6"
+        android:layout_below="@+id/imageView5"
+        android:layout_alignLeft="@+id/imageView4"
+        android:layout_alignStart="@+id/imageView4"
+        android:src="@drawable/marker_destination"
+        android:layout_marginTop="15dp" />
+
+    <AutoCompleteTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/atcptv_do"
+        android:layout_alignBottom="@+id/imageView6"
+        android:layout_alignLeft="@+id/atcptv_od"
+        android:layout_alignRight="@+id/atcptv_od"
+        android:layout_alignTop="@+id/imageView6"
+        android:textSize="15dp"
+        android:hint="Koniec trasy..." />
+
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/imgBtn_Show_Via"
+        android:layout_marginTop="39dp"
+        android:src="@android:drawable/ic_input_add"
+        android:layout_below="@+id/atcptv_do"
+        android:layout_alignLeft="@+id/atcptv_do"
+        android:layout_alignStart="@+id/atcptv_do" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="dodaj punkt pośredni"
+        android:id="@+id/txtV_show_via"
+        android:layout_alignBottom="@+id/imgBtn_Show_Via"
+        android:layout_toRightOf="@+id/imgBtn_Show_Via"
+        android:layout_toEndOf="@+id/imgBtn_Show_Via"
+        android:layout_alignTop="@+id/imgBtn_Show_Via"
+        android:gravity="center"
+        android:layout_marginLeft="10dp" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner3"
+        android:layout_below="@+id/textView7"
+        android:layout_alignRight="@+id/atcptv_do"
+        android:layout_alignEnd="@+id/atcptv_do"
+        android:layout_alignLeft="@+id/imageView6"
+        android:layout_alignStart="@+id/imageView6" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Rodzaj drogi:"
+        android:id="@+id/textView7"
+        android:layout_below="@+id/txtV_show_via"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Planuj trasę"
+        android:id="@+id/btn_planuj"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/spinner3"
+        android:layout_alignEnd="@+id/spinner3"
+        android:layout_alignLeft="@+id/spinner3"
+        android:layout_alignStart="@+id/spinner3" />
+
+</RelativeLayout>

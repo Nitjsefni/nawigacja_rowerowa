@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Wyznaczanie trasy"
+        android:id="@+id/textView3"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <Space
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:layout_below="@+id/textView3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/space" />
+
+    <Space
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/space"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/space2" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/imageView"
+        android:layout_below="@+id/space"
+        android:layout_toRightOf="@+id/space2"
+        android:layout_toEndOf="@+id/space2"
+        android:src="@drawable/marker_departure" />
+
+    <Space
+        android:layout_width="20dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/space"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView"
+        android:id="@+id/space3" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText2"
+        android:layout_below="@+id/space"
+        android:layout_toRightOf="@+id/space3"
+        android:layout_alignBottom="@+id/space3"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="30dp"
+        android:hint="Początek trasy..." />
+
+    <Space
+        android:layout_width="fill_parent"
+        android:layout_height="15dp"
+        android:layout_below="@+id/space2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/space5" />
+
+    <Space
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/space5"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/space6"
+        android:visibility="gone" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView2"
+        android:layout_below="@+id/space5"
+        android:layout_toRightOf="@+id/space6"
+        android:src="@drawable/marker_via"
+        android:layout_alignBottom="@+id/space6"
+        android:layout_toLeftOf="@+id/space3"
+        android:layout_toStartOf="@+id/space3"
+        android:visibility="gone" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText3"
+        android:layout_alignTop="@+id/imageView2"
+        android:layout_toRightOf="@+id/space3"
+        android:layout_alignRight="@+id/editText2"
+        android:layout_alignEnd="@+id/editText2"
+        android:layout_alignBottom="@+id/imageView2"
+        android:hint="Przez..."
+        android:visibility="gone" />
+
+    <Space
+        android:layout_width="fill_parent"
+        android:layout_height="15dp"
+        android:layout_below="@+id/space6"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/space4" />
+
+    <Space
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/space4"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/space7" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView3"
+        android:layout_below="@+id/space4"
+        android:layout_toRightOf="@+id/space7"
+        android:src="@drawable/marker_destination"
+        android:layout_alignBottom="@+id/space7"
+        android:layout_toLeftOf="@+id/space3"
+        android:layout_toStartOf="@+id/space3" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText4"
+        android:layout_alignRight="@+id/editText3"
+        android:layout_alignEnd="@+id/editText3"
+        android:layout_alignBottom="@+id/imageView3"
+        android:hint="Koniec trasy..."
+        android:layout_toRightOf="@+id/space3"
+        android:layout_toEndOf="@+id/space3" />
+
+    <Space
+        android:layout_width="fill_parent"
+        android:layout_height="15dp"
+        android:layout_below="@+id/space7"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/space8" />
+
+    <ImageButton
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/imageButton2"
+        android:src="@android:drawable/ic_input_add"
+        android:layout_below="@+id/space8"
+        android:layout_alignLeft="@+id/editText4"
+        android:layout_alignStart="@+id/editText4" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Dodaj miejsce pośrednie"
+        android:id="@+id/textView4"
+        android:layout_alignTop="@+id/imageButton2"
+        android:layout_toRightOf="@+id/imageButton2"
+        android:layout_alignBottom="@+id/imageButton2"
+        android:gravity="center"
+        android:layout_marginLeft="10dp" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner2"
+        android:layout_below="@+id/textView5"
+        android:layout_alignRight="@+id/editText4"
+        android:layout_alignEnd="@+id/editText4"
+        android:layout_alignLeft="@+id/imageButton2"
+        android:layout_alignStart="@+id/imageButton2" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nawiguj"
+        android:id="@+id/button5"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/space7"
+        android:layout_alignRight="@+id/spinner2"
+        android:layout_alignEnd="@+id/spinner2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Typ trasy:"
+        android:id="@+id/textView5"
+        android:layout_below="@+id/space9"
+        android:layout_alignLeft="@+id/textView3"
+        android:layout_alignStart="@+id/textView3" />
+
+    <Space
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/imageButton2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/space9" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Unikaj chodników"
+        android:id="@+id/checkBox"
+        android:layout_below="@+id/spinner2"
+        android:layout_alignRight="@+id/spinner2"
+        android:layout_alignEnd="@+id/spinner2"
+        android:layout_toEndOf="@+id/imageView3"
+        android:layout_alignLeft="@+id/textView5"
+        android:layout_alignStart="@+id/textView5"
+        android:layout_marginTop="15dp" />
+
+</RelativeLayout>

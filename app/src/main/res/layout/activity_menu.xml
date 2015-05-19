@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/img_Btn_Nawiguj"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@android:drawable/ic_media_play" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner"
+        android:layout_below="@+id/img_Btn_Nawiguj"
+        android:layout_alignRight="@+id/img_Btn_Nawiguj"
+        android:layout_alignEnd="@+id/img_Btn_Nawiguj" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/textView"
+        android:layout_above="@+id/button" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/button2"
+        android:layout_alignTop="@+id/button2"
+        android:layout_toRightOf="@+id/button2" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Licznik"
+        android:id="@+id/button2"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/button3"
+        android:layout_toEndOf="@+id/button3" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TRASA"
+        android:id="@+id/button3"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/button4"
+        android:layout_toEndOf="@+id/button4" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MAPA"
+        android:id="@+id/button4"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Polecane trasy"
+        android:id="@+id/textView"
+        android:layout_below="@+id/spinner"
+        android:layout_centerHorizontal="true" />
+
+    <AutoCompleteTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/atcptv_wyznacz_do"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/img_Btn_Nawiguj"
+        android:layout_toStartOf="@+id/img_Btn_Nawiguj"
+        android:layout_alignBottom="@+id/img_Btn_Nawiguj"
+        android:layout_alignParentTop="true"
+        android:textSize="15dp"
+        android:hint="Wyznacz trase do..." />
+
+</RelativeLayout>
