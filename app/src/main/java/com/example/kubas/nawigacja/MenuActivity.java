@@ -101,14 +101,14 @@ public class MenuActivity extends Activity{
                     //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 100, this);
 
 
-                    Location location = locationManager.getLastKnownLocation(provider);
+                    //Location location = locationManager.getLastKnownLocation(provider);
 
 
-                    gp = new GeoPoint(location.getLatitude(), location.getLongitude());
+                    //gp = new GeoPoint(location.getLatitude(), location.getLongitude());
 
 
-                        k.putExtra("gp_od_lat", String.valueOf(gp.getLatitude()));
-                        k.putExtra("gp_od_lng", String.valueOf(gp.getLongitude()));
+                        k.putExtra("gp_od_lat", String.valueOf(0));
+                        k.putExtra("gp_od_lng", String.valueOf(0));
 
                     k.putExtra("gp_do_lat", cel_trasy.getGeoPositionLat());
                     k.putExtra("gp_do_lng", cel_trasy.getGeoPositionLng());
@@ -165,7 +165,7 @@ public class MenuActivity extends Activity{
                 nameValuePairs1.add(new BasicNameValuePair("ver", "1.0"));
                 nameValuePairs1.add(new BasicNameValuePair("username", "testowy"));
                 nameValuePairs1.add(new BasicNameValuePair("password", "rrr"));
-                nameValuePairs1.add(new BasicNameValuePair("name", "" + key[0]));
+                nameValuePairs1.add(new BasicNameValuePair("name", "" + newText));
                 // 6. set httpPost Entity
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs1));
                 HttpResponse httpResponse = hClient.execute(httpPost);
@@ -177,18 +177,18 @@ public class MenuActivity extends Activity{
                     result = convertInputStreamToString(inputStream);
                     try {
                         JSONObject jsonResponse = new JSONObject(result);
-                        JSONArray array = jsonResponse.getJSONArray("data");
+                        //JSONObject array = jsonResponse.getJSONObject("0");
                         //JSONObject data = jsonResponse.getJSONObject("data");
                         //JSONObject position = data.getJSONObject("position");
                         String status = jsonResponse.getString("status");
-                        if(array.length() > 0)
-                            for(int i=0;i<array.length();i++){
-                                JSONObject points = array.getJSONObject(i);
+                        if(jsonResponse.length() > 0)
+                            for(int i=0;i<jsonResponse.length();i++){
+                                JSONObject array = jsonResponse.getJSONObject(String.valueOf(i));
                                 // JSONArray arr = points.getJSONArray("position");
-                                String name = points.getString("name");
+                                String name = array.getString("name");
 
 
-                                JSONObject pos = points.getJSONObject("position");
+                                JSONObject pos = array.getJSONObject("position");
                                 //String position = pos.getString("lat");
                                 String lat= pos.getString("lat");
 

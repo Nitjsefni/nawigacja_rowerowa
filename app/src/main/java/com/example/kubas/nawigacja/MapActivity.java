@@ -12,7 +12,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import org.osmdroid.DefaultResourceProxyImpl;
 import org.osmdroid.api.IGeoPoint;
@@ -36,53 +39,46 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 /**
  * Created by KubaS on 2015-04-26.
  */
 public class MapActivity extends Activity{
     private MapController myMapController;
-
-
-
+    public GPSManager gpsm;
+    private PostPosition postposition;
+    private Location actualLocation;
+    private Location locationToPrint;
+    private double avgLatitude;
+    private double avgLongitude;
+    private int locationCount;
+    private float locationWeight;
+    int ACCURANCY_LIMIT = 50;
+    private Timer timer;
+    public boolean tracking=false;
     ArrayList<OverlayItem> overlayItemArray;
     Road road;
     MapView map;
-    GeoPoint currentLocation;
+    GeoPoint startPoint,currentLocation, lastKnown=null;
     IMapController mapController;
     ArrayList<GeoPoint> route = new ArrayList<>();
     Polyline roadOverlay;
-    public MyLocationListener listener;
+
     private LocationManager locationManager;
     private String provider;
+    boolean isGPSEnabled;
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, listener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, listener);
-    }
+    // getting network status
+    boolean isNetworkEnabled;
+
+
+    private ToggleButton tgbtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.actrivity_map);
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        // Define the criteria how to select the locatioin provider -> use
-        // default
-        Criteria criteria = new Criteria();
-        listener = new MyLocationListener();
-        provider = locationManager.getBestProvider(criteria, false);
-        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 100, this);
-
-
-        Location location = locationManager.getLastKnownLocation(provider);
-
-
-        currentLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
-
         map = (MapView) findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
@@ -92,118 +88,134 @@ public class MapActivity extends Activity{
         roadOverlay.setWidth(8.0f);
 
 
+
+
+
+
+
         mapController = map.getController();
-        mapController.setZoom(14);
-        mapController.setCenter(currentLocation);
-        Marker startMarker = new Marker(map);
-        startMarker.setPosition(currentLocation);
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        map.getOverlays().add(startMarker);
-        route.add(currentLocation);
+        mapController.setZoom(13);
+
+        GeoPoint gp = new GeoPoint(52.406184, 16.925098);
+
+        //route.add(currentLocation);
         //roadOverlay.setPoints(route);
 
         //map.getOverlays().add(roadOverlay);
-
+        mapController.setCenter(gp);
         //mapController.setCenter(currentLocation);
         map.invalidate();
-       /* new Thread(new Runnable()
-        {
-            public void run() {
-                IMapController mapController = map.getController();
-                mapController.setZoom(14);
-
-                GeoPoint gPt0 = new GeoPoint(52372116, 16879898);
-                GeoPoint gPt1 = new GeoPoint(52373036, 16876454);
-                GeoPoint gPt2 = new GeoPoint(52373036, 16876143);
-                GeoPoint gPt3 = new GeoPoint(52371729, 16878911);
-                mapController.setCenter(gPt0);
-                RoadManager roadManager = new OSRMRoadManager();
-                ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-                waypoints.add(gPt0);
-                waypoints.add(gPt1);
-                waypoints.add(gPt2);
-                waypoints.add(gPt3);
-
-
-                // Polyline roadOverlay = RoadManager.buildRoadOverlay(waypoints, Color.RED, 8, MapActivity.this);
-
-                try {
-                    road = roadManager.getRoad(waypoints);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        gpsm = new GPSManager(this, 1000);
+        postposition = new PostPosition(this,5000);
+       // startTracking();
+        tgbtn = (ToggleButton) findViewById(R.id.toggleButton);
+        tgbtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    startTracking();
+                } else {
+                    stopTracking();
                 }
-
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        if (road.mStatus != Road.STATUS_OK) {
-                            //handle error... warn the user, etc.
-                        }
-
-                        Polyline roadOverlay = RoadManager.buildRoadOverlay(road, Color.RED, 8, MapActivity.this);
-                        map.getOverlays().add(roadOverlay);
-
-                        Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
-                        for (int i = 0; i < road.mNodes.size(); i++) {
-                            RoadNode node = road.mNodes.get(i);
-                            Marker nodeMarker = new Marker(map);
-                            nodeMarker.setPosition(node.mLocation);
-                            nodeMarker.setIcon(nodeIcon);
-                            nodeMarker.setTitle("Step " + i);
-                            nodeMarker.setSnippet(node.mInstructions);
-                            nodeMarker.setSubDescription(Road.getLengthDurationText(node.mLength, node.mDuration));
-                            Drawable icon = getResources().getDrawable(R.drawable.ic_continue);
-                            nodeMarker.setImage(icon);
-                            map.getOverlays().add(nodeMarker);
-                        }
-                    }
-                });
             }
-}).start();
+        });
 
-
-
-
-
-        map.invalidate();
-*/
 
 
     }
-    public class  MyLocationListener implements LocationListener {
 
-        @Override
-        public void onLocationChanged(Location location) {
-            //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 100, this);
-            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 100, this);
-            currentLocation = new GeoPoint(location);
-            route.add(currentLocation);
-            mapController.setCenter(currentLocation);
+    public void startTracking()
+    {
+        gpsm.stop();
+        postposition.stop();
+        map.getOverlays().clear();
+        Location loc;
 
-            roadOverlay.setPoints(route);
-
-            map.getOverlays().add(roadOverlay);
-
-            mapController.setCenter(currentLocation);
-            map.invalidate();
-
-
+        if(getActualLocation() != null)
+        {
+        startPoint= new GeoPoint(getActualLocation());
+            Log.i("Begin track", "Lat: " + getActualLocation().getLatitude() + " long: " + getActualLocation().getLongitude() + " accuracy: " + getActualLocation().getAccuracy());
+            Log.i("Begin track", "Bear: " + getActualLocation().getBearing() + " prov: " + getActualLocation().getProvider() + " speed: " + getActualLocation().getSpeed());
         }
+        route.add(startPoint);
+        tracking = true;
+        //gpsm = new GPSManager(this, 2000);
 
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            // TODO Auto-generated method stub
+        gpsm = new GPSManager(this, 1000);
+        postposition = new PostPosition(this,5000);
 
+
+        //Location location = locationManager.getLastKnownLocation(provider);
+
+
+        //currentLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
+
+
+
+    }
+    public void stopTracking(){
+        gpsm.stop();
+        postposition.stop();
+        map.getOverlays().clear();
+        tracking = false;
+        route.clear();
+        gpsm = new GPSManager(this, 1000);
+        postposition = new PostPosition(this,4000);
+    }
+
+    public Location getBetterLocation(Location location, Location actualLocation) {
+        addAvgLocation(location.getLatitude(), location.getLongitude(), location.getAccuracy());
+        if (actualLocation == null) {
+            return location;
         }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-
+        if (actualLocation.getAccuracy() >= location.getAccuracy()) {
+            return location;
         }
+        return actualLocation;
+    }
+    public Location getLocationToPrint() {
+        return locationToPrint;
+    }
 
-        @Override
-        public void onProviderDisabled(String provider) {
-
+    public void setLocationToPrint(Location locationToPrint) {
+        this.locationToPrint = locationToPrint;
+    }
+    public void addAvgLocation(double avgLatitude, double avgLongitude,
+                               float accuracy) {
+        if (accuracy > ACCURANCY_LIMIT) {
+            accuracy = ACCURANCY_LIMIT;
         }
-    };
+        accuracy = ACCURANCY_LIMIT + 1 - accuracy;
+        this.avgLatitude += avgLatitude * accuracy;
+        this.avgLongitude += avgLongitude * accuracy;
+        this.locationCount++;
+        this.locationWeight += accuracy;
+    }
+
+    public double getAvgLatitude() {
+        return avgLatitude / locationWeight;
+    }
+
+    public double getAvgLongitude() {
+        return avgLongitude / locationWeight;
+    }
+
+    public float getAvgAccurancy() {
+        return ((ACCURANCY_LIMIT + 1) * locationCount - locationWeight)
+                / locationCount;
+    }
+
+    public void clearAvgLocation() {
+        locationCount = 0;
+        locationWeight = 0;
+        avgLatitude = 0;
+        avgLongitude = 0;
+    }
+    public Location getActualLocation() {
+        return actualLocation;
+    }
+
+    public void setActualLocation(Location actualLocation) {
+        this.actualLocation = actualLocation;
+    }
+
 }

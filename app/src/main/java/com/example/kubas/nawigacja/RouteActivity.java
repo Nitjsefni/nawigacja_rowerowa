@@ -3,6 +3,7 @@ package com.example.kubas.nawigacja;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 
@@ -27,12 +28,15 @@ import java.util.ArrayList;
 public class RouteActivity extends Activity {
     private MapController myMapController;
 
+    boolean isGPSEnabled;
 
-
+    // getting network status
+    boolean isNetworkEnabled;
+    GPSManager gpsm;
     ArrayList<OverlayItem> overlayItemArray;
     Road road;
     MapView map;
-    GeoPoint gp_od, gp_do, gp_przez;
+    GeoPoint gp_od, gp_do, gp_przez, geopoint_start;
     IMapController mapController;
     ArrayList<GeoPoint> route = new ArrayList<>();
     Polyline roadOverlay;
@@ -57,9 +61,19 @@ public class RouteActivity extends Activity {
         String gp_przez_lat="",gp_przez_lng="";
         boolean czy_przez = false;
         if (extras != null) {
-
-            gp_od_lat = extras.getString("gp_od_lat");
-            gp_od_lng = extras.getString("gp_od_lng");
+            if(!extras.getString("gp_od_lat").equals("0")) {
+                gp_od_lat = extras.getString("gp_od_lat");
+                gp_od_lng = extras.getString("gp_od_lng");
+            }
+            else
+            {
+                gpsm = new GPSManager(this, 2000);
+                if(geopoint_start != null) {
+                    gp_od_lat = String.valueOf(geopoint_start.getLatitude());
+                    gp_od_lng = String.valueOf(geopoint_start.getLongitude());
+                }
+                gpsm.stop();
+            }
             gp_od = new GeoPoint(Double.valueOf(gp_od_lat),Double.valueOf(gp_od_lng));
             gp_do_lat = extras.getString("gp_do_lat");
             gp_do_lng = extras.getString("gp_do_lng");
