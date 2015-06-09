@@ -24,6 +24,8 @@ public abstract class WebApiClient extends AsyncTask<NameValuePair, String, Stri
     public static final String VERSION = "1.0";
     String user;
     String password;
+        private String serverUrl = "http://beta.wskocznarower.pl/app_dev.php/";
+//    private String serverUrl = "http://192.168.2.10/app_dev.php/";
 
     public WebApiClient(String user, String password) {
         this.user = user;
@@ -73,5 +75,11 @@ public abstract class WebApiClient extends AsyncTask<NameValuePair, String, Stri
         return result.toString();
     }
 
+    public String getServerUrl() {
+        return serverUrl;
+    }
 
+    public void setServerUrl(String serverUrl) {
+        this.serverUrl = serverUrl;
+    }
 }

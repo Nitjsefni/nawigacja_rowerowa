@@ -16,6 +16,7 @@ import java.util.List;
 
 public class GeoLocationClient extends WebApiClient {
 
+    public static final String SERVICE_URL = "webservices/findPlace";
     private final Activity context;
     private final AutoCompleteTextView autoComplete;
 
@@ -36,8 +37,8 @@ public class GeoLocationClient extends WebApiClient {
         try {
             JSONObject jsonResponse = new JSONObject(result);
             String status = jsonResponse.getString("status");
-            if (jsonResponse.length() > 0)
-                for (int i = 0; i < jsonResponse.length(); i++) {
+            if (jsonResponse.length() > 1)
+                for (int i = 0; i < jsonResponse.length() - 1; i++) {
                     JSONObject array = jsonResponse.getJSONObject(String.valueOf(i));
                     String name = array.getString("name");
                     JSONObject pos = array.getJSONObject("position");
@@ -52,14 +53,13 @@ public class GeoLocationClient extends WebApiClient {
             public void run() {
                 LocationAdapter aAdapter = new LocationAdapter(context, R.layout.listview_ac_position, gps);
                 autoComplete.setAdapter(aAdapter);
-
                 aAdapter.notifyDataSetChanged();
             }
         });
     }
 
     protected String getServiceUri() {
-        return "http://beta.wskocznarower.pl/app_dev.php/webservices/findPlace";
+        return getServerUrl() + SERVICE_URL;
     }
 
 }

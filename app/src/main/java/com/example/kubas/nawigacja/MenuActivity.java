@@ -18,22 +18,30 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.kubas.nawigacja.client.GeoLocationClient;
+import com.example.kubas.nawigacja.client.RouteListClient;
 import com.example.kubas.nawigacja.model.GeoPosition;
+import com.example.kubas.nawigacja.model.Route;
 
 import org.apache.http.message.BasicNameValuePair;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MenuActivity extends Activity {
 
-    GeoPosition cel_trasy, poczatek_trasy;
-    ImageButton img_Btn_Nawiguj;
+    private GeoPosition cel_trasy, poczatek_trasy;
+    private ImageButton img_Btn_Nawiguj;
+    private String user = "testowy";
+    private String password = "rrr";
     private LocationManager locationManager;
+    private List<Route> savedRoutes = new ArrayList<>();
+    private List<Route> recomendedRoutes = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         final AutoCompleteTextView selectTarget = (AutoCompleteTextView) findViewById(R.id.atcptv_wyznacz_do);
-        final GeoLocationClient geoLocationClient = new GeoLocationClient(MenuActivity.this, selectTarget, "testowy", "rrr");
         img_Btn_Nawiguj = (ImageButton) findViewById(R.id.img_Btn_Nawiguj);
         Button btnMap = (Button) findViewById(R.id.button4);
         btnMap.setOnClickListener(new View.OnClickListener() {
@@ -93,7 +101,7 @@ public class MenuActivity extends Activity {
             }
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                geoLocationClient.execute(new BasicNameValuePair("name", s.toString()));
+                new GeoLocationClient(MenuActivity.this, selectTarget, user, password).execute(new BasicNameValuePair("name", s.toString()));
             }
 
         });
@@ -104,14 +112,17 @@ public class MenuActivity extends Activity {
                 selectTarget.setText(place);
             }
         });
+        new RouteListClient(this,savedRoutes,user,password).execute(new BasicNameValuePair("type", "private"));
+        new RouteListClient(this,recomendedRoutes,user,password).execute(new BasicNameValuePair("type", "public"));
     }
 
     public void showRecomendRoute(View view) {
-        findViewById(R.id.recomendedRoutesTabHeader).setBackground(findViewById(R.id.listView).getBackground());
+        findViewById(R.id.recomendedRoutesTabHeader).setBackground(findViewById(R.id.routeList).getBackground());
         findViewById(R.id.savedRoutesTabHeader).setBackground(new ColorDrawable(Color.GRAY));
+//        findViewById(R.id.routeList).
     }
 
     public void showSavedRoute(View view) {
-        findViewById(R.id.savedRoutesTabHeader).setBackground(findViewById(R.id.listView).getBackground());
+        findViewById(R.id.savedRoutesTabHeader).setBackground(findViewById(R.id.routeList).getBackground());
         findViewById(R.id.recomendedRoutesTabHeader).setBackground(new ColorDrawable(Color.GRAY));}
 }
