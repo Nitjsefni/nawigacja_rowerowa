@@ -1,4 +1,4 @@
-package com.example.kubas.nawigacja;
+package com.example.kubas.nawigacja.model;
 
 /**
  * Created by KubaS on 2015-05-04.

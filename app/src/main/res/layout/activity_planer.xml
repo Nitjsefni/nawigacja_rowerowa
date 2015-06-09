@@ -7,7 +7,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Wyznaczanie trasy"
+        android:text="@string/routePlanerTitle"
         android:id="@+id/textView6"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
@@ -19,7 +19,8 @@
         android:src="@drawable/marker_departure"
         android:layout_alignBottom="@+id/space10"
         android:layout_toRightOf="@+id/space10"
-        android:layout_toEndOf="@+id/space10" />
+        android:layout_toEndOf="@+id/space10"
+        android:contentDescription="" />
 
     <Space
         android:layout_width="30dp"
@@ -65,8 +66,8 @@
         android:layout_alignRight="@+id/atcptv_od"
         android:layout_alignEnd="@+id/atcptv_od"
         android:layout_alignTop="@+id/imageView5"
-        android:hint="Przez..."
-        android:textSize="15dp"
+        android:hint="@string/throu"
+        android:textSize="15sp"
         android:visibility="gone" />
 
     <ImageView
@@ -87,7 +88,7 @@
         android:layout_alignLeft="@+id/atcptv_od"
         android:layout_alignRight="@+id/atcptv_od"
         android:layout_alignTop="@+id/imageView6"
-        android:textSize="15dp"
+        android:textSize="15sp"
         android:hint="Koniec trasy..." />
 
     <ImageButton

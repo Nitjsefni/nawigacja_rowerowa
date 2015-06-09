@@ -1,92 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/img_Btn_Nawiguj"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:src="@android:drawable/ic_media_play"
-        android:layout_alignBottom="@+id/atcptv_wyznacz_do" />
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_height="54dp"
+        android:padding="0dp"
+        android:weightSum="12"
+        >
 
-    <Spinner
-        android:layout_width="wrap_content"
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:id="@+id/imageView7"
+            android:layout_weight="1"
+            android:contentDescription="@string/search"
+            android:src="@android:drawable/ic_search_category_default" />
+
+
+        <AutoCompleteTextView
+            android:id="@+id/atcptv_wyznacz_do"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="10"
+            android:hint="@string/wyznacz"
+            android:textSize="15sp"
+            />
+        <ImageButton
+            android:id="@+id/img_Btn_Nawiguj"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/chooseRoute"
+            android:src="@android:drawable/ic_media_play"
+            android:clickable="false" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/spinner"
-        android:layout_below="@+id/img_Btn_Nawiguj"
-        android:layout_alignRight="@+id/img_Btn_Nawiguj"
-        android:layout_alignEnd="@+id/img_Btn_Nawiguj" />
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:padding="0dp"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/savedRoutesTabHeader"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:onClick="showSavedRoute"
+            android:padding="0dp"
+            android:text="@string/savedRoutes"
+            android:layout_margin="0dp"
+            android:background="#7f888988"
+            />
+
+        <Button
+            android:id="@+id/recomendedRoutesTabHeader"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:onClick="showRecomendRoute"
+            android:padding="0dp"
+            android:text="@string/proposedRoutes"
+            android:clickable="true"
+            android:background="@drawable/abc_ab_share_pack_holo_dark" />
+
+    </LinearLayout>
 
     <ListView
+        android:id="@+id/routeList"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/listView"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/textView"
-        android:layout_above="@+id/button" />
+        android:layout_height="403dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Settings"
-        android:id="@+id/button"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/button2"
-        android:layout_alignTop="@+id/button2"
-        android:layout_toRightOf="@+id/button2" />
 
-    <Button
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Licznik"
-        android:id="@+id/button2"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/button3"
-        android:layout_toEndOf="@+id/button3" />
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:padding="6dp"
+        android:weightSum="4"
+        android:layout_margin="0dp">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TRASA"
-        android:id="@+id/button3"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/button4"
-        android:layout_toEndOf="@+id/button4" />
+        <Button
+            android:id="@+id/button4"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:text="@string/map" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MAPA"
-        android:id="@+id/button4"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:text="@string/routePlaner" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Polecane trasy"
-        android:id="@+id/textView"
-        android:layout_below="@+id/spinner"
-        android:layout_centerHorizontal="true" />
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:text="@string/speedCounter" />
 
-    <AutoCompleteTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/atcptv_wyznacz_do"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_toLeftOf="@+id/img_Btn_Nawiguj"
-        android:layout_toStartOf="@+id/img_Btn_Nawiguj"
-        android:layout_alignParentTop="true"
-        android:textSize="15dp"
-        android:hint="Wyznacz trase do..." />
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:lines="1"
+            android:text="@string/settings" />
 
-</RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -22,12 +20,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kubas.nawigacja.model.GeoPosition;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -42,12 +41,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by KubaS on 2015-04-27.
- */
 public class PlanerActivity extends Activity {
-   AutoCompleteTextView edTxt_Route_Beg, atcptv_Route_Via,atcptv_Route_End;
-    ArrayList<GeoPosition> gps = new ArrayList<GeoPosition>();
+    AutoCompleteTextView edTxt_Route_Beg, atcptv_Route_Via, atcptv_Route_End;
+    List<GeoPosition> gps = new ArrayList<>();
     GeoPosition gp_od, gp_do, gp_przez;
     ImageButton imgBtn_Show_Via;
     TextView show_via;
@@ -56,6 +52,7 @@ public class PlanerActivity extends Activity {
     Button btn_planuj;
     boolean czy_przez;
     public ArrayAdapter<GeoPosition> aAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,16 +180,11 @@ public class PlanerActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                if(gp_od.getGeoPositionLat().equals("") || gp_do.getGeoPositionLat().equals(""))
-                {
-                   Toast toast = Toast.makeText(PlanerActivity.this, "Uzupełnij punkt początkowy i docelowy", Toast.LENGTH_LONG);
+                if (gp_od.getGeoPositionLat().equals("") || gp_do.getGeoPositionLat().equals("")) {
+                    Toast toast = Toast.makeText(PlanerActivity.this, "Uzupełnij punkt początkowy i docelowy", Toast.LENGTH_LONG);
                     toast.show();
-                }
-                else
-                {
+                } else {
                     Intent b = new Intent(getApplicationContext(), RouteActivity.class);
-
-
 
 
                     b.putExtra("gp_od_lat", gp_od.getGeoPositionLat());
@@ -201,12 +193,9 @@ public class PlanerActivity extends Activity {
                     b.putExtra("gp_do_lat", gp_do.getGeoPositionLat());
                     b.putExtra("gp_do_lng", gp_do.getGeoPositionLng());
 
-                    if(gp_przez == null)
-                    {
+                    if (gp_przez == null) {
                         b.putExtra("czy_przez", false);
-                    }
-                    else
-                    {
+                    } else {
                         b.putExtra("czy_przez", true);
                         b.putExtra("gp_przez_lat", gp_przez.getGeoPositionLat());
                         b.putExtra("gp_przez_lng", gp_przez.getGeoPositionLng());
@@ -214,9 +203,9 @@ public class PlanerActivity extends Activity {
                     }
 
                     //b.putExtra("zm_od_lokal", zm_od_lokal);
-                   // b.putExtra("zm_od_miejscowosc", zm_od_miejscowosc);
+                    // b.putExtra("zm_od_miejscowosc", zm_od_miejscowosc);
                     //b.putExtra("zm_od_kodpocz", zm_od_kodpocz);
-                   // b.putExtra("zm_mag", magazynySpinner.getSelectedItem().toString());
+                    // b.putExtra("zm_mag", magazynySpinner.getSelectedItem().toString());
 
 
                     startActivity(b);
@@ -225,13 +214,16 @@ public class PlanerActivity extends Activity {
 
         });
     }
+
     public String data;
     //public List<GeoPosition> suggest;
     public AutoCompleteTextView autoComplete;
-    class getJson extends AsyncTask<String,String,String> {
+
+    class getJson extends AsyncTask<String, String, String> {
         InputStream inputStream = null;
         String result = "";
-        GeoPosition pos=null;
+        GeoPosition pos = null;
+
         @Override
         protected String doInBackground(final String... key) {
             String newText = key[0];
@@ -263,24 +255,23 @@ public class PlanerActivity extends Activity {
                         //JSONObject data = jsonResponse.getJSONObject("data");
                         //JSONObject position = data.getJSONObject("position");
                         String status = jsonResponse.getString("status");
-                        if(array.length() > 0)
-                        for(int i=0;i<array.length();i++){
-                            JSONObject points = array.getJSONObject(i);
-                            // JSONArray arr = points.getJSONArray("position");
-                            String name = points.getString("name");
+                        if (array.length() > 0)
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject points = array.getJSONObject(i);
+                                // JSONArray arr = points.getJSONArray("position");
+                                String name = points.getString("name");
 
 
-                               JSONObject pos = points.getJSONObject("position");
+                                JSONObject pos = points.getJSONObject("position");
                                 //String position = pos.getString("lat");
-                                String lat= pos.getString("lat");
+                                String lat = pos.getString("lat");
 
-                                String lng=pos.getString("lng");
+                                String lng = pos.getString("lng");
 
                                 //JSONObject pos_lng = arr.getJSONObject(1);
                                 //String lng = points.getString("lng");
-                            gps.add(new GeoPosition(name, lat, lng));
-                        }
-
+                                gps.add(new GeoPosition(name, lat, lng));
+                            }
 
 
                     } catch (Exception e) {
@@ -290,19 +281,17 @@ public class PlanerActivity extends Activity {
                 //JSONArray jArray = new JSONArray(data);
 
 
-            }catch(Exception e){
+            } catch (Exception e) {
                 //Log.w("Error", e.getMessage());
             }
-            runOnUiThread(new Runnable(){
-                public void run(){
+            runOnUiThread(new Runnable() {
+                public void run() {
                     aAdapter = new LocationAdapter();
-                    if(key[1].equals("beg")) {
+                    if (key[1].equals("beg")) {
                         edTxt_Route_Beg.setAdapter(aAdapter);
-                    }
-                    else if(key[1].equals("via")) {
+                    } else if (key[1].equals("via")) {
                         atcptv_Route_Via.setAdapter(aAdapter);
-                    }
-                    else if(key[1].equals("end")) {
+                    } else if (key[1].equals("end")) {
                         atcptv_Route_End.setAdapter(aAdapter);
                     }
                     aAdapter.notifyDataSetChanged();
@@ -315,11 +304,11 @@ public class PlanerActivity extends Activity {
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String line = "";
         String result = "";
 
-        while((line = bufferedReader.readLine()) != null)
+        while ((line = bufferedReader.readLine()) != null)
             result += line;
 
         inputStream.close();
@@ -327,10 +316,12 @@ public class PlanerActivity extends Activity {
         return result;
 
     }
+
     private class LocationAdapter extends ArrayAdapter<GeoPosition> implements Filterable {
 
         protected static final String TAG = "SuggestionAdapter";
         private List<GeoPosition> suggestions;
+
         public LocationAdapter() {
             super(PlanerActivity.this, R.layout.listview_ac_position, gps);
             //suggestions = gps;
@@ -348,6 +339,7 @@ public class PlanerActivity extends Activity {
 
             //return gps.get(index);
         }
+
         @Override
         public View getView(int position, View view, ViewGroup parent) {
             if (view == null) {
@@ -368,10 +360,8 @@ public class PlanerActivity extends Activity {
             gp_lng.setText(currentClient.getGeoPositionLng());
 
 
-
             return view;
         }
-
 
 
     }
