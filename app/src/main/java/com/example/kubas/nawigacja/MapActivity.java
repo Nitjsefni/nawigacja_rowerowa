@@ -114,7 +114,7 @@ public class MapActivity extends Activity implements Trackable {
         mapController.setCenter(currentLocation);
         Marker startMarker = new Marker(map);
         startMarker.setPosition(currentLocation);
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_TOP);
         map.getOverlays().add(startMarker);
         mapController.setZoom(17);
         mapController.setCenter(currentLocation);
