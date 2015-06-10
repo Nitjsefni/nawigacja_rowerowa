@@ -36,6 +36,7 @@ public class RouteActivity extends Activity implements Trackable {
     private MapView map;
     private ShowPosition showPosition;
     private Polyline roadOverlay;
+    private Road road_temp;
     private IMapController mapController;
     private ImageView maneuverImg;
     private TextView txtV_Route_DistanceNode, txtV_Route_InstructionNode, txtV_Route_TimeNode, txtV_Route_Speed,txtV_Route_Time, txtV_Route_MaxLength;
@@ -43,6 +44,7 @@ public class RouteActivity extends Activity implements Trackable {
     private TextToSpeech t1;
     private ArrayList<RoadNode> rNodes = new ArrayList<>();
     private Marker endMarker, startMarker, viaMarker;
+    private RoutePoints points;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +74,7 @@ public class RouteActivity extends Activity implements Trackable {
         if (extras == null) {
             return;
         }
-        RoutePoints points = (RoutePoints) extras.get("points");
+        points = (RoutePoints) extras.get("points");
         if (points.getStartPoint() == null) {
             GPSManager gpsManager = GPSManager.getInstance();
             GeoPoint actualPosition = gpsManager.getActualPosition();
@@ -89,16 +91,16 @@ public class RouteActivity extends Activity implements Trackable {
 
         if (points.getStartPoint()!=null) {
             mapController.setCenter(points.getStartPoint().getGeoPoint());
-            Marker startMarker = new Marker(map);
+            startMarker = new Marker(map);
             startMarker.setPosition(points.getStartPoint().getGeoPoint());
             startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             startMarker.setIcon(getResources().getDrawable(R.drawable.marker_departure));
-            startMarker.setTitle("Punkt poczatkowy")
+            startMarker.setTitle("Punkt poczatkowy");
             startMarker.setSubDescription(points.getStartPoint().getGeoPoint().getLatitudeE6()/1000000F + " " + points.getStartPoint().getGeoPoint().getLongitudeE6()/1000000F);            ;
             map.getOverlays().add(startMarker);
         }
         if (points.getEndPoint()!=null) {
-            Marker endMarker = new Marker(map);
+            endMarker = new Marker(map);
             endMarker.setPosition(points.getEndPoint().getGeoPoint());
             endMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             endMarker.setIcon(getResources().getDrawable(R.drawable.marker_destination));
@@ -145,7 +147,7 @@ public class RouteActivity extends Activity implements Trackable {
         if (length >= 100.0){
             result = (int)(length) + " kilometrów";
         } else if (length >= 1.0){
-            result = Math.round(length*10)/10.0 + " kilometrów";
+            result = (int)(length*10)/10.0 + " kilometrów";
         } else {
             result = (int)(length*1000) + " metrów";
         }
@@ -158,7 +160,7 @@ public class RouteActivity extends Activity implements Trackable {
         int totalSeconds = (int) duration;
         int hours = totalSeconds / 3600;
         int minutes = (totalSeconds / 60) - (hours * 60);
-        int seconds = (totalSeconds % 60);
+        int seconds = (totalSeconds / 60);
         if (hours != 0) {
             result += hours + " h";
         }
@@ -174,102 +176,125 @@ public class RouteActivity extends Activity implements Trackable {
 
     public void refreshMapPosition(Location loc) {
         GeoPoint currentLocation = new GeoPoint(loc);
+        TypedArray iconIds = getResources().obtainTypedArray(R.array.direction_icons);
         if (loc.hasSpeed()) {
+            txtV_Route_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
+        } else {
+            txtV_Route_Speed.setText("0 m/s");
+        }
+
 
         map.getOverlays().clear();
         Marker actualMarker = new Marker(map);
         actualMarker.setPosition(currentLocation);
         actualMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_TOP);
         actualMarker.setTitle("Aktualna pozycja");
-        actualMarker.setSubDescription(currentLocation.getLatitudeE6()/1000000F + " " + currentLocation.getLongitudeE6()/1000000F);
+        actualMarker.setSubDescription(currentLocation.getLatitude() + " " + currentLocation.getLongitude());
         map.getOverlays().add(actualMarker);
         mapController.setZoom(17);
         mapController.setCenter(currentLocation);
-        if(rNodes.size() == 0)
-        {
-            String text = "Dojechales do celu podrozy";
-            t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        }
-        else
-        {
-            float latitude = rNodes.get(0).mLocation.getLatitudeE6()/1000000F;
-            float longtitude = rNodes.get(0).mLocation.getLongitudeE6()/1000000F;
-
-        txtV_Route_InstructionNode.setText( rNodes.get(0).mInstructions);
-        txtV_Route_DistanceNode.setText(getLengthText( rNodes.get(0).mLength));
-        txtV_Route_TimeNode.setText(getDurationText(rNodes.get(0).mDuration));
+        double latitude = rNodes.get(0).mLocation.getLatitude();
+        double longtitude = rNodes.get(0).mLocation.getLongitude();
         Location nextNode = new Location("gps");
         nextNode.setLatitude(latitude);
         nextNode.setLongitude(longtitude);
-
-        if(loc.distanceTo(nextNode) > 25 && loc.distanceTo(nextNode) < 40 )
+        GeoPoint ep = points.getEndPoint().getGeoPoint();
+        double latitude2 = ep.getLatitude();
+        double longtitude2 = ep.getLongitude();
+        Location endLoc = new Location("gps");
+        endLoc.setLatitude(latitude2);
+        endLoc.setLongitude(longtitude2);
+        if(rNodes.size() == 0 && loc.distanceTo(endLoc) < 25)
         {
-            String text = "Za "+ getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
+            String text = "Dojechales do celu podróży";
             t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         }
-        else if (loc.distanceTo(nextNode) > 15  && loc.distanceTo(nextNode) < 20 )
-        {
-            String text = "Za "+ getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
-            t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        }
-        else if((loc.distanceTo(nextNode) < 10))
-        {
-            String text = getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
-            t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        }
-        else if((loc.distanceTo(nextNode) < 5))
-        {
-            rNodes.remove(0);
-            txtV_Route_InstructionNode.setText( rNodes.get(0).mInstructions);
-            txtV_Route_DistanceNode.setText(getLengthText( rNodes.get(0).mLength));
-            txtV_Route_TimeNode.setText(getDurationText( rNodes.get(0).mDuration));
-            String text = "Za "+ getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
-            t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        }
-
-        if(loc.hasSpeed()) {
-            txtV_Route_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
-        } else {
-            txtV_Route_Speed.setText("0 m/s");
-        }
-
-        map.getOverlays().add(roadOverlay);
-        RouteActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        else {
 
 
-                TypedArray iconIds = getResources().obtainTypedArray(R.array.direction_icons);
-                map.getOverlays().add(startMarker);
-                map.getOverlays().add(endMarker);
-                Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
-                for (int i = 0; i < rNodes.size(); i++) {
-                    RoadNode node = rNodes.get(i);
-                    Marker nodeMarker = new Marker(map);
-                    nodeMarker.setPosition(node.mLocation);
-                    nodeMarker.setIcon(nodeIcon);
-                    nodeMarker.setTitle("Step " + i);
-                    nodeMarker.setSnippet(node.mInstructions);
-                    nodeMarker.setSubDescription(Road.getLengthDurationText(node.mLength, node.mDuration));
+            txtV_Route_InstructionNode.setText(rNodes.get(0).mInstructions);
+            txtV_Route_DistanceNode.setText(getLengthText(rNodes.get(0).mLength));
+            txtV_Route_TimeNode.setText(getDurationText(rNodes.get(0).mDuration));
 
-                    Drawable icon = getResources().getDrawable(R.drawable.ic_continue);
-                    int iconId = iconIds.getResourceId(node.mManeuverType, R.drawable.ic_empty);
+
+
+            if (loc.distanceTo(nextNode) > 25 && loc.distanceTo(nextNode) < 40) {
+                String text = "Za " + getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
+                t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+            } else if (loc.distanceTo(nextNode) > 15 && loc.distanceTo(nextNode) < 20) {
+                String text = "Za " + getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
+                t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+            } else if ((loc.distanceTo(nextNode) < 10)) {
+                String text = getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
+                t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+            } else if ((loc.distanceTo(nextNode) < 5)) {
+                rNodes.remove(0);
+                int iconId = iconIds.getResourceId(rNodes.get(0).mManeuverType, R.drawable.ic_empty);
+                if (iconId != R.drawable.ic_empty) {
+                    Drawable icon2 = getResources().getDrawable(iconId);
+                    maneuverImg.setImageDrawable(icon2);
+                }
+                txtV_Route_InstructionNode.setText(rNodes.get(0).mInstructions);
+                txtV_Route_DistanceNode.setText(getLengthText(rNodes.get(0).mLength));
+                txtV_Route_TimeNode.setText(getDurationText(rNodes.get(0).mDuration));
+                String text = "Za " + getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
+                t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+            }
+
+            if (loc.hasSpeed()) {
+                txtV_Route_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
+            } else {
+                txtV_Route_Speed.setText("0 m/s");
+            }
+
+            map.getOverlays().add(roadOverlay);
+            RouteActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+
+                    TypedArray iconIds = getResources().obtainTypedArray(R.array.direction_icons);
+                    map.getOverlays().add(startMarker);
+                    map.getOverlays().add(endMarker);
+                    Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
+                    maxDuration = 0.0;
+                    maxLength = 0.0;
+                    for (int i = 0; i < rNodes.size(); i++) {
+                        RoadNode node = rNodes.get(i);
+                        Marker nodeMarker = new Marker(map);
+                        nodeMarker.setPosition(node.mLocation);
+                        nodeMarker.setIcon(nodeIcon);
+                        nodeMarker.setTitle("Step " + i);
+                        nodeMarker.setSnippet(node.mInstructions);
+                        nodeMarker.setSubDescription(Road.getLengthDurationText(node.mLength, node.mDuration));
+                        maxDuration += node.mDuration;
+                        maxLength += node.mLength;
+                        Drawable icon = getResources().getDrawable(R.drawable.ic_continue);
+                        int iconId = iconIds.getResourceId(node.mManeuverType, R.drawable.ic_empty);
+                        if (iconId != R.drawable.ic_empty) {
+                            Drawable icon2 = getResources().getDrawable(iconId);
+                            nodeMarker.setImage(icon2);
+                        }
+
+                        map.getOverlays().add(nodeMarker);
+                        map.invalidate();
+                    }
+                    int iconId = iconIds.getResourceId(rNodes.get(0).mManeuverType, R.drawable.ic_empty);
                     if (iconId != R.drawable.ic_empty) {
                         Drawable icon2 = getResources().getDrawable(iconId);
-                        nodeMarker.setImage(icon2);
+                        maneuverImg.setImageDrawable(icon2);
                     }
+                    txtV_Route_InstructionNode.setText(rNodes.get(0).mInstructions);
+                    txtV_Route_DistanceNode.setText(getLengthText(rNodes.get(0).mLength));
+                    txtV_Route_TimeNode.setText(getDurationText(rNodes.get(0).mDuration));
 
-                    map.getOverlays().add(nodeMarker);
+                    String lenght = getLengthText(maxLength);
+                    txtV_Route_MaxLength.setText(lenght);
+                    String duration = getDurationText(maxDuration);
+                    txtV_Route_Time.setText(duration);
                     map.invalidate();
                 }
-                String lenght= getLengthText(road.mLength);
-                txtV_Route_MaxLength.setText(lenght);
-                String duration= getDurationText(road.mDuration);
-                txtV_Route_MaxLength.setText(duration);
-                map.invalidate();
-            }
-        });
-
+            });
 
 
         }
@@ -298,18 +323,19 @@ public class RouteActivity extends Activity implements Trackable {
                 //handle error... warn the user, etc.
             }
             Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
-
+            road_temp = road;
             //Drawable starticon = getResources().getDrawable(R.drawable.ic_empty);
             IMapController mapController = map.getController();
             mapController.setZoom(14);
-
+            txtV_Route_Speed.setText("0 m/s");
             roadOverlay = RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this);
             map.getOverlays().add(roadOverlay);
             TypedArray iconIds = getResources().obtainTypedArray(R.array.direction_icons);
             String lenght = getLengthText(road.mLength);
             txtV_Route_MaxLength.setText(lenght);
             String duration = getDurationText(road.mDuration);
-            txtV_Route_MaxLength.setText(duration);
+            txtV_Route_Time.setText(duration);
+            rNodes.addAll(road.mNodes);
             for (int i = 0; i < road.mNodes.size(); i++) {
                 RoadNode node = road.mNodes.get(i);
                 Marker nodeMarker = new Marker(map);
@@ -328,6 +354,8 @@ public class RouteActivity extends Activity implements Trackable {
 
                 map.getOverlays().add(nodeMarker);
             }
+            String text = "Za " + getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
+            t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
             map.invalidate();
         }
     }

@@ -76,8 +76,7 @@ public class MapActivity extends Activity implements Trackable {
     }
 
     public void startTracking() {
-        gpsManager.restart();
-        showPosition.stop();
+
         sendPosition = new SendPosition(this, 5000);
         map.getOverlays().clear();
         Location loc;
@@ -115,6 +114,7 @@ public class MapActivity extends Activity implements Trackable {
     }
 
     public void refreshMapPosition(Location loc) {
+        map.getOverlays().clear();
         GeoPoint currentLocation = new GeoPoint(loc);
         if (loc.hasSpeed()) {
             txtV_Map_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
