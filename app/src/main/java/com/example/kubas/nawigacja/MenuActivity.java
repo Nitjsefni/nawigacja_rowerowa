@@ -1,12 +1,10 @@
 package com.example.kubas.nawigacja;
 
 import android.app.Activity;
-import android.content.Context;
+
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.location.Criteria;
-import android.location.LocationManager;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -18,7 +16,7 @@ import android.widget.Toast;
 import com.example.kubas.nawigacja.data.DataManager;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.listeners.AutoCompleteItemClickListener;
-import com.example.kubas.nawigacja.listeners.AutoCompleteLocationListener;
+import com.example.kubas.nawigacja.listeners.AutocompleteLocationListener;
 
 public class MenuActivity extends Activity {
 
@@ -61,7 +59,7 @@ public class MenuActivity extends Activity {
                 }
             }
         });
-        selectTarget.addTextChangedListener(new AutoCompleteLocationListener(this,selectTarget));
+        selectTarget.addTextChangedListener(new AutocompleteLocationListener(this,selectTarget));
         selectTarget.setOnItemClickListener(new AutoCompleteItemClickListener(selectTarget, points, RoutePoints.PointType.END));
         showSavedRoute(null);
     }
@@ -81,15 +79,15 @@ public class MenuActivity extends Activity {
 
     public void showRecomendRoute(View view) {
         ListView routeList = (ListView) findViewById(R.id.routeList);
-        findViewById(R.id.recomendedRoutesTabHeader).setBackground(routeList.getBackground());
-        findViewById(R.id.savedRoutesTabHeader).setBackground(new ColorDrawable(Color.GRAY));
+        findViewById(R.id.recomendedRoutesTabHeader).setBackgroundColor(Color.WHITE);
+        findViewById(R.id.savedRoutesTabHeader).setBackgroundColor(Color.GRAY);
         routeList.setAdapter(DataManager.getInstance().getRecomendedRouteAdapter(this));
     }
 
     public void showSavedRoute(View view) {
         ListView routeList = (ListView) findViewById(R.id.routeList);
-        findViewById(R.id.savedRoutesTabHeader).setBackground(routeList.getBackground());
-        findViewById(R.id.recomendedRoutesTabHeader).setBackground(new ColorDrawable(Color.GRAY));
+        findViewById(R.id.savedRoutesTabHeader).setBackgroundColor(Color.WHITE);
+        findViewById(R.id.recomendedRoutesTabHeader).setBackgroundColor(Color.GRAY);
         routeList.setAdapter(DataManager.getInstance().getSavedRouteAdapter(this));
 
     }

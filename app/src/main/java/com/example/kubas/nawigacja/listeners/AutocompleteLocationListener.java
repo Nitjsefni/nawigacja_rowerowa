@@ -9,11 +9,11 @@ import com.example.kubas.nawigacja.client.GeoLocationClient;
 
 import org.apache.http.message.BasicNameValuePair;
 
-public class AutoCompleteLocationListener implements TextWatcher {
+public class AutocompleteLocationListener implements TextWatcher {
     private AutoCompleteTextView autoCompleteTextView;
     private Activity context;
 
-    public AutoCompleteLocationListener(Activity context,AutoCompleteTextView autoCompleteTextView) {
+    public AutocompleteLocationListener(Activity context,AutoCompleteTextView autoCompleteTextView) {
         this.autoCompleteTextView = autoCompleteTextView;
         this.context = context;
     }

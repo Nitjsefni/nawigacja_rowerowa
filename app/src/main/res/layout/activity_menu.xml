@@ -80,7 +80,7 @@
     <ListView
         android:id="@+id/routeList"
         android:layout_width="wrap_content"
-        android:layout_height="403dp" />
+        android:layout_height="215dp" />
 
 
     <LinearLayout

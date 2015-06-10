@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.listeners.AutoCompleteItemClickListener;
-import com.example.kubas.nawigacja.listeners.AutoCompleteLocationListener;
+import com.example.kubas.nawigacja.listeners.AutocompleteLocationListener;
 
 public class PlanerActivity extends Activity {
     private RoutePoints points = new RoutePoints();
@@ -47,9 +47,9 @@ public class PlanerActivity extends Activity {
         // attaching data adapter to spinner
         tryb_drogi.setAdapter(dataAdapter);
         tryb_drogi.setSelection(dataAdapter.getPosition("Optymalna"));
-        edTxt_Route_Beg.addTextChangedListener(new AutoCompleteLocationListener(this, edTxt_Route_Beg));
-        atcptv_Route_Via.addTextChangedListener(new AutoCompleteLocationListener(this, atcptv_Route_Via));
-        atcptv_Route_End.addTextChangedListener(new AutoCompleteLocationListener(this, atcptv_Route_End));
+        edTxt_Route_Beg.addTextChangedListener(new AutocompleteLocationListener(this, edTxt_Route_Beg));
+        atcptv_Route_Via.addTextChangedListener(new AutocompleteLocationListener(this, atcptv_Route_Via));
+        atcptv_Route_End.addTextChangedListener(new AutocompleteLocationListener(this, atcptv_Route_End));
         edTxt_Route_Beg.setOnItemClickListener(new AutoCompleteItemClickListener(edTxt_Route_Beg, points, RoutePoints.PointType.START));
         atcptv_Route_Via.setOnItemClickListener(new AutoCompleteItemClickListener(atcptv_Route_Via, points, RoutePoints.PointType.MID));
         atcptv_Route_End.setOnItemClickListener(new AutoCompleteItemClickListener(atcptv_Route_End, points, RoutePoints.PointType.END));
