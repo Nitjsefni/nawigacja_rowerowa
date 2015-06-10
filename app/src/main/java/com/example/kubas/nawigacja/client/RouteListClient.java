@@ -35,10 +35,12 @@ public class RouteListClient extends WebApiClient {
             if (items == null) {
                 return;
             }
+            routes.clear();
             for (int i = 0; i < items.length(); i++) {
                 JSONObject route = items.getJSONObject(i);
                 routes.add(new Route(route.getInt("id"), route.getString("name"), route.getString("description"), route.getDouble("length"), route.getDouble("time")));
             }
+
         } catch (Exception e) {
             Log.e(this.getClass().getName(), e.getMessage(), e);
         }

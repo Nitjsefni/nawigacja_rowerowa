@@ -2,7 +2,6 @@ package com.example.kubas.nawigacja;
 
 import android.app.Activity;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CompoundButton;
@@ -18,7 +17,6 @@ import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.OverlayItem;
 
 import java.util.List;
 import java.util.Timer;
@@ -67,15 +65,11 @@ public class MapActivity extends Activity implements Trackable {
                 }
             }
         });
-
-
     }
 
     public void startTracking() {
-        gpsManager.restart();
         sendPosition.stop();
         map.getOverlays().clear();
-        Location loc;
 
         if (gpsManager.getActualPosition() != null) {
             startPoint = gpsManager.getActualPosition();
@@ -86,7 +80,6 @@ public class MapActivity extends Activity implements Trackable {
     }
 
     public void stopTracking() {
-        gpsManager.stop();
         sendPosition.stop();
         map.getOverlays().clear();
         sendPosition.clear();
