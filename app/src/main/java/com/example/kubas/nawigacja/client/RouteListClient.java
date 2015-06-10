@@ -48,7 +48,7 @@ public class RouteListClient extends WebApiClient {
 
 
     protected String getServiceUri() {
-        return ServerAddress.getServerUrl() + SERVICE_URL;
+        return ServerAddress.getInstance().getServerUrl() + SERVICE_URL;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.kubas.nawigacja.list_adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,9 +10,17 @@ import android.widget.ArrayAdapter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.example.kubas.nawigacja.MenuActivity;
 import com.example.kubas.nawigacja.R;
+import com.example.kubas.nawigacja.RouteActivity;
+import com.example.kubas.nawigacja.client.SavedRouteOSMRRoadManager;
 import com.example.kubas.nawigacja.data.model.Route;
+import com.example.kubas.nawigacja.data.model.RoutePoints;
 
+import org.osmdroid.bonuspack.routing.RoadManager;
+import org.osmdroid.util.GeoPoint;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class RouteListAdapter extends ArrayAdapter<Route> implements Filterable {
@@ -43,7 +52,11 @@ public class RouteListAdapter extends ArrayAdapter<Route> implements Filterable 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("test", "" + route.getId());
+
+                getContext().startActivity(new Intent(getContext(), RouteActivity.class).putExtra("points", new RoutePoints()).putExtra("routeId", route.getId()));
+                RoadManager roadManager = new SavedRouteOSMRRoadManager(route.getId());
+                roadManager.getRoad(new ArrayList<GeoPoint>());
+                Log.i("test", "");
             }
         });
 

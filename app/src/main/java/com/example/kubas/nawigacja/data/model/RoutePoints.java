@@ -47,6 +47,14 @@ public class RoutePoints implements Serializable {
         return midPoint != null;
     }
 
+    public boolean isStartPoint() {
+        return startPoint!=null;
+    }
+
+    public boolean isEndPoint() {
+        return endPoint!=null;
+    }
+
     public enum PointType {
         START,
         MID,
