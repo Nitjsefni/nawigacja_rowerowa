@@ -6,8 +6,10 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.example.kubas.nawigacja.client.OwnOSRMRoadManager;
 import com.example.kubas.nawigacja.data.model.GeoPosition;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.gps.GPSManager;
@@ -87,8 +89,7 @@ public class RouteActivity extends Activity {
                 IMapController mapController = map.getController();
                 mapController.setZoom(14);
 
-                RoadManager roadManager = new OSRMRoadManager();
-                //osm.setService("http://beta.wskocznarower.pl/app_dev.php/webservices/viaroute?");
+                RoadManager roadManager = new OwnOSRMRoadManager();
                 ArrayList<GeoPoint> waypoints = new ArrayList<>();
                 waypoints.add(points.getStartPoint().getGeoPoint());
 
@@ -125,8 +126,7 @@ public class RouteActivity extends Activity {
                         }
                     });
                 } catch (Exception e) {
-                    Toast toast = Toast.makeText(RouteActivity.this, e.toString(), Toast.LENGTH_LONG);
-                    toast.show();
+                    Log.e(this.getClass().getName(),e.getMessage(),e);
                 }
             }
         }).start();
@@ -148,7 +148,7 @@ public class RouteActivity extends Activity {
 
     }
 
-    //TODO To  powinno byæ posprzatane -> nie wiem dokladnie co tu sie dzieje, wiec mozemy obgadac
+    //TODO To  powinno byÄ‡ posprzatane -> nie wiem dokladnie co tu sie dzieje, wiec mozemy obgadac
     public void setLocationToPrint(Location locationToPrint) {
         if (locationToPrint == null) {
             return;

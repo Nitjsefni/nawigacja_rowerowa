@@ -68,7 +68,7 @@ public class GeoLocationClient extends WebApiClient {
     }
 
     protected String getServiceUri() {
-        return getServerUrl() + SERVICE_URL;
+        return ServerAddress.getServerUrl() + SERVICE_URL;
     }
 
 }

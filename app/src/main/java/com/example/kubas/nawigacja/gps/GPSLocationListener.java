@@ -16,7 +16,7 @@ public class GPSLocationListener implements LocationListener {
     private String gpsStatus;
     private Location initialLocation;
 
-    public GPSLocationListener(LocationManager locationManager,ActualLocationManager actualLocationManager) {
+    public GPSLocationListener(LocationManager locationManager, ActualLocationManager actualLocationManager) {
         this.actualLocationManager = actualLocationManager;
         gpsStatus = "Szukanie satelit";
         this.locationManager = locationManager;
@@ -55,7 +55,7 @@ public class GPSLocationListener implements LocationListener {
 
     @Override
     public void onProviderDisabled(String provider) {
-        gpsStatus = "Utracono sygna≥";
+        gpsStatus = "Utracono sygna≈Ç";
         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 
@@ -81,6 +81,9 @@ public class GPSLocationListener implements LocationListener {
     }
 
     public GeoPoint getActualGeoPoint() {
+        if (getActualLocation() == null) {
+            return null;
+        }
         return new GeoPoint(getActualLocation().getLatitude(), getActualLocation().getLongitude());
     }
 
