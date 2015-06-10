@@ -1,13 +1,18 @@
 package com.example.kubas.nawigacja.client;
 
 import android.app.Activity;
+import android.util.Log;
 import android.widget.AutoCompleteTextView;
 
-import com.example.kubas.nawigacja.model.GeoPosition;
+import com.example.kubas.nawigacja.data.DataManager;
+import com.example.kubas.nawigacja.data.model.PointType;
+import com.example.kubas.nawigacja.list_adapters.LocationAdapter;
+import com.example.kubas.nawigacja.data.model.GeoPosition;
 import com.example.kubas.nawigacja.R;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -20,8 +25,7 @@ public class GeoLocationClient extends WebApiClient {
     private final Activity context;
     private final AutoCompleteTextView autoComplete;
 
-    public GeoLocationClient(Activity context, AutoCompleteTextView autoComplete, String user, String password) {
-        super(user, password);
+    public GeoLocationClient(Activity context, AutoCompleteTextView autoComplete) {
         this.context = context;
         this.autoComplete = autoComplete;
     }
@@ -36,19 +40,24 @@ public class GeoLocationClient extends WebApiClient {
         final List<GeoPosition> gps = new ArrayList<>();
         try {
             JSONObject jsonResponse = new JSONObject(result);
-            String status = jsonResponse.getString("status");
-            if (jsonResponse.length() > 1)
-                for (int i = 0; i < jsonResponse.length() - 1; i++) {
-                    JSONObject array = jsonResponse.getJSONObject(String.valueOf(i));
-                    String name = array.getString("name");
-                    JSONObject pos = array.getJSONObject("position");
-                    String lat = pos.getString("lat");
-                    String lng = pos.getString("lng");
-                    gps.add(new GeoPosition(name, lat, lng));
-                }
+            if (checkStatus(jsonResponse.getString("status"))) return;
+            JSONArray locations = jsonResponse.getJSONArray("locations");
+            if (locations == null) {
+                return;
+            }
+            for (int i = 0; i < locations.length(); i++) {
+                JSONObject address = locations.getJSONObject(i);
+                JSONObject pos = address.getJSONObject("position");
+                gps.add(new GeoPosition(address.getString("name"), pos.getDouble("lat"), pos.getDouble("lng"),
+                        address.getString("address"), PointType.valueFromId(address.optInt("lng", 0))));
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(this.getClass().getName(), e.getMessage(), e);
         }
+        showResponse(gps);
+    }
+
+    protected void showResponse(final List<GeoPosition> gps) {
         context.runOnUiThread(new Runnable() {
             public void run() {
                 LocationAdapter aAdapter = new LocationAdapter(context, R.layout.listview_ac_position, gps);

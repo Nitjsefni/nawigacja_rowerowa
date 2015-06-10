@@ -1,4 +1,4 @@
-package com.example.kubas.nawigacja.client;
+package com.example.kubas.nawigacja.list_adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,20 +6,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.kubas.nawigacja.model.GeoPosition;
+import com.example.kubas.nawigacja.data.model.GeoPosition;
 import com.example.kubas.nawigacja.R;
 
 import java.util.List;
 
-/**
- * Created by Krzysztof_Pawlak on 2015-06-09.
- */
 public class LocationAdapter extends ArrayAdapter<GeoPosition> implements Filterable {
-
-    protected static final String TAG = "SuggestionAdapter";
-    private List<GeoPosition> suggestions;
 
     public LocationAdapter(Context context, int resource, List<GeoPosition> objects) {
         super(context, resource, objects);
@@ -34,14 +29,14 @@ public class LocationAdapter extends ArrayAdapter<GeoPosition> implements Filter
 
         GeoPosition currentClient = getItem(position);
 
-        TextView gp_name = (TextView) view.findViewById(R.id.txtV_GP_Name);
-        gp_name.setText(currentClient.getGeoPositionName());
+        TextView name = (TextView) view.findViewById(R.id.pointName);
+        name.setText(currentClient.getName());
 
-        TextView gp_lat = (TextView) view.findViewById(R.id.txtV_GP_Lat);
-        gp_lat.setText(currentClient.getGeoPositionLat());
+        TextView address = (TextView) view.findViewById(R.id.pointAddress);
+        address.setText(currentClient.getAddress());
 
-        TextView gp_lng = (TextView) view.findViewById(R.id.txtV_GP_Lng);
-        gp_lng.setText(currentClient.getGeoPositionLng());
+        ImageView gp_lng = (ImageView) view.findViewById(R.id.pointType);
+        gp_lng.setImageResource(currentClient.getType().getResourceId());
 
 
         return view;

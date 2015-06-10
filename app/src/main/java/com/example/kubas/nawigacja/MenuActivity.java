@@ -8,34 +8,22 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.kubas.nawigacja.client.GeoLocationClient;
-import com.example.kubas.nawigacja.client.RouteListClient;
-import com.example.kubas.nawigacja.model.GeoPosition;
-import com.example.kubas.nawigacja.model.Route;
-
-import org.apache.http.message.BasicNameValuePair;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.kubas.nawigacja.data.DataManager;
+import com.example.kubas.nawigacja.data.model.RoutePoints;
+import com.example.kubas.nawigacja.listeners.AutoCompleteItemClickListener;
+import com.example.kubas.nawigacja.listeners.AutoCompleteLocationListener;
 
 public class MenuActivity extends Activity {
 
-    private GeoPosition cel_trasy, poczatek_trasy;
+    private RoutePoints points = new RoutePoints();
     private ImageButton img_Btn_Nawiguj;
-    private String user = "testowy";
-    private String password = "rrr";
-    private LocationManager locationManager;
-    private List<Route> savedRoutes = new ArrayList<>();
-    private List<Route> recomendedRoutes = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,67 +50,47 @@ public class MenuActivity extends Activity {
         });
         img_Btn_Nawiguj.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (cel_trasy.getGeoPositionLat().equals("")) {
+                if (points.getEndPoint() == null) {
                     Toast toast = Toast.makeText(MenuActivity.this, "Uzupełnij punkt docelowy", Toast.LENGTH_LONG);
                     toast.show();
                 } else {
                     Intent k = new Intent(MenuActivity.this, RouteActivity.class);
-                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-                    // Define the criteria how to select the locatioin provider -> use
-                    // default
-                    Criteria criteria = new Criteria();
-                    //listener = new MyLocationListener();
-//                    provider = locationManager.getBestProvider(criteria, false);
-                    //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 100, this);
-
-
-                    //Location location = locationManager.getLastKnownLocation(provider);
-
-
-                    //gp = new GeoPoint(location.getLatitude(), location.getLongitude());
-
-
-                    k.putExtra("gp_od_lat", String.valueOf(0));
-                    k.putExtra("gp_od_lng", String.valueOf(0));
-
-                    k.putExtra("gp_do_lat", cel_trasy.getGeoPositionLat());
-                    k.putExtra("gp_do_lng", cel_trasy.getGeoPositionLng());
+                    getMyLocation();
+                    k.putExtra("points", points);
                     startActivity(k);
                 }
             }
         });
-        selectTarget.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable editable) {
+        selectTarget.addTextChangedListener(new AutoCompleteLocationListener(this,selectTarget));
+        selectTarget.setOnItemClickListener(new AutoCompleteItemClickListener(selectTarget, points, RoutePoints.PointType.END));
+        showSavedRoute(null);
+    }
 
-            }
+    private void getMyLocation() {
+//        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//listener = new MyLocationListener();
+//                    provider = locationManager.getBestProvider(criteria, false);
+        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 100, this);
 
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
 
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                new GeoLocationClient(MenuActivity.this, selectTarget, user, password).execute(new BasicNameValuePair("name", s.toString()));
-            }
+        //Location location = locationManager.getLastKnownLocation(provider);
 
-        });
-        selectTarget.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long rowId) {
-                cel_trasy = (GeoPosition) parent.getItemAtPosition(position);
-                String place = cel_trasy.getGeoPositionName().split(",")[0] + ", " + cel_trasy.getGeoPositionName().split(",")[1];
-                selectTarget.setText(place);
-            }
-        });
-        new RouteListClient(this,savedRoutes,user,password).execute(new BasicNameValuePair("type", "private"));
-        new RouteListClient(this,recomendedRoutes,user,password).execute(new BasicNameValuePair("type", "public"));
+
+        //gp = new GeoPoint(location.getLatitude(), location.getLongitude());
     }
 
     public void showRecomendRoute(View view) {
-        findViewById(R.id.recomendedRoutesTabHeader).setBackground(findViewById(R.id.routeList).getBackground());
+        ListView routeList = (ListView) findViewById(R.id.routeList);
+        findViewById(R.id.recomendedRoutesTabHeader).setBackground(routeList.getBackground());
         findViewById(R.id.savedRoutesTabHeader).setBackground(new ColorDrawable(Color.GRAY));
-//        findViewById(R.id.routeList).
+        routeList.setAdapter(DataManager.getInstance().getRecomendedRouteAdapter(this));
     }
 
     public void showSavedRoute(View view) {
-        findViewById(R.id.savedRoutesTabHeader).setBackground(findViewById(R.id.routeList).getBackground());
-        findViewById(R.id.recomendedRoutesTabHeader).setBackground(new ColorDrawable(Color.GRAY));}
+        ListView routeList = (ListView) findViewById(R.id.routeList);
+        findViewById(R.id.savedRoutesTabHeader).setBackground(routeList.getBackground());
+        findViewById(R.id.recomendedRoutesTabHeader).setBackground(new ColorDrawable(Color.GRAY));
+        routeList.setAdapter(DataManager.getInstance().getSavedRouteAdapter(this));
+
+    }
 }

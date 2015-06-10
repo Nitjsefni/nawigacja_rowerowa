@@ -3,6 +3,8 @@ package com.example.kubas.nawigacja.client;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.kubas.nawigacja.data.DataManager;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -10,6 +12,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,12 +28,12 @@ public abstract class WebApiClient extends AsyncTask<NameValuePair, String, Stri
     public static final String VERSION = "1.0";
     String user;
     String password;
-        private String serverUrl = "http://beta.wskocznarower.pl/app_dev.php/";
-//    private String serverUrl = "http://192.168.2.10/app_dev.php/";
+//        private String serverUrl = "http://beta.wskocznarower.pl/app_dev.php/";
+    private String serverUrl = "http://192.168.2.10/app_dev.php/";
 
-    public WebApiClient(String user, String password) {
-        this.user = user;
-        this.password = password;
+    public WebApiClient() {
+        this.user = DataManager.getInstance().getUsername();
+        this.password = DataManager.getInstance().getPassword();
     }
 
     @Override
@@ -81,5 +85,13 @@ public abstract class WebApiClient extends AsyncTask<NameValuePair, String, Stri
 
     public void setServerUrl(String serverUrl) {
         this.serverUrl = serverUrl;
+    }
+
+    protected boolean checkStatus(String status) throws JSONException {
+        if (!"0".equals(status)) {
+            Log.e(this.getClass().getName(), "Błędny status odpowiedzi:" + status);
+            return true;
+        }
+        return false;
     }
 }

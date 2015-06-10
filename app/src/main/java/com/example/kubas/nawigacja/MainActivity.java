@@ -2,38 +2,29 @@ package com.example.kubas.nawigacja;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.osmdroid.api.IMapController;
-import org.osmdroid.bonuspack.overlays.Marker;
-import org.osmdroid.bonuspack.overlays.Polyline;
-import org.osmdroid.bonuspack.routing.OSRMRoadManager;
-import org.osmdroid.bonuspack.routing.Road;
-import org.osmdroid.bonuspack.routing.RoadManager;
-import org.osmdroid.bonuspack.routing.RoadNode;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-
-import java.util.ArrayList;
+import com.example.kubas.nawigacja.data.DataManager;
+import com.example.kubas.nawigacja.gps.GPSManager;
 
 
 public class MainActivity extends Activity {
+    private String user = "testowy";
+    private String password = "rrr";
+    private GPSManager gpsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        GPSManager.init((LocationManager) getSystemService(Context.LOCATION_SERVICE));
         new LoadingTask().execute();
 
     }
@@ -52,11 +43,16 @@ public class MainActivity extends Activity {
 
         @Override
         protected String doInBackground(String... params) {
-//            try {
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            if (DataManager.login(user,password)){
+                DataManager manager = DataManager.getInstance();
+                manager.loadRecomendedRoutes();
+                manager.loadSavedRoutes();
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             return null;
         }
 
