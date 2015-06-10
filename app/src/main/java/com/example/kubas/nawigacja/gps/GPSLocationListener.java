@@ -93,5 +93,6 @@ public class GPSLocationListener implements LocationListener {
 
     public void setInitialLocation(Location initialLocation) {
         this.initialLocation = initialLocation;
+
     }
 }

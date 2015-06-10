@@ -65,14 +65,14 @@ public class MenuActivity extends Activity {
 
     public void showRecomendRoute(View view) {
         ListView routeList = (ListView) findViewById(R.id.routeList);
-        findViewById(R.id.recomendedRoutesTabHeader).setBackgroundColor(Color.TRANSPARENT);
+        findViewById(R.id.recomendedRoutesTabHeader).setBackgroundColor(Color.WHITE);
         findViewById(R.id.savedRoutesTabHeader).setBackgroundColor(Color.GRAY);
         routeList.setAdapter(DataManager.getInstance().getRecomendedRouteAdapter(this));
     }
 
     public void showSavedRoute(View view) {
         ListView routeList = (ListView) findViewById(R.id.routeList);
-        findViewById(R.id.savedRoutesTabHeader).setBackgroundColor(Color.TRANSPARENT);
+        findViewById(R.id.savedRoutesTabHeader).setBackgroundColor(Color.WHITE);
         findViewById(R.id.recomendedRoutesTabHeader).setBackgroundColor(Color.GRAY);
         routeList.setAdapter(DataManager.getInstance().getSavedRouteAdapter(this));
 

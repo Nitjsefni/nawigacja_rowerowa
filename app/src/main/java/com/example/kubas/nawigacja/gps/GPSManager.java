@@ -30,6 +30,7 @@ public class GPSManager {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             locationListener.setInitialLocation(loc);
+
         }
         if(loc == null) {
             if (locationListener.isNetworkEnabled()) {

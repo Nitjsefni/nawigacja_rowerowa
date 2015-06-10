@@ -78,6 +78,7 @@ public class ActualLocationManager {
             location.setLatitude(getAvgLatitude());
             location.setLongitude(getAvgLongitude());
             location.setAccuracy(getAvgAccurancy());
+            return location;
         }
         return null;
     }
