@@ -35,7 +35,7 @@ public class ShowPosition implements Runnable {
         GeoPoint currentLocation = new GeoPoint(location);
         Log.i("PostPosit", "Lat: " + location.getLatitude() + " long: " + location.getLongitude() + " accuracy: " + location.getAccuracy());
         Log.i("PostPosit", "Bear: " + location.getBearing() + " prov: " + location.getProvider() + " speed: " + location.getSpeed());
-        trackable.refreshMapPosition(currentLocation);
+        trackable.refreshMapPosition(location);
         gpsManager.clearAvgLocation();
     }
 

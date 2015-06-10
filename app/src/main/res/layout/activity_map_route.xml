@@ -5,11 +5,96 @@
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="50dp"
+        android:layout_height="70dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:background="#b5000000"
-        android:id="@+id/relativeLayout2"></RelativeLayout>
+        android:background="#ff9c9c9c"
+        android:id="@+id/relativeLayout2">
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/maneuverImg"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/ic_slight_left"
+            android:background="#ff9c9c9c" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Skrec w ulice Rosevelta"
+            android:id="@+id/txtV_Route_InstructionNode"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/maneuverImg"
+            android:textStyle="bold"
+            android:textColor="#ff000000"
+            android:layout_toLeftOf="@+id/txtV_Route_Speed"
+            android:layout_toStartOf="@+id/txtV_Route_Speed" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="20 m"
+            android:id="@+id/txtV_Route_DistanceNode"
+            android:layout_below="@+id/txtV_Route_InstructionNode"
+            android:layout_toRightOf="@+id/maneuverImg"
+            android:layout_toEndOf="@+id/maneuverImg"
+            android:textColor="#ff000000" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="2 min"
+            android:id="@+id/txtV_Route_TimeNode"
+            android:textColor="#ff000000"
+            android:layout_below="@+id/txtV_Route_InstructionNode"
+            android:layout_toRightOf="@+id/txtV_Route_DistanceNode"
+            android:layout_toEndOf="@+id/txtV_Route_DistanceNode"
+            android:layout_marginLeft="5dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="0 km/h"
+            android:id="@+id/txtV_Route_Speed"
+            android:textColor="#ffffffff"
+            android:textStyle="bold"
+            android:layout_below="@+id/txtV_Route_TimeNode"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="7 km"
+            android:id="@+id/txtV_Route_MaxLength"
+            android:textColor="#ffffffff"
+            android:textStyle="bold"
+            android:layout_above="@+id/txtV_Route_Speed"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="20 m"
+            android:id="@+id/txtV_Route_Time"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:textStyle="bold"
+            android:textColor="#ffffffff" />
+
+    </RelativeLayout>
     <org.osmdroid.views.MapView android:id="@+id/map2"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
