@@ -21,19 +21,19 @@ public class GPSManager {
 
 
     public void start() throws Exception {
-        Location loc=null;
+        Location loc = null;
         if (locationListener.isGPSEnabled()) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             locationListener.setInitialLocation(loc);
-        } 
-        if(loc == null) {
+        }
+        if (loc == null) {
             if (locationListener.isNetworkEnabled()) {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-            loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            locationListener.setInitialLocation(loc);
-        } else {
-            throw new Exception("Nie można uruchomić GPS");
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+                loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                locationListener.setInitialLocation(loc);
+            } else {
+                throw new Exception("Nie można uruchomić GPS");
             }
         }
     }

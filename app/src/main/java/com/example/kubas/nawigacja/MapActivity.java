@@ -108,13 +108,11 @@ public class MapActivity extends Activity implements Trackable {
         this.locationToPrint = locationToPrint;
     }
 
-    public void refreshMapPosition( Location loc) {
+    public void refreshMapPosition(Location loc) {
         GeoPoint currentLocation = new GeoPoint(loc);
-        if(loc.hasSpeed()) {
+        if (loc.hasSpeed()) {
             txtV_Map_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
-        }
-        else
-        {
+        } else {
             txtV_Map_Speed.setText("0 m/s");
         }
         mapController.setCenter(currentLocation);
@@ -126,18 +124,18 @@ public class MapActivity extends Activity implements Trackable {
         mapController.setCenter(currentLocation);
         map.invalidate();
     }
+
     public void refreshTrackingPosition(List<GeoPoint> route, Location loc) {
-        if(loc.hasSpeed()) {
+        if (loc.hasSpeed()) {
             txtV_Map_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
-        }
-        else
-        {
+        } else {
             txtV_Map_Speed.setText("0 m/s");
         }
         roadOverlay.setPoints(route);
         map.getOverlays().add(roadOverlay);
         map.invalidate();
     }
+
     public void clearTrackingPositions() {
         map.getOverlays().clear();
     }
