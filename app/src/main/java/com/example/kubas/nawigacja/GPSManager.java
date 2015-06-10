@@ -186,6 +186,16 @@ public class GPSManager {
             @Override
             public void onLocationChanged(Location location) {
 
+                activity.isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                activity.isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+
+
+
+                activity.setActualLocation(getBetterLocation(location,
+                        activity.getActualLocation()));
+                Log.i("GPS loc ch", "Lat: " + location.getLatitude() + " long: " + location.getLongitude() + " accuracy: " + location.getAccuracy());
+                Log.i("GPS loc ch", "Bear: " + location.getBearing() + " prov: " + location.getProvider() + " speed: " + location.getSpeed());
 
 
             }

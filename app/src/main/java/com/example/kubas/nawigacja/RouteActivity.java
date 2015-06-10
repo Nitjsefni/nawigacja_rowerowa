@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.overlays.Marker;
@@ -29,10 +31,17 @@ public class RouteActivity extends Activity {
     private MapController myMapController;
 
     boolean isGPSEnabled;
-
+    private Location actualLocation;
+    private Location locationToPrint;
+    private double avgLatitude;
+    private double avgLongitude;
+    private int locationCount;
+    private float locationWeight;
+    int ACCURANCY_LIMIT = 50;
     // getting network status
     boolean isNetworkEnabled;
-    GPSManager gpsm;
+    public GPSManager gpsm;
+    private PostPosition postposition;
     ArrayList<OverlayItem> overlayItemArray;
     Road road;
     MapView map;
@@ -40,6 +49,7 @@ public class RouteActivity extends Activity {
     IMapController mapController;
     ArrayList<GeoPoint> route = new ArrayList<>();
     Polyline roadOverlay;
+    Marker startMarker, endMarker;
     //public MyLocationListener listener;
     private LocationManager locationManager;
     private String provider;
@@ -87,13 +97,13 @@ public class RouteActivity extends Activity {
         }
         final boolean czy_przez2 = czy_przez;
         mapController.setCenter(gp_od);
-        Marker startMarker = new Marker(map);
+        startMarker = new Marker(map);
         startMarker.setPosition(gp_od);
         startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         startMarker.setIcon(getResources().getDrawable(R.drawable.marker_departure));
         startMarker.setTitle("Start point");
 
-        Marker endMarker = new Marker(map);
+        endMarker = new Marker(map);
         endMarker.setPosition(gp_do);
         endMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         endMarker.setIcon(getResources().getDrawable(R.drawable.marker_destination));
@@ -104,7 +114,7 @@ public class RouteActivity extends Activity {
             Marker viaMarker = new Marker(map);
             viaMarker.setPosition(gp_przez);
             viaMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            viaMarker.setIcon(getResources().getDrawable(R.drawable.marker_destination));
+            viaMarker.setIcon(getResources().getDrawable(R.drawable.marker_via));
             viaMarker.setTitle("Via point");
             map.getOverlays().add(viaMarker);
         }
@@ -116,9 +126,11 @@ public class RouteActivity extends Activity {
                 IMapController mapController = map.getController();
                 mapController.setZoom(14);
 
+                OSRMRoadManager osm =  new OSRMRoadManager();
+                //osm.setService("http://beta.wskocznarower.pl/app_dev.php/webservices/viaroute?");
 
+                RoadManager roadManager = osm;
 
-                RoadManager roadManager = new OSRMRoadManager();
                 ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
                 waypoints.add(gp_od);
 
@@ -134,7 +146,8 @@ public class RouteActivity extends Activity {
                 try {
                     road = roadManager.getRoad(waypoints);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Toast toast = Toast.makeText(RouteActivity.this,e.toString(), Toast.LENGTH_LONG);
+                    toast.show();
                 }
 
                 runOnUiThread(new Runnable() {
@@ -169,7 +182,117 @@ public class RouteActivity extends Activity {
 
 
         map.invalidate();
+        gpsm = new GPSManager(this, 1000);
+        final Handler h = new Handler();
+        final int delay = 6000; //milliseconds
+
+        h.postDelayed(new Runnable(){
+            public void run(){
+
+                Location location = getActualLocation();
+                if (location == null) {
+                    return;
+                }
+                if (location.getAccuracy() > 7) {
+                    location = new Location(location);
+                    location.setLatitude(getAvgLatitude());
+                    location.setLongitude(getAvgLongitude());
+                    location.setAccuracy(getAvgAccurancy());
+
+                    setLocationToPrint(location);
+
+                }
+                setActualLocation(null);
+                clearAvgLocation();
+                h.postDelayed(this, delay);
+            }
+        }, delay);
 
 
     }
+    public Location getLocationToPrint() {
+        return locationToPrint;
+    }
+
+    public void setLocationToPrint(Location locationToPrint) {
+        this.locationToPrint = locationToPrint;
+        Marker viaMarker = new Marker(map);
+        viaMarker.setPosition(gp_przez);
+        viaMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        viaMarker.setIcon(getResources().getDrawable(R.drawable.marker_via));
+        viaMarker.setTitle("Actual position");
+        map.getOverlays().add(viaMarker);
+
+        Polyline roadOverlay = RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this);
+        map.getOverlays().add(roadOverlay);
+
+
+        Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
+        RoadNode node1 = road.mNodes.get(0);
+        Marker nodeMarker = new Marker(map);
+        nodeMarker.setPosition(new GeoPoint(locationToPrint));
+        nodeMarker.setIcon(nodeIcon);
+        nodeMarker.setTitle("Pozycja aktualna");
+        nodeMarker.setSnippet(node1.mInstructions);
+        nodeMarker.setSubDescription(Road.getLengthDurationText(node1.mLength, node1.mDuration));
+        Drawable icon = getResources().getDrawable(R.drawable.ic_continue);
+        nodeMarker.setImage(icon);
+        for (int i = 1; i < road.mNodes.size(); i++) {
+            RoadNode node = road.mNodes.get(i);
+            Marker nodeMarker1 = new Marker(map);
+            nodeMarker.setPosition(node.mLocation);
+            nodeMarker.setIcon(nodeIcon);
+            nodeMarker.setTitle("Step " + i);
+            nodeMarker.setSnippet(node.mInstructions);
+            nodeMarker.setSubDescription(Road.getLengthDurationText(node.mLength, node.mDuration));
+            Drawable icon2 = getResources().getDrawable(R.drawable.ic_continue);
+            nodeMarker.setImage(icon2);
+            map.getOverlays().add(nodeMarker1);
+        }
+        map.getOverlays().add(startMarker);
+        map.getOverlays().add(endMarker);
+
+
+
+        map.invalidate();
+    }
+    public void addAvgLocation(double avgLatitude, double avgLongitude,
+                               float accuracy) {
+        if (accuracy > ACCURANCY_LIMIT) {
+            accuracy = ACCURANCY_LIMIT;
+        }
+        accuracy = ACCURANCY_LIMIT + 1 - accuracy;
+        this.avgLatitude += avgLatitude * accuracy;
+        this.avgLongitude += avgLongitude * accuracy;
+        this.locationCount++;
+        this.locationWeight += accuracy;
+    }
+
+    public double getAvgLatitude() {
+        return avgLatitude / locationWeight;
+    }
+
+    public double getAvgLongitude() {
+        return avgLongitude / locationWeight;
+    }
+
+    public float getAvgAccurancy() {
+        return ((ACCURANCY_LIMIT + 1) * locationCount - locationWeight)
+                / locationCount;
+    }
+
+    public void clearAvgLocation() {
+        locationCount = 0;
+        locationWeight = 0;
+        avgLatitude = 0;
+        avgLongitude = 0;
+    }
+    public Location getActualLocation() {
+        return actualLocation;
+    }
+
+    public void setActualLocation(Location actualLocation) {
+        this.actualLocation = actualLocation;
+    }
+
 }

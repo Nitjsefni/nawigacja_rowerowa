@@ -60,7 +60,7 @@ public class PostPosition implements Runnable{
                     activity.roadOverlay.setPoints(activity.route);
                     Marker startMarker = new Marker(activity.map);
                     startMarker.setPosition(activity.startPoint);
-                    startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                    startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_TOP);
                     activity.map.getOverlays().add(startMarker);
                     activity.map.getOverlays().add(activity.roadOverlay);
                     activity.mapController.setZoom(17);
