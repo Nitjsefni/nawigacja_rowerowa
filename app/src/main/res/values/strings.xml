@@ -3,8 +3,8 @@
     <string name="wyznacz">Wyznacz trase do…</string>
     <string name="map">MAPA</string>
     <string name="routePlaner">TRASA</string>
-    <string name="speedCounter">Licznik</string>
-    <string name="settings">Settings</string>
+    <string name="speedCounter">LICZNIK</string>
+    <string name="settings">USTAWIENIA</string>
     <string name="chooseRoute">Wyznacz trasę</string>
     <string name="savedRoutes">Zapisane trasy</string>
     <string name="proposedRoutes">Polecane trasy</string>

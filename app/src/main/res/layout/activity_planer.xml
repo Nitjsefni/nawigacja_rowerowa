@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
     <TextView
         android:layout_width="wrap_content"
@@ -100,12 +100,12 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/imgBtn_Show_Via"
-        android:layout_marginTop="39dp"
+        android:layout_marginTop="44dp"
         android:src="@android:drawable/ic_input_add"
-        android:layout_below="@+id/atcptv_do"
-        android:layout_alignLeft="@+id/atcptv_do"
-        android:layout_alignStart="@+id/atcptv_do"
-        android:contentDescription="@string/addVia" />
+        android:contentDescription="@string/addVia"
+        android:layout_below="@+id/imageView6"
+        android:layout_toLeftOf="@+id/atcptv_od"
+        android:layout_toStartOf="@+id/atcptv_od" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -113,12 +113,11 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="@string/addMidPoint"
         android:id="@+id/txtV_show_via"
-        android:layout_alignBottom="@+id/imgBtn_Show_Via"
-        android:layout_toRightOf="@+id/imgBtn_Show_Via"
-        android:layout_toEndOf="@+id/imgBtn_Show_Via"
-        android:layout_alignTop="@+id/imgBtn_Show_Via"
         android:gravity="center"
-        android:layout_marginLeft="10dp" />
+        android:layout_alignTop="@+id/imgBtn_Show_Via"
+        android:layout_alignRight="@+id/textView7"
+        android:layout_alignEnd="@+id/textView7"
+        android:layout_alignBottom="@+id/imgBtn_Show_Via" />
 
     <Spinner
         android:layout_width="wrap_content"
@@ -142,10 +141,12 @@
 
     <Button
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:gravity="center"
         android:text="@string/plan"
         android:id="@+id/btn_planuj"
         android:layout_alignParentBottom="true"
+        android:padding="3dp"
         android:layout_gravity="bottom"
         android:layout_alignRight="@+id/spinner3"
         android:layout_alignEnd="@+id/spinner3"
