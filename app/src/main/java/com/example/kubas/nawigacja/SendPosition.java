@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class SendPosition implements Runnable {
+public class  SendPosition implements Runnable {
     private GPSManager gpsManager = GPSManager.getInstance();
     private boolean stopped = false;
     private Handler handler;
@@ -40,8 +40,8 @@ public class SendPosition implements Runnable {
         if (route.isEmpty() || route.get(route.size() - 1).distanceTo(currentLocation) < 60) {
             route.add(currentLocation);
             Log.i("PostPosit", "Route: " + route.toString());
-            trackable.refreshMapPosition(currentLocation);
-            trackable.refreshTrackingPosition(route);
+            trackable.refreshMapPosition(location);
+            trackable.refreshTrackingPosition(route, location);
         }
         gpsManager.clearAvgLocation();
     }

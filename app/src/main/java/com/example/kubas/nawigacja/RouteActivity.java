@@ -1,6 +1,7 @@
 package com.example.kubas.nawigacja;
 
 import android.app.Activity;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -13,6 +14,7 @@ import com.example.kubas.nawigacja.client.OwnOSRMRoadManager;
 import com.example.kubas.nawigacja.data.model.GeoPosition;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.gps.GPSManager;
+import com.example.kubas.nawigacja.tracking.Trackable;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.overlays.Marker;
@@ -26,12 +28,15 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class RouteActivity extends Activity {
+public class RouteActivity extends Activity implements Trackable {
     private MapView map;
     private RoutePoints points;
     private Road road;
-
+    private ShowPosition showPosition;
+    Polyline roadOverlay;
+    IMapController mapController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +47,7 @@ public class RouteActivity extends Activity {
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
 
-        IMapController mapController = map.getController();
+        mapController = map.getController();
         mapController.setZoom(14);
         Bundle extras = getIntent().getExtras();
         if (extras == null) {
@@ -106,11 +111,15 @@ public class RouteActivity extends Activity {
                             if (road.mStatus != Road.STATUS_OK) {
                                 //handle error... warn the user, etc.
                             }
-
-                            Polyline roadOverlay = RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this);
-                            map.getOverlays().add(roadOverlay);
-
                             Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
+
+                            //Drawable starticon = getResources().getDrawable(R.drawable.ic_empty);
+
+                            roadOverlay = RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this);
+                            map.getOverlays().add(roadOverlay);
+                            TypedArray iconIds = getResources().obtainTypedArray(R.array.direction_icons);
+
+
                             for (int i = 0; i < road.mNodes.size(); i++) {
                                 RoadNode node = road.mNodes.get(i);
                                 Marker nodeMarker = new Marker(map);
@@ -120,13 +129,19 @@ public class RouteActivity extends Activity {
                                 nodeMarker.setSnippet(node.mInstructions);
                                 nodeMarker.setSubDescription(Road.getLengthDurationText(node.mLength, node.mDuration));
                                 Drawable icon = getResources().getDrawable(R.drawable.ic_continue);
-                                nodeMarker.setImage(icon);
+                                int iconId = iconIds.getResourceId(node.mManeuverType, R.drawable.ic_empty);
+                                if (iconId != R.drawable.ic_empty){
+                                    Drawable icon2 = getResources().getDrawable(iconId);
+                                    nodeMarker.setImage(icon2);
+                                }
+
                                 map.getOverlays().add(nodeMarker);
                             }
+                            map.invalidate();
                         }
                     });
                 } catch (Exception e) {
-                    Log.e(this.getClass().getName(),e.getMessage(),e);
+                    Log.e(this.getClass().getName(), e.getMessage(), e);
                 }
             }
         }).start();
@@ -134,52 +149,30 @@ public class RouteActivity extends Activity {
         map.getOverlays().add(endMarker);
         map.invalidate();
 
-        final Handler h = new Handler();
-        final int delay = 6000; //milliseconds
 
-        h.postDelayed(new Runnable() {
-            public void run() {
-                GPSManager gpsManager = GPSManager.getInstance();
-                setLocationToPrint(gpsManager.getBetterActualLocation());
-                gpsManager.clearAvgLocation();
-                h.postDelayed(this, delay);
-            }
-        }, delay);
+        showPosition = new ShowPosition(this, 5000);
+
 
     }
 
-    //TODO To  powinno być posprzatane -> nie wiem dokladnie co tu sie dzieje, wiec mozemy obgadac
-    public void setLocationToPrint(Location locationToPrint) {
-        if (locationToPrint == null) {
-            return;
-        }
-        Polyline roadOverlay = RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this);
-        map.getOverlays().add(roadOverlay);
 
-        Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
-        RoadNode node1 = road.mNodes.get(0);
-        Marker nodeMarker = new Marker(map);
-        nodeMarker.setPosition(new GeoPoint(locationToPrint));
-        nodeMarker.setIcon(nodeIcon);
-        nodeMarker.setTitle("Pozycja aktualna");
-        nodeMarker.setSnippet(node1.mInstructions);
-        nodeMarker.setSubDescription(Road.getLengthDurationText(node1.mLength, node1.mDuration));
-        Drawable icon = getResources().getDrawable(R.drawable.ic_continue);
-        nodeMarker.setImage(icon);
-        for (int i = 1; i < road.mNodes.size(); i++) {
-            RoadNode node = road.mNodes.get(i);
-            Marker nodeMarker1 = new Marker(map);
-            nodeMarker.setPosition(node.mLocation);
-            nodeMarker.setIcon(nodeIcon);
-            nodeMarker.setTitle("Step " + i);
-            nodeMarker.setSnippet(node.mInstructions);
-            nodeMarker.setSubDescription(Road.getLengthDurationText(node.mLength, node.mDuration));
-            Drawable icon2 = getResources().getDrawable(R.drawable.ic_continue);
-            nodeMarker.setImage(icon2);
-            map.getOverlays().add(nodeMarker1);
-        }
-
+    public void refreshMapPosition(Location loc) {
+        GeoPoint currentLocation = new GeoPoint(loc);
+        mapController.setCenter(currentLocation);
+        Marker startMarker = new Marker(map);
+        startMarker.setPosition(currentLocation);
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_TOP);
+        map.getOverlays().add(startMarker);
+        mapController.setZoom(17);
+        mapController.setCenter(currentLocation);
         map.invalidate();
     }
-
+    public void refreshTrackingPosition(List<GeoPoint> route, Location loc) {
+        roadOverlay.setPoints(route);
+        map.getOverlays().add(roadOverlay);
+        map.invalidate();
+    }
+    public void clearTrackingPositions() {
+        map.getOverlays().clear();
+    }
 }

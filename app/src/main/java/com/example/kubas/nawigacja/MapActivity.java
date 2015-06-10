@@ -6,6 +6,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.example.kubas.nawigacja.gps.GPSManager;
@@ -27,24 +28,28 @@ public class MapActivity extends Activity implements Trackable {
     private IMapController mapController;
     private GPSManager gpsManager = GPSManager.getInstance();
     private SendPosition sendPosition;
+    private ShowPosition showPosition;
     private Location locationToPrint;
     private Timer timer;
     private Road road;
     private MapView map;
     private GeoPoint startPoint;
     private Polyline roadOverlay;
+    private TextView txtV_Map_Speed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.actrivity_map);
         map = (MapView) findViewById(R.id.map);
+        txtV_Map_Speed = (TextView) findViewById(R.id.txtV_Map_Speed);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         roadOverlay = new Polyline(this);
         roadOverlay.setColor(0x800000FF);
         roadOverlay.setWidth(8.0f);
+
 
         mapController = map.getController();
         mapController.setZoom(13);
@@ -55,7 +60,7 @@ public class MapActivity extends Activity implements Trackable {
         }
         setMapStartPoint(gp);
         map.invalidate();
-        sendPosition = new SendPosition(this, 5000);
+        showPosition = new ShowPosition(this, 5000);
         // startTracking();
         ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -73,7 +78,8 @@ public class MapActivity extends Activity implements Trackable {
 
     public void startTracking() {
         gpsManager.restart();
-        sendPosition.stop();
+        showPosition.stop();
+        sendPosition = new SendPosition(this, 5000);
         map.getOverlays().clear();
         Location loc;
 
@@ -90,6 +96,7 @@ public class MapActivity extends Activity implements Trackable {
         sendPosition.stop();
         map.getOverlays().clear();
         sendPosition.clear();
+        showPosition = new ShowPosition(this, 5000);
     }
 
     private void setMapStartPoint(GeoPoint actualPoint) {
@@ -110,7 +117,15 @@ public class MapActivity extends Activity implements Trackable {
         this.locationToPrint = locationToPrint;
     }
 
-    public void refreshMapPosition(GeoPoint currentLocation) {
+    public void refreshMapPosition( Location loc) {
+        GeoPoint currentLocation = new GeoPoint(loc);
+        if(loc.hasSpeed()) {
+            txtV_Map_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
+        }
+        else
+        {
+            txtV_Map_Speed.setText("0 m/s");
+        }
         mapController.setCenter(currentLocation);
         Marker startMarker = new Marker(map);
         startMarker.setPosition(currentLocation);
@@ -120,7 +135,14 @@ public class MapActivity extends Activity implements Trackable {
         mapController.setCenter(currentLocation);
         map.invalidate();
     }
-    public void refreshTrackingPosition(List<GeoPoint> route) {
+    public void refreshTrackingPosition(List<GeoPoint> route, Location loc) {
+        if(loc.hasSpeed()) {
+            txtV_Map_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
+        }
+        else
+        {
+            txtV_Map_Speed.setText("0 m/s");
+        }
         roadOverlay.setPoints(route);
         map.getOverlays().add(roadOverlay);
         map.invalidate();

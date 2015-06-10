@@ -21,21 +21,25 @@ public class GPSManager {
 
 
     public void start() {
+        Location loc=null;
         if (isActive) {
             return;
         }
         isActive = true;
         if (locationListener.isGPSEnabled()) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-            Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             locationListener.setInitialLocation(loc);
-        } else if (locationListener.isNetworkEnabled()) {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-            Location loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            locationListener.setInitialLocation(loc);
-        } else {
-            //nie udalo sie uruchomic
-            isActive = false;
+        }
+        if(loc == null) {
+            if (locationListener.isNetworkEnabled()) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+                loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                locationListener.setInitialLocation(loc);
+            } else {
+                //nie udalo sie uruchomic
+                isActive = false;
+            }
         }
     }
 
