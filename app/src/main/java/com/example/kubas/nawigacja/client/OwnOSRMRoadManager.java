@@ -14,9 +14,6 @@ public class OwnOSRMRoadManager extends OSRMRoadManager {
     @Override
     public Road getRoad(ArrayList<GeoPoint> waypoints) {
         Road road = super.getRoad(waypoints);
-        for (GeoPoint point : road.mRouteHigh) {
-            point.setCoordsE6(point.getLatitudeE6() * 10, point.getLongitudeE6() * 10);
-        }
         return road;
     }
 }

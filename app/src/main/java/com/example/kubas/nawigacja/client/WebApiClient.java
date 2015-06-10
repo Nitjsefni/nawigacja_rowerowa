@@ -48,6 +48,7 @@ public abstract class WebApiClient extends AsyncTask<NameValuePair, String, Stri
             parameters.add(new BasicNameValuePair("password", password));
             Collections.addAll(parameters, preparedRequest);
             httpPost.setEntity(new UrlEncodedFormEntity(parameters));
+            Log.d(this.getClass().getName(), "Sending request for: " + getServiceUri());
             HttpResponse httpResponse = hClient.execute(httpPost);
 
             InputStream inputStream = httpResponse.getEntity().getContent();
