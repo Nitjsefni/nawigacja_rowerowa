@@ -40,7 +40,6 @@ public class  SendPosition implements Runnable {
         if (route.isEmpty() || route.get(route.size() - 1).distanceTo(currentLocation) < 60) {
             route.add(currentLocation);
             Log.i("PostPosit", "Route: " + route.toString());
-            trackable.refreshMapPosition(location);
             trackable.refreshTrackingPosition(route, location);
         }
         gpsManager.clearAvgLocation();

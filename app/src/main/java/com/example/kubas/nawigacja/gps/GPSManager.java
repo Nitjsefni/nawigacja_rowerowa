@@ -2,6 +2,7 @@ package com.example.kubas.nawigacja.gps;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.widget.Toast;
 
 import org.osmdroid.util.GeoPoint;
 
@@ -10,9 +11,8 @@ public class GPSManager {
     private final ActualLocationManager actualLocationManager;
     private LocationManager locationManager;
     private GPSLocationListener locationListener;
-    private boolean isActive;
 
-    private GPSManager(LocationManager locationManager) {
+    private GPSManager(LocationManager locationManager) throws Exception {
         this.locationManager = locationManager;
         this.actualLocationManager = new ActualLocationManager();
         this.locationListener = new GPSLocationListener(locationManager, actualLocationManager);
@@ -20,43 +20,25 @@ public class GPSManager {
     }
 
 
-    public void start() {
-        Location loc=null;
-        if (isActive) {
-            return;
-        }
-        isActive = true;
+    public void start() throws Exception {
+        Location loc = null;
         if (locationListener.isGPSEnabled()) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             locationListener.setInitialLocation(loc);
 
         }
-        if(loc == null) {
+        if (loc == null) {
             if (locationListener.isNetworkEnabled()) {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
                 loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 locationListener.setInitialLocation(loc);
             } else {
-                //nie udalo sie uruchomic
-                isActive = false;
+                throw new Exception("Nie można uruchomić GPS");
             }
         }
     }
 
-
-    public void restart() {
-        stop();
-        start();
-    }
-
-    public void stop() {
-        if (!isActive) {
-            return;
-        }
-        locationManager.removeUpdates(locationListener);
-        isActive = false;
-    }
 
     public GeoPoint getActualPosition() {
         return locationListener.getActualGeoPoint();
@@ -66,7 +48,7 @@ public class GPSManager {
         return locationListener.getActualLocation();
     }
 
-    public static void init(LocationManager locationManager) {
+    public static void init(LocationManager locationManager) throws Exception {
         if (instance == null) {
             instance = new GPSManager(locationManager);
         }

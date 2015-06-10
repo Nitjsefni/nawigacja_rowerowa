@@ -24,12 +24,16 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        GPSManager.init((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+        try {
+            GPSManager.init((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Nie udało się uruchomić GPS", Toast.LENGTH_LONG).show();
+        }
         new LoadingTask().execute();
 
     }
     private class LoadingTask extends AsyncTask<String, Void, String> {
-        ProgressDialog myProgressDialog;
+        private ProgressDialog myProgressDialog;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -49,7 +53,7 @@ public class MainActivity extends Activity {
                 manager.loadSavedRoutes();
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -62,8 +66,7 @@ public class MainActivity extends Activity {
             myProgressDialog.hide();
             myProgressDialog.dismiss();
             Toast.makeText(getApplicationContext(), "Zakończono ładowanie aplikacji", Toast.LENGTH_SHORT).show();
-            Intent k = new Intent(MainActivity.this, MenuActivity.class);
-            startActivity(k);
+            startActivity(new Intent(MainActivity.this, MenuActivity.class));
         }
     }
 

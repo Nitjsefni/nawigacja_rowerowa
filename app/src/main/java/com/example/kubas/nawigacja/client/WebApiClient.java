@@ -24,14 +24,8 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class WebApiClient extends AsyncTask<NameValuePair, String, String> {
-    public static final String PASSWORD = "1234";
-    public static final String VERSION = "1.0";
-    String user;
-    String password;
 
     public WebApiClient() {
-        this.user = DataManager.getInstance().getUsername();
-        this.password = DataManager.getInstance().getPassword();
     }
 
     @Override
@@ -42,10 +36,10 @@ public abstract class WebApiClient extends AsyncTask<NameValuePair, String, Stri
             HttpPost httpPost = new HttpPost(getServiceUri());
             List<NameValuePair> parameters = new ArrayList<>();
 
-            parameters.add(new BasicNameValuePair("p", PASSWORD));
-            parameters.add(new BasicNameValuePair("ver", VERSION));
-            parameters.add(new BasicNameValuePair("username", user));
-            parameters.add(new BasicNameValuePair("password", password));
+            parameters.add(new BasicNameValuePair("p", ServerAddress.getInstance().getPASSWORD()));
+            parameters.add(new BasicNameValuePair("ver", ServerAddress.getInstance().getVERSION()));
+            parameters.add(new BasicNameValuePair("username", ServerAddress.getInstance().getUser()));
+            parameters.add(new BasicNameValuePair("password", ServerAddress.getInstance().getPassword()));
             Collections.addAll(parameters, preparedRequest);
             httpPost.setEntity(new UrlEncodedFormEntity(parameters));
             Log.d(this.getClass().getName(), "Sending request for: " + getServiceUri());

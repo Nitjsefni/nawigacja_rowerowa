@@ -19,7 +19,6 @@ import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.OverlayItem;
 
 import java.util.List;
 import java.util.Timer;
@@ -78,7 +77,7 @@ public class MapActivity extends Activity implements Trackable {
 
     public void startTracking() {
         gpsManager.restart();
-
+        showPosition.stop();
         sendPosition = new SendPosition(this, 5000);
         map.getOverlays().clear();
         Location loc;
@@ -92,11 +91,9 @@ public class MapActivity extends Activity implements Trackable {
     }
 
     public void stopTracking() {
-        gpsManager.stop();
         sendPosition.stop();
         map.getOverlays().clear();
         sendPosition.clear();
-
     }
 
     private void setMapStartPoint(GeoPoint actualPoint) {
@@ -117,14 +114,11 @@ public class MapActivity extends Activity implements Trackable {
         this.locationToPrint = locationToPrint;
     }
 
-    public void refreshMapPosition( Location loc) {
-        map.getOverlays().clear();
+    public void refreshMapPosition(Location loc) {
         GeoPoint currentLocation = new GeoPoint(loc);
-        if(loc.hasSpeed()) {
+        if (loc.hasSpeed()) {
             txtV_Map_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
-        }
-        else
-        {
+        } else {
             txtV_Map_Speed.setText("0 m/s");
         }
         mapController.setCenter(currentLocation);
@@ -136,20 +130,21 @@ public class MapActivity extends Activity implements Trackable {
         mapController.setCenter(currentLocation);
         map.invalidate();
     }
+
     public void refreshTrackingPosition(List<GeoPoint> route, Location loc) {
-        if(loc.hasSpeed()) {
+        if (loc.hasSpeed()) {
             txtV_Map_Speed.setText(String.valueOf(loc.getSpeed()) + " m/s");
-        }
-        else
-        {
+        } else {
             txtV_Map_Speed.setText("0 m/s");
         }
         roadOverlay.setPoints(route);
         mapController.setZoom(17);
         mapController.setCenter(route.get(route.size()-1));
+
         map.getOverlays().add(roadOverlay);
         map.invalidate();
     }
+
     public void clearTrackingPositions() {
         map.getOverlays().clear();
     }

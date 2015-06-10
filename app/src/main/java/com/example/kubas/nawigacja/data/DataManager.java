@@ -1,27 +1,24 @@
 package com.example.kubas.nawigacja.data;
 
-import android.app.Activity;
 import android.content.Context;
 import android.widget.ListAdapter;
 
 import com.example.kubas.nawigacja.R;
 import com.example.kubas.nawigacja.client.RouteListClient;
+import com.example.kubas.nawigacja.data.model.ListWithNotification;
+import com.example.kubas.nawigacja.data.interfaces.Listener;
 import com.example.kubas.nawigacja.data.model.Route;
 import com.example.kubas.nawigacja.exceptions.UnAuthorizedException;
 import com.example.kubas.nawigacja.list_adapters.RouteListAdapter;
 
 import org.apache.http.message.BasicNameValuePair;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DataManager {
     private static DataManager instance;
-    private List<Route> savedRoutes = new ArrayList<>();
-    private List<Route> recomendedRoutes = new ArrayList<>();
+    private ListWithNotification<Route> savedRoutes = new ListWithNotification<>("savedRoutes");
+    private ListWithNotification<Route> recomendedRoutes = new ListWithNotification<>("recomendedRoutes");
     private String username;
     private String password;
-
 
 
     private DataManager(String username, String password) {
@@ -64,5 +61,10 @@ public class DataManager {
 
     public String getUsername() {
         return username;
+    }
+
+    public void registerRouteListListener(Listener listener) {
+        recomendedRoutes.register(listener);
+        savedRoutes.register(listener);
     }
 }

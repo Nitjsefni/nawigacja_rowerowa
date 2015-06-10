@@ -6,9 +6,9 @@ import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
 
-public class OwnOSRMRoadManager extends OSRMRoadManager {
-    public OwnOSRMRoadManager() {
-        setService(ServerAddress.getInstance().getServerUrl() + "webservices/viaroute?");
+public class SavedRouteOSMRRoadManager extends OSRMRoadManager {
+    public SavedRouteOSMRRoadManager(int id) {
+        setService(ServerAddress.getInstance().getServerUrl() + "webservices/getRoute?id=" + id + "&" + ServerAddress.getInstance().getParameters() + "&");
     }
 
     @Override
