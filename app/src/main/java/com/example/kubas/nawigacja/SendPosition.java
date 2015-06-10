@@ -20,7 +20,6 @@ public class SendPosition implements Runnable {
     private List<GeoPoint> route = new ArrayList<>();
     private Trackable trackable;
     private int delayTimeInMilisecounds;
-    private GeoPoint point;
 
     public SendPosition(Trackable trackable, int delayTimeInMilisecounds) {
         this.trackable = trackable;
@@ -30,36 +29,19 @@ public class SendPosition implements Runnable {
     }
 
     private void refresh() {
-
-        //Location location = getLocationToPrint();
         Location location = gpsManager.getBetterActualLocation();
         if (location == null) {
             return;
         }
-        if (!stopped) {
-            GeoPoint currentLocation;
-            if (route.size() == 0) {
-                return;
-            }
-            currentLocation = new GeoPoint(location);
-            Log.i("PostPosit", "Lat: " + location.getLatitude() + " long: " + location.getLongitude() + " accuracy: " + location.getAccuracy());
-            Log.i("PostPosit", "Bear: " + location.getBearing() + " prov: " + location.getProvider() + " speed: " + location.getSpeed());
-            if (route.get(route.size() - 1).distanceTo(currentLocation) < 60) {
-                route.add(currentLocation);
-                Log.i("PostPosit", "Route: " + route.toString());
-                trackable.refreshMapPosition(currentLocation);
-                trackable.refreshTrackingPosition(route);
-            }
-            point = currentLocation;
-        } else {
-            GeoPoint gp = point;
-            point = new GeoPoint(location);
-            Log.i("PostPosit", "Lat: " + location.getLatitude() + " long: " + location.getLongitude() + " accuracy: " + location.getAccuracy());
-            Log.i("PostPosit", "Bear: " + location.getBearing() + " prov: " + location.getProvider() + " speed: " + location.getSpeed());
-            trackable.clearTrackingPositions();
-            if (gp.distanceTo(point) < 60) {
-                trackable.refreshMapPosition(point);
-            }
+        GeoPoint currentLocation;
+        currentLocation = new GeoPoint(location);
+        Log.i("PostPosit", "Lat: " + location.getLatitude() + " long: " + location.getLongitude() + " accuracy: " + location.getAccuracy());
+        Log.i("PostPosit", "Bear: " + location.getBearing() + " prov: " + location.getProvider() + " speed: " + location.getSpeed());
+        if (route.isEmpty() || route.get(route.size() - 1).distanceTo(currentLocation) < 60) {
+            route.add(currentLocation);
+            Log.i("PostPosit", "Route: " + route.toString());
+            trackable.refreshMapPosition(currentLocation);
+            trackable.refreshTrackingPosition(route);
         }
         gpsManager.clearAvgLocation();
     }
@@ -81,7 +63,6 @@ public class SendPosition implements Runnable {
 
     public void stop() {
         stopped = true;
-//		handler.removeCallbacks(this);
     }
 
     public void clear() {
