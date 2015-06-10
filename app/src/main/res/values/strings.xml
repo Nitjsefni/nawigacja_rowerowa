@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="wyznacz">Wyznacz trase do...</string>
+    <string name="wyznacz">Wyznacz trase do…</string>
     <string name="map">MAPA</string>
     <string name="routePlaner">TRASA</string>
     <string name="speedCounter">Licznik</string>
@@ -9,6 +9,15 @@
     <string name="savedRoutes">Zapisane trasy</string>
     <string name="proposedRoutes">Polecane trasy</string>
     <string name="search">search</string>
-    <string name="throu">Przez...</string>
+    <string name="throu">Przez…</string>
     <string name="routePlanerTitle">Wyznaczanie trasy</string>
+    <string name="start">Początek trasy…</string>
+    <string name="through">przez</string>
+    <string name="start_point">start point</string>
+    <string name="endPoint">end Point</string>
+    <string name="endRoute">Koniec trasy…</string>
+    <string name="addVia">add via</string>
+    <string name="addMidPoint">dodaj punkt pośredni</string>
+    <string name="roadType">Rodzaj drogi:</string>
+    <string name="plan">Wyznacz trasę</string>
 </resources>

@@ -62,6 +62,7 @@ public class GeoLocationClient extends WebApiClient {
             public void run() {
                 LocationAdapter aAdapter = new LocationAdapter(context, R.layout.listview_ac_position, gps);
                 autoComplete.setAdapter(aAdapter);
+                autoComplete.setDropDownHeight(gps.size() * 100 + 30);
                 aAdapter.notifyDataSetChanged();
             }
         });

@@ -12,6 +12,7 @@ import org.apache.http.message.BasicNameValuePair;
 public class AutocompleteLocationListener implements TextWatcher {
     private AutoCompleteTextView autoCompleteTextView;
     private Activity context;
+    private GeoLocationClient actualRequest;
 
     public AutocompleteLocationListener(Activity context,AutoCompleteTextView autoCompleteTextView) {
         this.autoCompleteTextView = autoCompleteTextView;
@@ -27,7 +28,11 @@ public class AutocompleteLocationListener implements TextWatcher {
     }
 
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        new GeoLocationClient(context, autoCompleteTextView).execute(new BasicNameValuePair("name", s.toString()));
+        if(actualRequest!=null){
+            actualRequest.cancel(true);
+        }
+        actualRequest = new GeoLocationClient(context, autoCompleteTextView);
+        actualRequest.execute(new BasicNameValuePair("name", s.toString()));
     }
 
 }

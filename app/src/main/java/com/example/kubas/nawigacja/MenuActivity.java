@@ -33,7 +33,6 @@ public class MenuActivity extends Activity {
         btnMap.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent k = new Intent(MenuActivity.this, MapActivity.class);
-
                 startActivity(k);
             }
         });
@@ -53,40 +52,27 @@ public class MenuActivity extends Activity {
                     toast.show();
                 } else {
                     Intent k = new Intent(MenuActivity.this, RouteActivity.class);
-                    getMyLocation();
                     k.putExtra("points", points);
                     startActivity(k);
                 }
             }
         });
-        selectTarget.addTextChangedListener(new AutocompleteLocationListener(this,selectTarget));
+        selectTarget.addTextChangedListener(new AutocompleteLocationListener(this, selectTarget));
         selectTarget.setOnItemClickListener(new AutoCompleteItemClickListener(selectTarget, points, RoutePoints.PointType.END));
         showSavedRoute(null);
-    }
 
-    private void getMyLocation() {
-//        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//listener = new MyLocationListener();
-//                    provider = locationManager.getBestProvider(criteria, false);
-        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 100, this);
-
-
-        //Location location = locationManager.getLastKnownLocation(provider);
-
-
-        //gp = new GeoPoint(location.getLatitude(), location.getLongitude());
     }
 
     public void showRecomendRoute(View view) {
         ListView routeList = (ListView) findViewById(R.id.routeList);
-        findViewById(R.id.recomendedRoutesTabHeader).setBackgroundColor(Color.WHITE);
+        findViewById(R.id.recomendedRoutesTabHeader).setBackgroundColor(Color.TRANSPARENT);
         findViewById(R.id.savedRoutesTabHeader).setBackgroundColor(Color.GRAY);
         routeList.setAdapter(DataManager.getInstance().getRecomendedRouteAdapter(this));
     }
 
     public void showSavedRoute(View view) {
         ListView routeList = (ListView) findViewById(R.id.routeList);
-        findViewById(R.id.savedRoutesTabHeader).setBackgroundColor(Color.WHITE);
+        findViewById(R.id.savedRoutesTabHeader).setBackgroundColor(Color.TRANSPARENT);
         findViewById(R.id.recomendedRoutesTabHeader).setBackgroundColor(Color.GRAY);
         routeList.setAdapter(DataManager.getInstance().getSavedRouteAdapter(this));
 

@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
 
     <LinearLayout
         android:id="@+id/linearLayout3"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
-        android:layout_height="54dp"
+        android:layout_height="50dp"
         android:padding="0dp"
         android:weightSum="12"
-        >
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="fill_parent"
             android:id="@+id/imageView7"
             android:layout_weight="1"
@@ -26,7 +29,7 @@
 
         <AutoCompleteTextView
             android:id="@+id/atcptv_wyznacz_do"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:layout_weight="10"
             android:hint="@string/wyznacz"
@@ -34,7 +37,7 @@
             />
         <ImageButton
             android:id="@+id/img_Btn_Nawiguj"
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:contentDescription="@string/chooseRoute"
@@ -46,11 +49,14 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:padding="0dp"
-        android:weightSum="2">
+        android:weightSum="2"
+        android:layout_below="@+id/linearLayout3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <Button
             android:id="@+id/savedRoutesTabHeader"
@@ -80,18 +86,28 @@
     <ListView
         android:id="@+id/routeList"
         android:layout_width="wrap_content"
-        android:layout_height="215dp" />
+        android:layout_height="363dp"
+        android:dividerHeight="5dp"
+        android:layout_gravity="left|right"
+        android:layout_weight="0.97"
+        android:layout_above="@+id/linearLayout1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/linearLayout" />
 
 
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
-        android:padding="6dp"
+        android:padding="3dp"
         android:weightSum="4"
-        android:layout_margin="0dp">
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <Button
             android:id="@+id/button4"
@@ -124,4 +140,4 @@
 
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>
