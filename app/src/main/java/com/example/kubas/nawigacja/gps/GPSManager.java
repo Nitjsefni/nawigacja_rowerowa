@@ -15,7 +15,6 @@ public class GPSManager {
     private GPSManager(LocationManager locationManager) {
         this.locationManager = locationManager;
         this.actualLocationManager = new ActualLocationManager();
-
         this.locationListener = new GPSLocationListener(locationManager, actualLocationManager);
         start();
     }
