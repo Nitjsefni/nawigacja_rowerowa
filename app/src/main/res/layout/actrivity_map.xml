@@ -12,18 +12,16 @@
         android:id="@+id/relativeLayout">
 
         <TextView
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="0 m/s"
             android:id="@+id/txtV_Map_Speed"
+            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:textColor="#ffffffff"
-            android:gravity="center_vertical|center_horizontal"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentTop="true"
-            android:text="8 km/h" />
-
+            android:textStyle="bold" />
     </RelativeLayout>
     <org.osmdroid.views.MapView android:id="@+id/map"
         android:layout_width="fill_parent"
