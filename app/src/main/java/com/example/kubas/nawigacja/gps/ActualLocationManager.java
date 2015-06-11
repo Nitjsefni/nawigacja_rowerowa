@@ -11,24 +11,42 @@ public class ActualLocationManager {
     private int locationCount;
     private float locationWeight;
     private String gpsStatus;
+    private Location previousLocation;
 
     public Location getActualLocation() {
         Location location = actualLocation;
         if (location != null && location.getAccuracy() > 7) {
-            location = new Location(location);
-            location.setLatitude(getAvgLatitude());
-            location.setLongitude(getAvgLongitude());
-            location.setAccuracy(getAvgAccuracy());
+            location = getAverageLocation(location);
         }
+        if (location == null) {
+            location = previousLocation;
+        }
+
         return location;
     }
 
-    public void clearAvgLocation() {
+    private boolean isAverageLocationAvaliable() {
+        return getAvgLatitude() != 0 || getAvgLongitude() != 0 || getAvgAccuracy() != 0;
+    }
+
+    private Location getAverageLocation(Location location) {
+        location = new Location(location);
+        location.setLatitude(getAvgLatitude());
+        location.setLongitude(getAvgLongitude());
+        location.setAccuracy(getAvgAccuracy());
+        return location;
+    }
+
+    public void clearActualLocation() {
+        Location location = getActualLocation();
+        if (location != null) {
+            previousLocation = location;
+        }
+        actualLocation = null;
         locationCount = 0;
         locationWeight = 0;
         avgLatitude = 0;
         avgLongitude = 0;
-        actualLocation = null;
     }
 
     public void setLocation(Location location) {

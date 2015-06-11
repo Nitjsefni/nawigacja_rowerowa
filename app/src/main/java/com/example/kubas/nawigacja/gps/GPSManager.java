@@ -10,15 +10,14 @@ import android.preference.PreferenceManager;
 
 import org.osmdroid.util.GeoPoint;
 
-public class GPSManager implements Runnable {
+public class GPSManager {
     private static int gpsRefreshTime;
     private static int increaseAccuracyAlgorithmDuration;
     private static GPSManager instance;
-    private final ActualLocationManager actualLocationManager;
+    private ActualLocationManager actualLocationManager;
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private boolean isActive;
-    private Handler handler;
+    private IncreaseAccuracyAlgorithm accuracyAlgorithm;
 
     private GPSManager(LocationManager locationManager) throws Exception {
         this.locationManager = locationManager;
@@ -27,7 +26,7 @@ public class GPSManager implements Runnable {
         start();
     }
 
-    private static void loadSetings(Context context) {
+    private static void loadSettings(Context context) {
         SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(context);
         gpsRefreshTime = sharedPref.getInt("gpsRefreshTime", 500);
@@ -37,7 +36,7 @@ public class GPSManager implements Runnable {
 
     public static void init(Context context) throws Exception {
         if (instance == null) {
-            loadSetings(context);
+            loadSettings(context);
             instance = new GPSManager((LocationManager) context.getSystemService(Context.LOCATION_SERVICE));
         }
     }
@@ -54,24 +53,21 @@ public class GPSManager implements Runnable {
     }
 
     public GeoPoint getActualPosition() {
-        return new GeoPoint(actualLocationManager.getActualLocation());
+        if (getActualLocation()==null){
+            return null;
+        }
+        return new GeoPoint(getActualLocation());
+    }
+
+    public String getGPSStatus() {
+        return actualLocationManager.getGpsStatus();
     }
 
     public void stop() {
         locationManager.removeUpdates(locationListener);
-        isActive = false;
-    }
-    public String getGPSStatus(){
-        return actualLocationManager.getGpsStatus();
+        accuracyAlgorithm.stop();
     }
 
-    @Override
-    public void run() {
-        actualLocationManager.clearAvgLocation();
-        if (isActive) {
-            handler.postDelayed(this, increaseAccuracyAlgorithmDuration);
-        }
-    }
 
     private void start() throws Exception {
         Location loc = null;
@@ -87,11 +83,35 @@ public class GPSManager implements Runnable {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, gpsRefreshTime, 0, locationListener);
             loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             actualLocationManager.setLocation(loc);
-        } else {
+        }
+        if (loc == null) {
             throw new Exception("Nie można uruchomić GPS");
         }
-        isActive = true;
-        handler = new Handler();
-        handler.postDelayed(this, increaseAccuracyAlgorithmDuration);
+        accuracyAlgorithm = new IncreaseAccuracyAlgorithm(increaseAccuracyAlgorithmDuration, actualLocationManager);
+    }
+
+    private class IncreaseAccuracyAlgorithm implements Runnable {
+        private Handler handler;
+        private boolean isActive;
+        private ActualLocationManager actualLocationManager;
+
+        public IncreaseAccuracyAlgorithm(int increaseAccuracyAlgorithmDuration, ActualLocationManager actualLocationManager) {
+            this.actualLocationManager = actualLocationManager;
+            isActive = true;
+            handler = new Handler();
+            handler.postDelayed(this, increaseAccuracyAlgorithmDuration);
+        }
+
+        @Override
+        public void run() {
+            actualLocationManager.clearActualLocation();
+            if (isActive) {
+                handler.postDelayed(this, increaseAccuracyAlgorithmDuration);
+            }
+        }
+
+        public void stop() {
+            isActive = false;
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.example.kubas.nawigacja;
 
 import android.app.Activity;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CompoundButton;
@@ -10,6 +9,8 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.example.kubas.nawigacja.gps.GPSManager;
+import com.example.kubas.nawigacja.tracking.SendPosition;
+import com.example.kubas.nawigacja.tracking.ShowPosition;
 import com.example.kubas.nawigacja.tracking.Trackable;
 
 import org.osmdroid.api.IMapController;

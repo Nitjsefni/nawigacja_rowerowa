@@ -14,6 +14,7 @@ public class GeoPosition implements Serializable {
         this.name = name;
         this.geoPoint = geoPoint;
     }
+
     public GeoPosition(String name, double lat, double lng) {
         this.name = name;
         geoPoint = new GeoPoint(lat, lng);
@@ -47,5 +48,9 @@ public class GeoPosition implements Serializable {
 
     public GeoPoint getGeoPoint() {
         return geoPoint;
+    }
+
+    public String getDescription() {
+        return getLat() + " " + getLng();
     }
 }

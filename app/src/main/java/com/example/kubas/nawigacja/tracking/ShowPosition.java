@@ -1,4 +1,4 @@
-package com.example.kubas.nawigacja;
+package com.example.kubas.nawigacja.tracking;
 
 import android.location.Location;
 import android.os.Handler;
@@ -13,19 +13,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class  SendPosition implements Runnable {
+public class ShowPosition implements Runnable {
     private GPSManager gpsManager = GPSManager.getInstance();
-    private boolean stopped = false;
     private Handler handler;
-    private List<GeoPoint> route = new ArrayList<>();
     private Trackable trackable;
-    private int delayTimeInMilliseconds;
+    private int delayTimeInMilisecounds;
+    private boolean stopped;
 
-    public SendPosition(Trackable trackable, int delayTimeInMilliseconds) {
+    public ShowPosition(Trackable trackable, int delayTimeInMilisecounds) {
         this.trackable = trackable;
-        this.delayTimeInMilliseconds = delayTimeInMilliseconds;
+        this.delayTimeInMilisecounds = delayTimeInMilisecounds;
         handler = new Handler();
-        handler.postDelayed(this, delayTimeInMilliseconds);
+        handler.postDelayed(this, delayTimeInMilisecounds);
     }
 
     private void refresh() {
@@ -33,22 +32,16 @@ public class  SendPosition implements Runnable {
         if (location == null) {
             return;
         }
-        GeoPoint currentLocation;
-        currentLocation = new GeoPoint(location);
         Log.i("PostPosit", "Lat: " + location.getLatitude() + " long: " + location.getLongitude() + " accuracy: " + location.getAccuracy());
         Log.i("PostPosit", "Bear: " + location.getBearing() + " prov: " + location.getProvider() + " speed: " + location.getSpeed());
-        if (route.isEmpty() || route.get(route.size() - 1).distanceTo(currentLocation) < 60) {
-            route.add(currentLocation);
-            Log.i("PostPosit", "Route: " + route.toString());
-            trackable.refreshTrackingPosition(route, location);
-        }
+        trackable.refreshMapPosition(location);
     }
 
     @Override
     public void run() {
         refresh();
         if (!stopped) {
-            handler.postDelayed(this, delayTimeInMilliseconds);
+            handler.postDelayed(this, delayTimeInMilisecounds);
         }
     }
 
@@ -56,12 +49,5 @@ public class  SendPosition implements Runnable {
         stopped = true;
     }
 
-    public void clear() {
-        route.clear();
-    }
-
-    public void add(GeoPoint point) {
-        route.add(point);
-    }
 }
 
