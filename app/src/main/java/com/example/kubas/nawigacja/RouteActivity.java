@@ -45,6 +45,7 @@ public class RouteActivity extends Activity implements Trackable {
     private ArrayList<RoadNode> rNodes = new ArrayList<>();
     private Marker endMarker, startMarker, viaMarker;
     private RoutePoints points;
+    private GPSManager gpsManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,7 +77,7 @@ public class RouteActivity extends Activity implements Trackable {
         }
         points = (RoutePoints) extras.get("points");
         if (points.getStartPoint() == null) {
-            GPSManager gpsManager = GPSManager.getInstance();
+            gpsManager = GPSManager.getInstance();
             GeoPoint actualPosition = gpsManager.getActualPosition();
             while (actualPosition == null) {
                 try {
@@ -132,7 +133,7 @@ public class RouteActivity extends Activity implements Trackable {
 
     public String getLengthText(double length) {
         String result;
-        if (length >= 100.0) {
+        if (length >= 10.0) {
             result = (int) (length) + " km";
         } else if (length >= 1.0) {
             result = Math.round(length * 10) / 10.0 + " km";
@@ -284,9 +285,17 @@ public class RouteActivity extends Activity implements Trackable {
                         Drawable icon2 = getResources().getDrawable(iconId);
                         maneuverImg.setImageDrawable(icon2);
                     }
+
+                    double dist = gpsManager.getActualPosition().distanceTo(rNodes.get(0).mLocation);
+                    int distance = (int) dist;
                     txtV_Route_InstructionNode.setText(rNodes.get(0).mInstructions);
-                    txtV_Route_DistanceNode.setText(getLengthText(rNodes.get(0).mLength));
-                    txtV_Route_TimeNode.setText(getDurationText(rNodes.get(0).mDuration));
+                    txtV_Route_DistanceNode.setText(String.valueOf(distance) + " m");
+
+                    double  time = dist/4.0;
+                    Log.i("RouteActivity", String.valueOf(time));
+                    Log.i("RouteActivity", getDurationText(time));
+                    //txtV_Route_DistanceNode.setText(getLengthText(rNodes.get(0).mLength));
+                    txtV_Route_TimeNode.setText(getDurationText(time));
 
                     String lenght = getLengthText(maxLength);
                     txtV_Route_MaxLength.setText(lenght);
@@ -354,7 +363,22 @@ public class RouteActivity extends Activity implements Trackable {
 
                 map.getOverlays().add(nodeMarker);
             }
-            String text = "Za " + getLengthTextToSpeech(rNodes.get(0).mLength) + rNodes.get(0).mInstructions;
+            int iconId = iconIds.getResourceId(rNodes.get(0).mManeuverType, R.drawable.ic_empty);
+            if (iconId != R.drawable.ic_empty) {
+                Drawable icon2 = getResources().getDrawable(iconId);
+                maneuverImg.setImageDrawable(icon2);
+            }
+            double dist = gpsManager.getActualPosition().distanceTo(rNodes.get(0).mLocation);
+            int distance = (int) dist;
+            txtV_Route_InstructionNode.setText(rNodes.get(0).mInstructions);
+            txtV_Route_DistanceNode.setText(String.valueOf(distance) + " m");
+
+            double  time = dist/4.0;
+            Log.i("RouteActivity", String.valueOf(time));
+            Log.i("RouteActivity", getDurationText(time));
+            //txtV_Route_DistanceNode.setText(getLengthText(rNodes.get(0).mLength));
+            txtV_Route_TimeNode.setText(getDurationText(time));
+            String text = "Za " + distance + "metrów " + rNodes.get(0).mInstructions;
             t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
             map.invalidate();
         }

@@ -1,6 +1,7 @@
 package com.example.kubas.nawigacja.gps;
 
 import android.location.Location;
+import android.util.Log;
 
 import org.osmdroid.util.GeoPoint;
 
@@ -78,8 +79,11 @@ public class ActualLocationManager {
             location.setLatitude(getAvgLatitude());
             location.setLongitude(getAvgLongitude());
             location.setAccuracy(getAvgAccurancy());
-            return location;
+
         }
-        return null;
+        if (location!=null) {
+            Log.i("LsitenerLocationManager", String.valueOf(location.getLatitude()) + String.valueOf(location.getLongitude()));
+        }
+        return location;
     }
 }
