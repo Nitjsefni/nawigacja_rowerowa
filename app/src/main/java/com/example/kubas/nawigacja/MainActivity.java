@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         try {
-            GPSManager.init((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+            GPSManager.init(this);
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Nie udało się uruchomić GPS", Toast.LENGTH_LONG).show();
         }

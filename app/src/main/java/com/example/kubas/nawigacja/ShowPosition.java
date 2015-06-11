@@ -28,22 +28,13 @@ public class ShowPosition implements Runnable {
     }
 
     private void refresh() {
-        Location location = gpsManager.getBetterActualLocation();
+        Location location = gpsManager.getActualLocation();
         if (location == null) {
             return;
         }
-        GeoPoint currentLocation = new GeoPoint(location);
         Log.i("PostPosit", "Lat: " + location.getLatitude() + " long: " + location.getLongitude() + " accuracy: " + location.getAccuracy());
         Log.i("PostPosit", "Bear: " + location.getBearing() + " prov: " + location.getProvider() + " speed: " + location.getSpeed());
         trackable.refreshMapPosition(location);
-        gpsManager.clearAvgLocation();
-    }
-
-    private String getLocationInfo(Location location) {
-        return "Lat:" + location.getLatitude() +
-                "\nLon:" + location.getLongitude() +
-                "\nDokładność:" + location.getAccuracy() + "m" +
-                "\nData:" + new Date(location.getTime()).toLocaleString();
     }
 
     @Override

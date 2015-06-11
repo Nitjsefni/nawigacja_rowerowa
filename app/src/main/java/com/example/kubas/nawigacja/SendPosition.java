@@ -19,17 +19,17 @@ public class  SendPosition implements Runnable {
     private Handler handler;
     private List<GeoPoint> route = new ArrayList<>();
     private Trackable trackable;
-    private int delayTimeInMilisecounds;
+    private int delayTimeInMilliseconds;
 
-    public SendPosition(Trackable trackable, int delayTimeInMilisecounds) {
+    public SendPosition(Trackable trackable, int delayTimeInMilliseconds) {
         this.trackable = trackable;
-        this.delayTimeInMilisecounds = delayTimeInMilisecounds;
+        this.delayTimeInMilliseconds = delayTimeInMilliseconds;
         handler = new Handler();
-        handler.postDelayed(this, delayTimeInMilisecounds);
+        handler.postDelayed(this, delayTimeInMilliseconds);
     }
 
     private void refresh() {
-        Location location = gpsManager.getBetterActualLocation();
+        Location location = gpsManager.getActualLocation();
         if (location == null) {
             return;
         }
@@ -42,21 +42,13 @@ public class  SendPosition implements Runnable {
             Log.i("PostPosit", "Route: " + route.toString());
             trackable.refreshTrackingPosition(route, location);
         }
-        gpsManager.clearAvgLocation();
-    }
-
-    private String getLocationInfo(Location location) {
-        return "Lat:" + location.getLatitude() +
-                "\nLon:" + location.getLongitude() +
-                "\nDokładność:" + location.getAccuracy() + "m" +
-                "\nData:" + new Date(location.getTime()).toLocaleString();
     }
 
     @Override
     public void run() {
         refresh();
         if (!stopped) {
-            handler.postDelayed(this, delayTimeInMilisecounds);
+            handler.postDelayed(this, delayTimeInMilliseconds);
         }
     }
 
