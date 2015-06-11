@@ -5,9 +5,10 @@ import android.widget.ListAdapter;
 
 import com.example.kubas.nawigacja.R;
 import com.example.kubas.nawigacja.client.RouteListClient;
-import com.example.kubas.nawigacja.data.model.ListWithNotification;
 import com.example.kubas.nawigacja.data.interfaces.Listener;
+import com.example.kubas.nawigacja.data.model.ListWithNotification;
 import com.example.kubas.nawigacja.data.model.Route;
+import com.example.kubas.nawigacja.data.model.Travel;
 import com.example.kubas.nawigacja.exceptions.UnAuthorizedException;
 import com.example.kubas.nawigacja.list_adapters.RouteListAdapter;
 
@@ -19,6 +20,7 @@ public class DataManager {
     private ListWithNotification<Route> recomendedRoutes = new ListWithNotification<>("recomendedRoutes");
     private String username;
     private String password;
+    private Travel travel = new Travel();
 
 
     private DataManager(String username, String password) {
@@ -66,5 +68,13 @@ public class DataManager {
     public void registerRouteListListener(Listener listener) {
         recomendedRoutes.register(listener);
         savedRoutes.register(listener);
+    }
+
+    public Travel getTravel() {
+        return travel;
+    }
+
+    public void setTravel(Travel travel) {
+        this.travel = travel;
     }
 }

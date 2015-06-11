@@ -127,7 +127,8 @@
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:text="@string/speedCounter" />
+            android:text="@string/speedCounter"
+            android:onClick="showCounter" />
 
         <Button
             android:id="@+id/button"

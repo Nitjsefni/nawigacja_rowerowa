@@ -20,4 +20,6 @@
     <string name="addMidPoint">dodaj punkt pośredni</string>
     <string name="roadType">Rodzaj drogi:</string>
     <string name="plan">Wyznacz trasę</string>
+    <string name="gotoMap">Idź do mapy</string>
+    <string name="counter">Licznik</string>
 </resources>

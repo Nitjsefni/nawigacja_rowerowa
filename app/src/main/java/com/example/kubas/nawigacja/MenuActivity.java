@@ -1,10 +1,8 @@
 package com.example.kubas.nawigacja;
 
 import android.app.Activity;
-
 import android.content.Intent;
 import android.graphics.Color;
-
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,7 +14,6 @@ import com.example.kubas.nawigacja.data.DataManager;
 import com.example.kubas.nawigacja.data.interfaces.Listener;
 import com.example.kubas.nawigacja.data.interfaces.Notificator;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
-import com.example.kubas.nawigacja.list_adapters.LocationAdapter;
 import com.example.kubas.nawigacja.listeners.AutoCompleteItemClickListener;
 import com.example.kubas.nawigacja.listeners.AutocompleteLocationListener;
 
@@ -97,5 +94,9 @@ public class MenuActivity extends Activity implements Listener {
                 reloadListView();
             }
         });
+    }
+
+    public void showCounter(View view) {
+        startActivity(new Intent(getApplicationContext(), CounterActivity.class));
     }
 }
