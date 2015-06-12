@@ -51,6 +51,7 @@ public class Travel implements Runnable {
 
     public void setRoad(Road road) {
         this.road = road;
+        setNextInstructionNode(road.mNodes.get(0));
     }
 
     public List<RoadNode> getInstructionsNodes() {
@@ -63,10 +64,6 @@ public class Travel implements Runnable {
 
     private void setNextInstructionNode(RoadNode nextInstructionNode) {
         this.nextInstructionNode = new RoadNodeToSpeak(nextInstructionNode);
-    }
-
-    public List<GeoPoint> getAllNodes() {
-        return Collections.unmodifiableList(road.mRouteHigh);
     }
 
     public double getTotalRoadDuration() {
@@ -91,7 +88,9 @@ public class Travel implements Runnable {
             // jesli powyzej, to szukaj dalej
         }
         //na podstawie road.mRouteHigh usun¹æ nale¿y road.mNodes, albo tym samym algorytmem co przed chwila.
-        setNextInstructionNode(road.mNodes.get(0));
+        if (!nextInstructionNode.isSameRoadNode(road.mNodes.get(0))) {
+            setNextInstructionNode(road.mNodes.get(0));
+        }
 
         //TODO jeœli zwiêksza siê odleg³oœæ do nastêpnego punktu, to znaczy ¿e coœ nie tak i duza szansa, ze trzeba przeliczyc trase.
     }

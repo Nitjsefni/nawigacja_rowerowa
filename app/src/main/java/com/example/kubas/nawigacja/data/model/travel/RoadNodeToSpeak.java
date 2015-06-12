@@ -49,4 +49,8 @@ public class RoadNodeToSpeak {
 
         return null;
     }
+
+    public boolean isSameRoadNode(RoadNode roadNode) {
+        return roadNode == this.roadNode;
+    }
 }
