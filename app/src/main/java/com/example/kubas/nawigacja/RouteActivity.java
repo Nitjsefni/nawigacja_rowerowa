@@ -40,7 +40,6 @@ public class RouteActivity extends Activity implements Trackable {
     private final GPSManager gpsManager = GPSManager.getInstance();
     private ShowPosition showPosition;
     private ArrayList<RoadNode> roadNodes;
-    private TextToSpeech textToSpeech;
     private RouteViewManager routeViewManager;
     private RefreshRoute refreshView;
     private StartRoute startView;
@@ -49,14 +48,7 @@ public class RouteActivity extends Activity implements Trackable {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_route);
-        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status != TextToSpeech.ERROR) {
-                    textToSpeech.setLanguage(new Locale("pl"));
-                }
-            }
-        });
+
     }
 
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -113,25 +105,7 @@ public class RouteActivity extends Activity implements Trackable {
         }
     }
 
-    private void speakInstruction(List<RoadNode> roadNodes, Location loc, boolean forceSpeak) {
-        Location nextNode = getLocation(roadNodes.get(0).mLocation);
-        String text;
-        float distance = loc.distanceTo(nextNode);
-        if (roadNodes.size() == 0 && loc.distanceTo(getLocation(roadNodes.get(roadNodes.size() - 1).mLocation)) < 25) {
-            text = "Dojechales do celu podróży";
-        } else if ((forceSpeak) || (distance > 25 && distance < 40) || (distance > 15 && distance < 20)) {
-            text = "Za " + RoutingUtil.getLengthTextToSpeech(distance) + roadNodes.get(0).mInstructions;
-        } else if ((distance < 10)) {
-            text = roadNodes.get(0).mInstructions;
-        } else if (distance < 5) {
-            roadNodes.remove(0);
-            nextNode = getLocation(roadNodes.get(0).mLocation);
-            text = "Za " + RoutingUtil.getLengthTextToSpeech(loc.distanceTo(nextNode)) + roadNodes.get(0).mInstructions;
-        } else {
-            return;
-        }
-        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-    }
+
 
     private Location getLocation(GeoPoint point) {
         Location nextNode = new Location("gps");
@@ -176,7 +150,7 @@ public class RouteActivity extends Activity implements Trackable {
             routeViewManager.printSpeed(gpsManager.getActualLocation());
             routeViewManager.setRouteSummary(road.mLength * 1000, road.mDuration);
             routeViewManager.setInstructionView(roadNodes.get(0), distance, distance / DEFAULT_SPEED);
-            speakInstruction(roadNodes, gpsManager.getActualLocation(), true);
+            routeViewManager.speakInstruction(roadNodes, gpsManager.getActualLocation(), true);
         }
     }
 
@@ -219,7 +193,7 @@ public class RouteActivity extends Activity implements Trackable {
             routeViewManager.printSpeed(loc);
             routeViewManager.setInstructionView(roadNodes.get(0), distance, distance / DEFAULT_SPEED);
             routeViewManager.setRouteSummary(totalLength, totalDuration);
-            speakInstruction(roadNodes, loc, false);
+            routeViewManager.speakInstruction(roadNodes, loc, false);
         }
 
         public void setLoc(Location loc) {
@@ -250,7 +224,6 @@ public class RouteActivity extends Activity implements Trackable {
             try {
                 Road road = roadManager.getRoad(waypoints);
                 roadNodes = new ArrayList<>(road.mNodes);
-                routeViewManager.setRoadNodes(roadNodes);
                 routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this));
                 startView.setRoad(road);
                 runOnUiThread(startView);
@@ -265,7 +238,7 @@ public class RouteActivity extends Activity implements Trackable {
         private MapView map;
         private Marker endMarker, startMarker, viaMarker;
         private Polyline roadOverlay;
-        private ArrayList<RoadNode> roadNodes;
+        private TextToSpeech textToSpeech;
 
         public RouteViewManager(Activity activity, RoutePoints points) {
             this.activity = activity;
@@ -281,6 +254,14 @@ public class RouteActivity extends Activity implements Trackable {
             if (points.getMidPoint() != null) {
                 viaMarker = createMarker(points.getMidPoint().getGeoPoint(), "Punkt posredni", R.drawable.marker_via, points.getMidPoint().getDescription());
             }
+            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                @Override
+                public void onInit(int status) {
+                    if (status != TextToSpeech.ERROR) {
+                        textToSpeech.setLanguage(new Locale("pl"));
+                    }
+                }
+            });
         }
 
         public void printInstructionsAsPoints(List<RoadNode> instructions, MapView map) {
@@ -364,9 +345,24 @@ public class RouteActivity extends Activity implements Trackable {
         public void setRoadOverlay(Polyline roadOverlay) {
             this.roadOverlay = roadOverlay;
         }
-
-        public void setRoadNodes(ArrayList<RoadNode> roadNodes) {
-            this.roadNodes = roadNodes;
+        private void speakInstruction(List<RoadNode> roadNodes, Location loc, boolean forceSpeak) {
+            Location nextNode = getLocation(roadNodes.get(0).mLocation);
+            String text;
+            float distance = loc.distanceTo(nextNode);
+            if (roadNodes.size() == 0 && loc.distanceTo(getLocation(roadNodes.get(roadNodes.size() - 1).mLocation)) < 25) {
+                text = "Dojechales do celu podróży";
+            } else if ((forceSpeak) || (distance > 25 && distance < 40) || (distance > 15 && distance < 20)) {
+                text = "Za " + RoutingUtil.getLengthTextToSpeech(distance) + roadNodes.get(0).mInstructions;
+            } else if ((distance < 10)) {
+                text = roadNodes.get(0).mInstructions;
+            } else if (distance < 5) {
+                roadNodes.remove(0);
+                nextNode = getLocation(roadNodes.get(0).mLocation);
+                text = "Za " + RoutingUtil.getLengthTextToSpeech(loc.distanceTo(nextNode)) + roadNodes.get(0).mInstructions;
+            } else {
+                return;
+            }
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         }
     }
 
