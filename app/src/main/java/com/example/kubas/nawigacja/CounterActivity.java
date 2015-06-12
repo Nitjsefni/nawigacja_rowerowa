@@ -64,7 +64,7 @@ public class CounterActivity extends Activity {
 
         private void refreshValues() {
             Location location = GPSManager.getInstance().getActualLocation();
-            setText(findViewById(R.id.speed), location.getSpeed());
+            setText(findViewById(R.id.speed), location.getSpeed()*3.6);
             setText(findViewById(R.id.hour), Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + Calendar.getInstance().get(Calendar.MINUTE));
             setText(findViewById(R.id.averageSpeed), travel.getAverageSpeed());
             setText(findViewById(R.id.traVelLength), String.valueOf(Math.round(travel.getLength() * 100) / 100));

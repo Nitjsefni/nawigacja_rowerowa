@@ -5,44 +5,11 @@
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="70dp"
+        android:layout_height="30dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:background="#ff9c9c9c"
         android:id="@+id/relativeLayout2">
-
-        <ImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:id="@+id/maneuverImg"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:src="@drawable/ic_slight_left"
-            android:background="#ff9c9c9c" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/txtV_Route_InstructionNode"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/maneuverImg"
-            android:textStyle="bold"
-            android:textColor="#ff000000"
-            android:layout_toLeftOf="@+id/txtV_Route_Speed"
-            android:layout_toStartOf="@+id/txtV_Route_Speed" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/txtV_Route_DistanceNode"
-            android:layout_below="@+id/txtV_Route_InstructionNode"
-            android:layout_toRightOf="@+id/maneuverImg"
-            android:layout_toEndOf="@+id/maneuverImg"
-            android:textColor="#ff000000" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,8 +19,11 @@
             android:textColor="#ff000000"
             android:layout_below="@+id/txtV_Route_InstructionNode"
             android:layout_toRightOf="@+id/txtV_Route_DistanceNode"
-            android:layout_toEndOf="@+id/txtV_Route_DistanceNode"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginLeft="5dp"
+            android:layout_alignRight="@+id/txtV_Route_MaxLength"
+            android:layout_alignEnd="@+id/txtV_Route_MaxLength"
+            android:text="time"
+            android:visibility="gone" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -63,9 +33,7 @@
             android:id="@+id/txtV_Route_Speed"
             android:textColor="#ffffffff"
             android:textStyle="bold"
-            android:layout_below="@+id/txtV_Route_TimeNode"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_centerHorizontal="true" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -75,9 +43,9 @@
             android:id="@+id/txtV_Route_MaxLength"
             android:textColor="#ffffffff"
             android:textStyle="bold"
-            android:layout_above="@+id/txtV_Route_Speed"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -85,15 +53,66 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="0 m"
             android:id="@+id/txtV_Route_Time"
+            android:textStyle="bold"
+            android:textColor="#ffffffff"
             android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/imageButton3"
+            android:layout_toStartOf="@+id/imageButton3" />
+
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:id="@+id/imageButton3"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:textStyle="bold"
-            android:textColor="#ffffffff" />
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:src="@android:drawable/ic_menu_today" />
 
     </RelativeLayout>
+
     <org.osmdroid.views.MapView android:id="@+id/map2"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@+id/relativeLayout2" />
+        android:layout_alignTop="@+id/maneuverImg" />
+
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:id="@+id/maneuverImg"
+        android:background="#ff9c9c9c"
+        android:layout_below="@+id/relativeLayout2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:src="@android:drawable/ic_media_play" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/txtV_Route_DistanceNode"
+        android:textColor="#ff000000"
+        android:layout_below="@+id/maneuverImg"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/maneuverImg"
+        android:layout_alignEnd="@+id/maneuverImg"
+        android:gravity="center"
+        android:background="#ff9c9c9c" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/txtV_Route_InstructionNode"
+        android:textStyle="bold"
+        android:textColor="#ff000000"
+        android:text="test"
+        android:layout_alignTop="@+id/map2"
+        android:layout_toRightOf="@+id/maneuverImg"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center_vertical|right"
+        android:background="#ff9c9c9c" />
+
 </RelativeLayout>

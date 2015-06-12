@@ -106,7 +106,6 @@ public class RouteActivity extends Activity implements Trackable {
     }
 
 
-
     private Location getLocation(GeoPoint point) {
         Location nextNode = new Location("gps");
         nextNode.setLatitude(point.getLatitude());
@@ -239,6 +238,7 @@ public class RouteActivity extends Activity implements Trackable {
         private Marker endMarker, startMarker, viaMarker;
         private Polyline roadOverlay;
         private TextToSpeech textToSpeech;
+        private Location previousLoc;
 
         public RouteViewManager(Activity activity, RoutePoints points) {
             this.activity = activity;
@@ -290,9 +290,9 @@ public class RouteActivity extends Activity implements Trackable {
         }
 
         private void printSpeed(Location loc) {
-            String value = "0 m/s";
+            String value = "0 km/h";
             if (loc.hasSpeed()) {
-                value = String.valueOf(loc.getSpeed()) + " m/s";
+                value = Math.round(loc.getSpeed() * 3.6) + " km/h";
             }
             ((TextView) activity.findViewById(R.id.txtV_Route_Speed)).setText(value);
         }
@@ -345,7 +345,14 @@ public class RouteActivity extends Activity implements Trackable {
         public void setRoadOverlay(Polyline roadOverlay) {
             this.roadOverlay = roadOverlay;
         }
+
         private void speakInstruction(List<RoadNode> roadNodes, Location loc, boolean forceSpeak) {
+            ///jak stoje w miejscu to gada kilka razy. powinno byc zabezpieczenie, ze gada tylko jesli zmienila stan ( stany to zakresy odleglosci od punktu)
+            //to rozwiazanie nie starcza:(
+            if ((loc.equals(previousLoc) || !loc.hasSpeed()) && !forceSpeak) {
+                return;
+            }
+            previousLoc = loc;
             Location nextNode = getLocation(roadNodes.get(0).mLocation);
             String text;
             float distance = loc.distanceTo(nextNode);
