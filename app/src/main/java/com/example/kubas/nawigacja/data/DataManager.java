@@ -8,7 +8,7 @@ import com.example.kubas.nawigacja.client.RouteListClient;
 import com.example.kubas.nawigacja.data.interfaces.Listener;
 import com.example.kubas.nawigacja.data.model.ListWithNotification;
 import com.example.kubas.nawigacja.data.model.Route;
-import com.example.kubas.nawigacja.data.model.Travel;
+import com.example.kubas.nawigacja.data.model.travel.Travel;
 import com.example.kubas.nawigacja.exceptions.UnAuthorizedException;
 import com.example.kubas.nawigacja.list_adapters.RouteListAdapter;
 

@@ -17,7 +17,8 @@ import com.example.kubas.nawigacja.client.SavedRouteOSMRRoadManager;
 import com.example.kubas.nawigacja.data.DataManager;
 import com.example.kubas.nawigacja.data.model.GeoPosition;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
-import com.example.kubas.nawigacja.data.model.Travel;
+import com.example.kubas.nawigacja.data.model.travel.RoadNodeToSpeak;
+import com.example.kubas.nawigacja.data.model.travel.Travel;
 import com.example.kubas.nawigacja.gps.GPSManager;
 import com.example.kubas.nawigacja.routing.RoutingUtil;
 import com.example.kubas.nawigacja.tracking.ShowPosition;
@@ -38,7 +39,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class RouteActivity extends Activity implements Trackable {
-    public static final double DEFAULT_SPEED = 4.0;
     private final GPSManager gpsManager = GPSManager.getInstance();
     private ShowPosition showPosition;
     private RouteViewManager routeViewManager;
@@ -106,14 +106,6 @@ public class RouteActivity extends Activity implements Trackable {
         }
     }
 
-
-    private Location getLocation(GeoPoint point) {
-        Location nextNode = new Location("gps");
-        nextNode.setLatitude(point.getLatitude());
-        nextNode.setLongitude(point.getLongitude());
-        return nextNode;
-    }
-
     public void refreshTrackingPosition(List<GeoPoint> route, Location loc) {
     }
 
@@ -131,6 +123,14 @@ public class RouteActivity extends Activity implements Trackable {
     }
 
 
+    private interface StartRoute extends Runnable {
+        void setTravel(Travel travel);
+    }
+
+    private interface RefreshRoute extends Runnable {
+        void setLoc(Location loc);
+    }
+
     private class StartViewWithRouting implements StartRoute {
         private final MapView map;
         private Travel travel;
@@ -139,16 +139,14 @@ public class RouteActivity extends Activity implements Trackable {
             this.map = map;
         }
 
-
         public void run() {
-            Road road = travel.getRoad();
             map.getController().setZoom(14);
-            int distance = Math.round(gpsManager.getActualPosition().distanceTo(road.mNodes.get(0).mLocation));
+            int distance = Math.round(gpsManager.getActualPosition().distanceTo(travel.getNextInstructionNode().getLocation()));
             routeViewManager.refreshOverlays();
             routeViewManager.printSpeed(gpsManager.getActualLocation());
-            routeViewManager.setRouteSummary(road.mLength * 1000, road.mDuration);
-            routeViewManager.setInstructionView(road.mNodes.get(0), distance, distance / DEFAULT_SPEED);
-            routeViewManager.speakInstruction(road.mNodes, gpsManager.getActualLocation(), true);
+            routeViewManager.setRouteSummary(travel.getTotalRoadLength(), travel.getTotalRoadDuration());
+            routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
+            routeViewManager.speakInstruction(travel.getNextInstructionNode(), gpsManager.getActualLocation());
         }
 
         @Override
@@ -167,10 +165,9 @@ public class RouteActivity extends Activity implements Trackable {
 
 
         public void run() {
-            Road road = travel.getRoad();
             map.getController().setZoom(14);
             routeViewManager.refreshOverlays();
-            routeViewManager.setRouteSummary(road.mLength * 1000, road.mDuration);
+            routeViewManager.setRouteSummary(travel.getTotalRoadLength(), travel.getTotalRoadDuration());
         }
 
         @Override
@@ -187,20 +184,20 @@ public class RouteActivity extends Activity implements Trackable {
             Travel travel = DataManager.getInstance().getTravel();
             double totalLength = 0.0;
             double totalDuration = 0.0;
-            for (RoadNode node : travel.getRoad().mNodes) {
+            for (RoadNode node : travel.getInstructionsNodes()) {
                 totalDuration += node.mDuration;
                 totalLength += node.mLength * 1000;
             }
-            int distance = Math.round(gpsManager.getActualPosition().distanceTo(travel.getRoad().mNodes.get(0).mLocation));
+            int distance = Math.round(gpsManager.getActualPosition().distanceTo(travel.getNextInstructionNode().getLocation()));
             MapView map = (MapView) findViewById(R.id.map2);
             map.getController().setZoom(17);
             map.getController().setCenter(new GeoPoint(loc));
             Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", android.R.drawable.arrow_down_float, "");
             routeViewManager.refreshOverlays(currentPositionMarker);
             routeViewManager.printSpeed(loc);
-            routeViewManager.setInstructionView(travel.getRoad().mNodes.get(0), distance, distance / DEFAULT_SPEED);
+            routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
             routeViewManager.setRouteSummary(totalLength, totalDuration);
-            routeViewManager.speakInstruction(travel.getRoad().mNodes, loc, false);
+            routeViewManager.speakInstruction(travel.getNextInstructionNode(), loc);
         }
 
         public void setLoc(Location loc) {
@@ -248,7 +245,6 @@ public class RouteActivity extends Activity implements Trackable {
         private Marker endMarker, startMarker, viaMarker;
         private Polyline roadOverlay;
         private TextToSpeech textToSpeech;
-        private Location previousLoc;
 
         public RouteViewManager(Activity activity, RoutePoints points) {
             this.activity = activity;
@@ -274,6 +270,7 @@ public class RouteActivity extends Activity implements Trackable {
             });
         }
 
+        @Deprecated
         public void printInstructionsAsPoints(List<RoadNode> instructions, MapView map) {
             TypedArray iconIds = activity.getResources().obtainTypedArray(R.array.direction_icons);
             for (int i = 0; i < instructions.size(); i++) {
@@ -307,16 +304,17 @@ public class RouteActivity extends Activity implements Trackable {
             ((TextView) activity.findViewById(R.id.txtV_Route_Speed)).setText(value);
         }
 
-        private void setInstructionView(RoadNode node, double length, double time) {
+        private void setInstructionView(RoadNodeToSpeak node, double length) {
+            TextView txtV_Route_InstructionNode = (TextView) activity.findViewById(R.id.txtV_Route_InstructionNode);
+            if (node.getInstruction() == txtV_Route_InstructionNode.getText()) {
+                return;
+            }
             TypedArray iconIds = activity.getResources().obtainTypedArray(R.array.direction_icons);
             ImageView maneuverImg = (ImageView) activity.findViewById(R.id.maneuverImg);
             TextView txtV_Route_DistanceNode = (TextView) activity.findViewById(R.id.txtV_Route_DistanceNode);
-            TextView txtV_Route_InstructionNode = (TextView) activity.findViewById(R.id.txtV_Route_InstructionNode);
-            TextView txtV_Route_TimeNode = (TextView) activity.findViewById(R.id.txtV_Route_TimeNode);
-            txtV_Route_InstructionNode.setText(node.mInstructions);
+            txtV_Route_InstructionNode.setText(node.getInstruction());
             txtV_Route_DistanceNode.setText(RoutingUtil.getFormattedDistance(length));
-            txtV_Route_TimeNode.setText(RoutingUtil.getFormattedTime(time));
-            int iconId = iconIds.getResourceId(node.mManeuverType, R.drawable.ic_empty);
+            int iconId = iconIds.getResourceId(node.getManeuverType(), R.drawable.ic_empty);
             if (iconId != R.drawable.ic_empty) {
                 Drawable icon2 = activity.getResources().getDrawable(iconId);
                 maneuverImg.setImageDrawable(icon2);
@@ -348,7 +346,6 @@ public class RouteActivity extends Activity implements Trackable {
             for (Overlay overlay : additional) {
                 map.getOverlays().add(overlay);
             }
-//            printInstructionsAsPoints(roadNodes, map);
             map.invalidate();
         }
 
@@ -356,38 +353,15 @@ public class RouteActivity extends Activity implements Trackable {
             this.roadOverlay = roadOverlay;
         }
 
-        private void speakInstruction(List<RoadNode> roadNodes, Location loc, boolean forceSpeak) {
-            ///jak stoje w miejscu to gada kilka razy. powinno byc zabezpieczenie, ze gada tylko jesli zmienila stan ( stany to zakresy odleglosci od punktu)
-            //to rozwiazanie nie starcza:(
-            if ((loc.equals(previousLoc) || !loc.hasSpeed()) && !forceSpeak) {
-                return;
-            }
-            previousLoc = loc;
-            Location nextNode = getLocation(roadNodes.get(0).mLocation);
+        private void speakInstruction(RoadNodeToSpeak roadNode, Location loc) {
             String text;
-            float distance = loc.distanceTo(nextNode);
-            if (roadNodes.size() == 0 && loc.distanceTo(getLocation(roadNodes.get(roadNodes.size() - 1).mLocation)) < 25) {
-                text = "Dojechales do celu podróży";
-            } else if ((forceSpeak) || (distance > 25 && distance < 40) || (distance > 15 && distance < 20)) {
-                text = "Za " + RoutingUtil.getDistanceWithFullNames(distance) + roadNodes.get(0).mInstructions;
-            } else if ((distance < 10)) {
-                text = roadNodes.get(0).mInstructions;
-            } else if (distance < 5) {
-                roadNodes.remove(0);
-                nextNode = getLocation(roadNodes.get(0).mLocation);
-                text = "Za " + RoutingUtil.getDistanceWithFullNames(loc.distanceTo(nextNode)) + roadNodes.get(0).mInstructions;
-            } else {
+            text = roadNode.getInstructionText(loc);
+            if (text == null) {
                 return;
             }
             textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         }
-    }
 
-    private interface StartRoute extends Runnable {
-        void setTravel(Travel travel);
-    }
 
-    private interface RefreshRoute extends Runnable {
-        void setLoc(Location loc);
     }
 }

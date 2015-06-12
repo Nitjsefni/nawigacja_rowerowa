@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.kubas.nawigacja.data.DataManager;
-import com.example.kubas.nawigacja.data.model.Travel;
+import com.example.kubas.nawigacja.data.model.travel.Travel;
 import com.example.kubas.nawigacja.gps.GPSManager;
 
 import java.util.Calendar;
@@ -68,7 +68,7 @@ public class CounterActivity extends Activity {
             setText(findViewById(R.id.hour), Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + Calendar.getInstance().get(Calendar.MINUTE));
             setText(findViewById(R.id.averageSpeed), travel.getAverageSpeed());
             setText(findViewById(R.id.traVelLength), String.valueOf(Math.round(travel.getLength() * 100) / 100));
-            setText(findViewById(R.id.travelTime), travel.getDuration());
+            setText(findViewById(R.id.travelTime), travel.getTotalRoadDuration());
             setText(findViewById(R.id.height), location.getAltitude());
         }
 

@@ -32,8 +32,8 @@ public class ShowPosition implements Runnable {
         if (location == null) {
             return;
         }
-        Log.i("PostPosit", "Lat: " + location.getLatitude() + " long: " + location.getLongitude() + " accuracy: " + location.getAccuracy());
-        Log.i("PostPosit", "Bear: " + location.getBearing() + " prov: " + location.getProvider() + " speed: " + location.getSpeed());
+        Log.i(ShowPosition.class.getName(), "Lat: " + location.getLatitude() + " long: " + location.getLongitude() + " accuracy: " + location.getAccuracy());
+        Log.i(ShowPosition.class.getName(), "Bear: " + location.getBearing() + " prov: " + location.getProvider() + " speed: " + location.getSpeed());
         trackable.refreshMapPosition(location);
     }
 
