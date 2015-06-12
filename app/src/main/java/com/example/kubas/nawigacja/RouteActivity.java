@@ -14,8 +14,10 @@ import android.widget.Toast;
 
 import com.example.kubas.nawigacja.client.OwnOSRMRoadManager;
 import com.example.kubas.nawigacja.client.SavedRouteOSMRRoadManager;
+import com.example.kubas.nawigacja.data.DataManager;
 import com.example.kubas.nawigacja.data.model.GeoPosition;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
+import com.example.kubas.nawigacja.data.model.Travel;
 import com.example.kubas.nawigacja.gps.GPSManager;
 import com.example.kubas.nawigacja.routing.RoutingUtil;
 import com.example.kubas.nawigacja.tracking.ShowPosition;
@@ -39,7 +41,6 @@ public class RouteActivity extends Activity implements Trackable {
     public static final double DEFAULT_SPEED = 4.0;
     private final GPSManager gpsManager = GPSManager.getInstance();
     private ShowPosition showPosition;
-    private ArrayList<RoadNode> roadNodes;
     private RouteViewManager routeViewManager;
     private RefreshRoute refreshView;
     private StartRoute startView;
@@ -132,43 +133,49 @@ public class RouteActivity extends Activity implements Trackable {
 
     private class StartViewWithRouting implements StartRoute {
         private final MapView map;
-        private Road road;
+        private Travel travel;
 
         public StartViewWithRouting(MapView map) {
             this.map = map;
         }
 
-        public void setRoad(Road road) {
-            this.road = road;
-        }
 
         public void run() {
+            Road road = travel.getRoad();
             map.getController().setZoom(14);
-            int distance = Math.round(gpsManager.getActualPosition().distanceTo(roadNodes.get(0).mLocation));
+            int distance = Math.round(gpsManager.getActualPosition().distanceTo(road.mNodes.get(0).mLocation));
             routeViewManager.refreshOverlays();
             routeViewManager.printSpeed(gpsManager.getActualLocation());
             routeViewManager.setRouteSummary(road.mLength * 1000, road.mDuration);
-            routeViewManager.setInstructionView(roadNodes.get(0), distance, distance / DEFAULT_SPEED);
-            routeViewManager.speakInstruction(roadNodes, gpsManager.getActualLocation(), true);
+            routeViewManager.setInstructionView(road.mNodes.get(0), distance, distance / DEFAULT_SPEED);
+            routeViewManager.speakInstruction(road.mNodes, gpsManager.getActualLocation(), true);
+        }
+
+        @Override
+        public void setTravel(Travel travel) {
+            this.travel = travel;
         }
     }
 
     private class StartViewWithoutRouting implements StartRoute {
         private final MapView map;
-        private Road road;
+        private Travel travel;
 
         public StartViewWithoutRouting(MapView map) {
             this.map = map;
         }
 
-        public void setRoad(Road road) {
-            this.road = road;
-        }
 
         public void run() {
+            Road road = travel.getRoad();
             map.getController().setZoom(14);
             routeViewManager.refreshOverlays();
             routeViewManager.setRouteSummary(road.mLength * 1000, road.mDuration);
+        }
+
+        @Override
+        public void setTravel(Travel travel) {
+            this.travel = travel;
         }
     }
 
@@ -177,22 +184,23 @@ public class RouteActivity extends Activity implements Trackable {
 
         @Override
         public void run() {
+            Travel travel = DataManager.getInstance().getTravel();
             double totalLength = 0.0;
             double totalDuration = 0.0;
-            for (RoadNode node : roadNodes) {
+            for (RoadNode node : travel.getRoad().mNodes) {
                 totalDuration += node.mDuration;
                 totalLength += node.mLength * 1000;
             }
-            int distance = Math.round(gpsManager.getActualPosition().distanceTo(roadNodes.get(0).mLocation));
+            int distance = Math.round(gpsManager.getActualPosition().distanceTo(travel.getRoad().mNodes.get(0).mLocation));
             MapView map = (MapView) findViewById(R.id.map2);
             map.getController().setZoom(17);
             map.getController().setCenter(new GeoPoint(loc));
             Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", android.R.drawable.arrow_down_float, "");
             routeViewManager.refreshOverlays(currentPositionMarker);
             routeViewManager.printSpeed(loc);
-            routeViewManager.setInstructionView(roadNodes.get(0), distance, distance / DEFAULT_SPEED);
+            routeViewManager.setInstructionView(travel.getRoad().mNodes.get(0), distance, distance / DEFAULT_SPEED);
             routeViewManager.setRouteSummary(totalLength, totalDuration);
-            routeViewManager.speakInstruction(roadNodes, loc, false);
+            routeViewManager.speakInstruction(travel.getRoad().mNodes, loc, false);
         }
 
         public void setLoc(Location loc) {
@@ -222,9 +230,11 @@ public class RouteActivity extends Activity implements Trackable {
             }
             try {
                 Road road = roadManager.getRoad(waypoints);
-                roadNodes = new ArrayList<>(road.mNodes);
+                Travel travel = new Travel();
+                travel.setRoad(road);
+                DataManager.getInstance().setTravel(travel);
                 routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this));
-                startView.setRoad(road);
+                startView.setTravel(travel);
                 runOnUiThread(startView);
             } catch (Exception e) {
                 Log.e(this.getClass().getName(), e.getMessage(), e);
@@ -374,7 +384,7 @@ public class RouteActivity extends Activity implements Trackable {
     }
 
     private interface StartRoute extends Runnable {
-        void setRoad(Road road);
+        void setTravel(Travel travel);
     }
 
     private interface RefreshRoute extends Runnable {
