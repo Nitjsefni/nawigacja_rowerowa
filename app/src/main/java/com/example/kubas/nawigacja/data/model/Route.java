@@ -1,5 +1,7 @@
 package com.example.kubas.nawigacja.data.model;
 
+import com.example.kubas.nawigacja.routing.RoutingUtil;
+
 public class Route {
     private final int id;
     private final String name;
@@ -40,36 +42,10 @@ public class Route {
     }
 
     public String getFormattedLength() {
-        StringBuilder sb = new StringBuilder();
-        double length = this.length;
-        if (length >= 1) {
-            double floor = Math.floor(length);
-            sb.append(Math.round(floor));
-            sb.append(" km ");
-            length -= floor;
-        }
-        length *= 1000;
-        if (length >= 1) {
-            sb.append(Math.round(length));
-            sb.append("m");
-        }
-        return sb.toString();
+        return RoutingUtil.getFormattedDistance(this.length * 1000);
     }
 
     public String getFormattedTime() {
-        StringBuilder sb = new StringBuilder();
-        double time = this.time / 3600;
-        if (time >= 1) {
-            double floor = Math.floor(time);
-            sb.append(Math.round(floor));
-            sb.append("h ");
-            time -= floor;
-        }
-        time *= 60;
-        if (time >= 1) {
-            sb.append(Math.round(time));
-            sb.append(" min");
-        }
-        return sb.toString();
+        return RoutingUtil.getFormattedTime(this.time);
     }
 }

@@ -314,8 +314,8 @@ public class RouteActivity extends Activity implements Trackable {
             TextView txtV_Route_InstructionNode = (TextView) activity.findViewById(R.id.txtV_Route_InstructionNode);
             TextView txtV_Route_TimeNode = (TextView) activity.findViewById(R.id.txtV_Route_TimeNode);
             txtV_Route_InstructionNode.setText(node.mInstructions);
-            txtV_Route_DistanceNode.setText(RoutingUtil.getLengthText(length));
-            txtV_Route_TimeNode.setText(RoutingUtil.getDurationText(time));
+            txtV_Route_DistanceNode.setText(RoutingUtil.getFormattedDistance(length));
+            txtV_Route_TimeNode.setText(RoutingUtil.getFormattedTime(time));
             int iconId = iconIds.getResourceId(node.mManeuverType, R.drawable.ic_empty);
             if (iconId != R.drawable.ic_empty) {
                 Drawable icon2 = activity.getResources().getDrawable(iconId);
@@ -326,8 +326,8 @@ public class RouteActivity extends Activity implements Trackable {
         private void setRouteSummary(double length, double time) {
             TextView txtV_Route_Time = (TextView) activity.findViewById(R.id.txtV_Route_Time);
             TextView textViewRouteMaxLength = (TextView) activity.findViewById(R.id.txtV_Route_MaxLength);
-            textViewRouteMaxLength.setText(RoutingUtil.getLengthText(length));
-            txtV_Route_Time.setText(RoutingUtil.getDurationText(time));
+            textViewRouteMaxLength.setText(RoutingUtil.getFormattedDistance(length));
+            txtV_Route_Time.setText(RoutingUtil.getFormattedTime(time));
         }
 
         private void refreshOverlays(Overlay... additional) {
@@ -369,13 +369,13 @@ public class RouteActivity extends Activity implements Trackable {
             if (roadNodes.size() == 0 && loc.distanceTo(getLocation(roadNodes.get(roadNodes.size() - 1).mLocation)) < 25) {
                 text = "Dojechales do celu podróży";
             } else if ((forceSpeak) || (distance > 25 && distance < 40) || (distance > 15 && distance < 20)) {
-                text = "Za " + RoutingUtil.getLengthTextToSpeech(distance) + roadNodes.get(0).mInstructions;
+                text = "Za " + RoutingUtil.getDistanceWithFullNames(distance) + roadNodes.get(0).mInstructions;
             } else if ((distance < 10)) {
                 text = roadNodes.get(0).mInstructions;
             } else if (distance < 5) {
                 roadNodes.remove(0);
                 nextNode = getLocation(roadNodes.get(0).mLocation);
-                text = "Za " + RoutingUtil.getLengthTextToSpeech(loc.distanceTo(nextNode)) + roadNodes.get(0).mInstructions;
+                text = "Za " + RoutingUtil.getDistanceWithFullNames(loc.distanceTo(nextNode)) + roadNodes.get(0).mInstructions;
             } else {
                 return;
             }

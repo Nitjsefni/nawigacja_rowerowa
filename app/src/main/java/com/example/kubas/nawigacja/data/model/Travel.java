@@ -8,7 +8,7 @@ import java.util.Date;
 public class Travel {
     private Date start;
     private double length;
-    private Road road;
+    private RoadWithInstructions road;
 
     public Travel() {
         this.start = Calendar.getInstance().getTime();
@@ -27,15 +27,15 @@ public class Travel {
     }
 
     public long getDuration() {
-        long miliseconds = Calendar.getInstance().getTime().getTime() - getStart().getTime();
-        return miliseconds / 1000 / 60;
+        long milliseconds = Calendar.getInstance().getTime().getTime() - getStart().getTime();
+        return milliseconds / 1000 / 60;
     }
 
     public void setRoad(Road road) {
-        this.road = road;
+        this.road = new RoadWithInstructions(road);
     }
 
     public Road getRoad() {
-        return road;
+        return road.getRoad();
     }
 }
