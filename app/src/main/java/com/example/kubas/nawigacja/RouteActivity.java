@@ -170,9 +170,6 @@ public class RouteActivity extends Activity implements Trackable {
         }
 
         public void run() {
-            routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this));
-            roadNodes = new ArrayList<>(road.mNodes);
-            routeViewManager.setRoadNodes(roadNodes);
             map.getController().setZoom(14);
             int distance = Math.round(gpsManager.getActualPosition().distanceTo(roadNodes.get(0).mLocation));
             routeViewManager.refreshOverlays();
@@ -196,9 +193,6 @@ public class RouteActivity extends Activity implements Trackable {
         }
 
         public void run() {
-            routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this));
-            roadNodes = new ArrayList<>(road.mNodes);
-            routeViewManager.setRoadNodes(roadNodes);
             map.getController().setZoom(14);
             routeViewManager.refreshOverlays();
             routeViewManager.setRouteSummary(road.mLength * 1000, road.mDuration);
@@ -214,7 +208,7 @@ public class RouteActivity extends Activity implements Trackable {
             double totalDuration = 0.0;
             for (RoadNode node : roadNodes) {
                 totalDuration += node.mDuration;
-                totalLength += node.mLength*1000;
+                totalLength += node.mLength * 1000;
             }
             int distance = Math.round(gpsManager.getActualPosition().distanceTo(roadNodes.get(0).mLocation));
             MapView map = (MapView) findViewById(R.id.map2);
@@ -254,7 +248,11 @@ public class RouteActivity extends Activity implements Trackable {
                 waypoints.add(points.getEndPoint().getGeoPoint());
             }
             try {
-                startView.setRoad(roadManager.getRoad(waypoints));
+                Road road = roadManager.getRoad(waypoints);
+                roadNodes = new ArrayList<>(road.mNodes);
+                routeViewManager.setRoadNodes(roadNodes);
+                routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this));
+                startView.setRoad(road);
                 runOnUiThread(startView);
             } catch (Exception e) {
                 Log.e(this.getClass().getName(), e.getMessage(), e);
@@ -289,7 +287,7 @@ public class RouteActivity extends Activity implements Trackable {
             TypedArray iconIds = activity.getResources().obtainTypedArray(R.array.direction_icons);
             for (int i = 0; i < instructions.size(); i++) {
                 RoadNode node = instructions.get(i);
-                Marker nodeMarker = createMarker(node.mLocation, "Step " + i, R.drawable.marker_node, Road.getLengthDurationText(node.mLength*1000, node.mDuration));
+                Marker nodeMarker = createMarker(node.mLocation, "Step " + i, R.drawable.marker_node, Road.getLengthDurationText(node.mLength * 1000, node.mDuration));
                 nodeMarker.setSnippet(node.mInstructions);
                 int iconId = iconIds.getResourceId(node.mManeuverType, R.drawable.ic_empty);
                 if (iconId != R.drawable.ic_empty) {
