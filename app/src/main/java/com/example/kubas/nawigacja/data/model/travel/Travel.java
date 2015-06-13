@@ -3,6 +3,7 @@ package com.example.kubas.nawigacja.data.model.travel;
 import android.location.Location;
 import android.os.Handler;
 
+import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.gps.GPSManager;
 
 import org.osmdroid.bonuspack.routing.Road;
@@ -24,6 +25,7 @@ public class Travel implements Runnable {
     private double length;
     private List<RoadElement> history = new ArrayList<>();
     private Road road;
+    private RoutePoints points;
     private Handler handler;
     private Location previousLocation;
     private GPSManager gpsManager = GPSManager.getInstance();
@@ -33,6 +35,19 @@ public class Travel implements Runnable {
         this.start = Calendar.getInstance().getTime();
         this.handler = new Handler();
         this.handler.postDelayed(this, HISTORY_REFRESH_FREQUENCY);
+    }
+
+    public Travel(Road road, RoutePoints points) {
+        this();
+        this.road = road;
+        this.points = points;
+        setNextInstructionNode(road.mNodes.get(0));
+        //tymczasowo - poki serwer nie wysyla poczatku i konca
+        RoadNode roadNode = new RoadNode();
+        roadNode.mLocation = points.getStartPoint().getGeoPoint();
+        roadNode.mInstructions = "Punkt strartowy";
+        road.mNodes.add(0, roadNode);
+//        road.mNodes.add(new RoadNode());
     }
 
     public Date getStart() {
@@ -52,10 +67,6 @@ public class Travel implements Runnable {
         return milliseconds / 1000 / 60;
     }
 
-    public void setRoad(Road road) {
-        this.road = road;
-        setNextInstructionNode(road.mNodes.get(0));
-    }
 
     public List<RoadNode> getInstructionsNodes() {
         if (road == null) {

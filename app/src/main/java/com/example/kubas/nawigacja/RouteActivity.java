@@ -182,7 +182,7 @@ public class RouteActivity extends Activity implements Trackable {
         @Override
         public void run() {
             Travel travel = DataManager.getInstance().getTravel();
-            if (!travel.isRoadChoosen()){
+            if (!travel.isRoadChoosen()) {
                 return;
             }
             double totalLength = 0.0;
@@ -195,8 +195,9 @@ public class RouteActivity extends Activity implements Trackable {
             MapView map = (MapView) findViewById(R.id.map2);
             map.getController().setZoom(17);
             map.getController().setCenter(new GeoPoint(loc));
-            Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", android.R.drawable.arrow_down_float, "");
+            Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", R.drawable.arrow, "");
             routeViewManager.refreshOverlays(currentPositionMarker);
+            routeViewManager.rotateMap(loc);
             routeViewManager.printSpeed(loc);
             routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
             routeViewManager.setRouteSummary(totalLength, totalDuration);
@@ -233,8 +234,7 @@ public class RouteActivity extends Activity implements Trackable {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Travel travel = new Travel();
-                        travel.setRoad(road);
+                        Travel travel = new Travel(road, points);
                         DataManager.getInstance().setTravel(travel);
                         routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this));
                         startView.setTravel(travel);
@@ -249,7 +249,6 @@ public class RouteActivity extends Activity implements Trackable {
 
     private class RouteViewManager {
         private Activity activity;
-        private MapView map;
         private Marker endMarker, startMarker, viaMarker;
         private Polyline roadOverlay;
         private TextToSpeech textToSpeech;
@@ -257,7 +256,7 @@ public class RouteActivity extends Activity implements Trackable {
         public RouteViewManager(Activity activity, RoutePoints points) {
             this.activity = activity;
 
-            map = (MapView) activity.findViewById(R.id.map2);
+            MapView map = (MapView) activity.findViewById(R.id.map2);
             if (points.getStartPoint() != null) {
                 map.getController().setCenter(points.getStartPoint().getGeoPoint());
                 startMarker = createMarker(points.getStartPoint().getGeoPoint(), "Punkt poczatkowy", R.drawable.marker_departure, points.getStartPoint().getDescription());
@@ -295,10 +294,12 @@ public class RouteActivity extends Activity implements Trackable {
         }
 
         private Marker createMarker(GeoPoint point, String name, int resourceToShow, String description) {
+            MapView map = (MapView) activity.findViewById(R.id.map2);
             Marker marker = new Marker(map);
             marker.setPosition(point);
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            marker.setIcon(activity.getResources().getDrawable(resourceToShow));
+            Drawable drawable = activity.getResources().getDrawable(resourceToShow);
+            marker.setIcon(drawable);
             marker.setTitle(name);
             marker.setSubDescription(description);
             return marker;
@@ -370,6 +371,13 @@ public class RouteActivity extends Activity implements Trackable {
             textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         }
 
+
+        public void rotateMap(Location loc) {
+            MapView map = (MapView) activity.findViewById(R.id.map2);
+            if (loc.hasBearing()) {
+                map.setMapOrientation(loc.getBearing());
+            }
+        }
 
     }
 }
