@@ -59,7 +59,10 @@ public class Travel implements Runnable {
     }
 
     public double getAverageSpeed() {
-        return getLength() / getTotalRoadDuration();
+        if (getDuration() == 0) {
+            return 0;
+        }
+        return getLength() / getDuration();
     }
 
     public long getDuration() {

@@ -41,6 +41,81 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/textView"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/linearLayout2">
+
+            <RelativeLayout
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/radious_space"
+                android:layout_margin="10dp" >
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/linearLayout5"
+                    android:layout_above="@+id/hugeTitle"
+                    android:gravity="center_horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="0.0"
+                        android:gravity="right|bottom"
+                        android:id="@+id/hugeValue"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="false"
+                        android:textSize="70dp"
+                        android:layout_toLeftOf="@+id/hugeJed"
+                        android:layout_toStartOf="@+id/hugeJed"
+                        android:layout_marginRight="2dp"
+                        android:layout_above="@+id/hugeTitle"
+                        android:layout_marginBottom="0dp"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="km/h"
+                        android:gravity="bottom"
+                        android:id="@+id/hugeJed"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
+                        android:textSize="35sp"
+                        android:layout_above="@+id/hugeTitle"
+                        android:layout_marginBottom="7dp"
+                        android:layout_marginRight="20dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Prędkość"
+                    android:id="@+id/hugeTitle"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:gravity="center_horizontal|top"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="0dp"
+                    android:layout_alignRight="@+id/linearLayout5"
+                    android:layout_alignEnd="@+id/linearLayout5" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
             android:weightSum="2"
             android:layout_height="match_parent"
             android:baselineAligned="false">
@@ -50,7 +125,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/radious_space"
-                android:layout_margin="10dp">
+                android:layout_margin="10dp"
+                android:onClick="showSpeed">
 
                 <TextView
                     android:layout_width="80dp"
@@ -103,7 +179,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/radious_space"
-                android:layout_margin="10dp" >
+                android:layout_margin="10dp"
+                android:onClick="showHour">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -150,7 +227,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/radious_space"
-                android:layout_margin="10dp" >
+                android:layout_margin="10dp"
+                android:onClick="showAvgSpeed">
 
                 <TextView
                     android:layout_width="80dp"
@@ -204,7 +282,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/radious_space"
-                android:layout_margin="10dp" >
+                android:layout_margin="10dp"
+                android:onClick="showTime">
 
                 <TextView
                     android:layout_width="60dp"
@@ -266,7 +345,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/radious_space"
-                android:layout_margin="10dp" >
+                android:layout_margin="10dp"
+                android:onClick="showDistance">
 
                 <TextView
                     android:layout_width="60dp"
@@ -319,7 +399,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/radious_space"
-                android:layout_margin="10dp" >
+                android:layout_margin="10dp"
+                android:onClick="showHight">
 
                 <TextView
                     android:layout_width="60dp"
@@ -367,16 +448,6 @@
                     android:layout_marginBottom="10dp" />
             </RelativeLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/textView"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:id="@+id/linearLayout2"></LinearLayout>
 
     </LinearLayout>
 

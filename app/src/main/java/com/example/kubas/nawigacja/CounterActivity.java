@@ -43,10 +43,35 @@ public class CounterActivity extends Activity {
         refreshTask.stop();
     }
 
+    public void showSpeed(View view) {
+        refreshTask.setMode(CounterMode.SPEED);
+    }
+
+    public void showHour(View view) {
+        refreshTask.setMode(CounterMode.HOUR);
+    }
+
+    public void showAvgSpeed(View view) {
+        refreshTask.setMode(CounterMode.AVG_SPEED);
+    }
+
+    public void showTime(View view) {
+        refreshTask.setMode(CounterMode.TIME);
+    }
+
+    public void showDistance(View view) {
+        refreshTask.setMode(CounterMode.DISTANCE);
+    }
+
+    public void showHight(View view) {
+        refreshTask.setMode(CounterMode.HEIGHT);
+    }
+
     private class RefreshTask implements Runnable {
         private Travel travel;
         private Handler handler;
         private boolean isActive = true;
+        private CounterMode mode = CounterMode.SPEED;
 
         public RefreshTask(Travel travel) {
             this.travel = travel;
@@ -57,18 +82,25 @@ public class CounterActivity extends Activity {
         @Override
         public void run() {
             refreshValues();
+            refreshMainView();
             if (isActive) {
                 handler.postDelayed(this, 900);
             }
         }
 
+        private void refreshMainView() {
+            Location location = GPSManager.getInstance().getActualLocation();
+            setText(findViewById(R.id.hugeValue), mode.getValue(location, travel));
+        }
+
+
         private void refreshValues() {
             Location location = GPSManager.getInstance().getActualLocation();
-            setText(findViewById(R.id.speed), location.getSpeed()*3.6);
+            setText(findViewById(R.id.speed), location.getSpeed() * 3.6);
             setText(findViewById(R.id.hour), Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + Calendar.getInstance().get(Calendar.MINUTE));
             setText(findViewById(R.id.averageSpeed), travel.getAverageSpeed());
             setText(findViewById(R.id.traVelLength), String.valueOf(Math.round(travel.getLength() * 100) / 100));
-            setText(findViewById(R.id.travelTime), travel.getTotalRoadDuration());
+            setText(findViewById(R.id.travelTime), travel.getDuration() / 1000);
             setText(findViewById(R.id.height), location.getAltitude());
         }
 
@@ -86,6 +118,13 @@ public class CounterActivity extends Activity {
                 handler.removeCallbacks(this);
                 isActive = false;
             }
+        }
+
+        public void setMode(CounterMode mode) {
+            this.mode = mode;
+            setText(findViewById(R.id.hugeTitle), mode.getTitle());
+            setText(findViewById(R.id.hugeJed), mode.getJednostka());
+            setText(findViewById(R.id.hugeValue), mode.getValue(GPSManager.getInstance().getActualLocation(), travel));
         }
     }
 }
