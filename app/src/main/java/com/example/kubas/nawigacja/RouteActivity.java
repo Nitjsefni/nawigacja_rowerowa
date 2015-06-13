@@ -85,16 +85,20 @@ public class RouteActivity extends Activity implements Trackable {
         routeViewManager = new RouteViewManager(this, points);
         RoadManager roadManager;
         int routeId = extras.getInt("routeId", -1);
+        Runnable roadFromServer;
         if (routeId == -1) {
             roadManager = new OwnOSRMRoadManager();
             refreshView = new RefreshViewWithRouting();
             startView = new StartViewWithRouting(map);
+            roadFromServer = new GetRoadFromServer(points, roadManager);
         } else {
             roadManager = new SavedRouteOSMRRoadManager(routeId);
             refreshView = null;
             startView = new StartViewWithoutRouting(map);
+            roadFromServer = new GetRoadFromServer(points, roadManager);
         }
-        new Thread(new GetRoadFromServer(points, roadManager)).start();
+
+        new Thread(roadFromServer).start();
         showPosition = new ShowPosition(this, 5000);
     }
 
