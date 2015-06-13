@@ -20,12 +20,16 @@ public class DataManager {
     private ListWithNotification<Route> recomendedRoutes = new ListWithNotification<>("recomendedRoutes");
     private String username;
     private String password;
-    private Travel travel = new Travel();
+    private Travel travel;
 
 
     private DataManager(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public void startNewTravel(){
+        travel = new Travel();
     }
 
     public static DataManager getInstance() {

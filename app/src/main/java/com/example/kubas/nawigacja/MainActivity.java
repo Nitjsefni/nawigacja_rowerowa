@@ -2,9 +2,7 @@ package com.example.kubas.nawigacja;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -32,43 +30,6 @@ public class MainActivity extends Activity {
         new LoadingTask().execute();
 
     }
-    private class LoadingTask extends AsyncTask<String, Void, String> {
-        private ProgressDialog myProgressDialog;
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            myProgressDialog = new ProgressDialog(MainActivity.this);
-            myProgressDialog.setTitle("Proszę czekać");
-            myProgressDialog.setMessage("Ładowanie aplikacji...");
-            myProgressDialog.setCancelable(false);
-
-            myProgressDialog.show();
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            if (DataManager.login(user,password)){
-                DataManager manager = DataManager.getInstance();
-                manager.loadRecomendedRoutes();
-                manager.loadSavedRoutes();
-            }
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-
-        @Override
-        protected void onPostExecute(String result) {
-            myProgressDialog.hide();
-            myProgressDialog.dismiss();
-            Toast.makeText(getApplicationContext(), "Zakończono ładowanie aplikacji", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(MainActivity.this, MenuActivity.class));
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -86,5 +47,45 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class LoadingTask extends AsyncTask<String, Void, String> {
+        private ProgressDialog myProgressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            myProgressDialog = new ProgressDialog(MainActivity.this);
+            myProgressDialog.setTitle("Proszę czekać");
+            myProgressDialog.setMessage("Ładowanie aplikacji...");
+            myProgressDialog.setCancelable(false);
+
+            myProgressDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            if (DataManager.login(user, password)) {
+                DataManager manager = DataManager.getInstance();
+                manager.loadRecomendedRoutes();
+                manager.loadSavedRoutes();
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            DataManager.getInstance().startNewTravel();
+            myProgressDialog.hide();
+            myProgressDialog.dismiss();
+            Toast.makeText(getApplicationContext(), "Zakończono ładowanie aplikacji", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(MainActivity.this, MenuActivity.class));
+        }
     }
 }

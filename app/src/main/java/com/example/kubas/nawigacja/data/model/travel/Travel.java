@@ -58,10 +58,16 @@ public class Travel implements Runnable {
     }
 
     public List<RoadNode> getInstructionsNodes() {
+        if (road == null) {
+            return new ArrayList<>();
+        }
         return Collections.unmodifiableList(road.mNodes);
     }
 
     public RoadNodeToSpeak getNextInstructionNode() {
+        if (nextInstructionNode == null) {
+            return new NullRoadNodeToSpeak();
+        }
         return nextInstructionNode;
     }
 
@@ -70,6 +76,9 @@ public class Travel implements Runnable {
     }
 
     public double getTotalRoadDuration() {
+        if (road == null) {
+            return 0;
+        }
         return road.mDuration;
     }
 
@@ -77,25 +86,33 @@ public class Travel implements Runnable {
     public void run() {
         Location actualLocation = gpsManager.getActualLocation();
         addToTravelHistory(actualLocation);
-        calculateRoadPart(actualLocation);
+        if (road != null) {
+            calculateRoadPart(actualLocation);
+        }
         handler.postDelayed(this, HISTORY_REFRESH_FREQUENCY);
     }
 
     private void calculateRoadPart(Location actualLocation) {
-        //TODO usuwanie minietych instrukcji
         removeElements(road.mRouteHigh, getElementsToCutNumber(actualLocation, road.mRouteHigh));
         removeElements(road.mNodes, getElementsToCutNumber(actualLocation, road.mNodes));
-        //na podstawie road.mRouteHigh usun¹æ nale¿y road.mNodes, albo tym samym algorytmem co przed chwila.
         if (road.mRouteHigh.size() < 2) {
             setNextInstructionNode(null);
         }
         if (!nextInstructionNode.isSameRoadNode(road.mNodes.get(1))) {
             setNextInstructionNode(road.mNodes.get(1));
         }
-        //TODO jeœli zwiêksza siê odleg³oœæ do nastêpnego punktu, to znaczy ¿e coœ nie tak i duza szansa, ze trzeba przeliczyc trase.
     }
 
     public boolean isOnRoad(Location location) {
+        if (road == null) {
+            //nie ma drogi wiec nie jest istotna ta informacja
+            return true;
+        }
+        if (road.mRouteHigh.size() < 2) {
+            //koniec trasy, czyli jest na drodze
+            return true;
+        }
+        calculateRoadPart(location);
         return isPointOnRoad(location, road.mRouteHigh, 0);
     }
 
@@ -176,6 +193,13 @@ public class Travel implements Runnable {
      * @return length in meters
      */
     public double getTotalRoadLength() {
+        if (road == null) {
+            return 0;
+        }
         return road.mLength * 1000;
+    }
+
+    public boolean isRoadChoosen() {
+        return road != null;
     }
 }

@@ -18,16 +18,28 @@ public class RoadNodeToSpeak {
         instructions = new ArrayList<>(Arrays.asList(Instruction.values()));
     }
 
+    protected void setInstructions(List<Instruction> instructions) {
+        this.instructions = instructions;
+    }
 
     public GeoPoint getLocation() {
+        if (roadNode == null) {
+            return null;
+        }
         return roadNode.mLocation;
     }
 
     public String getInstruction() {
+        if (roadNode == null) {
+            return "Jesteś u celu";
+        }
         return roadNode.mInstructions;
     }
 
     public int getManeuverType() {
+        if (roadNode == null) {
+            return 0;
+        }
         return roadNode.mManeuverType;
     }
 
@@ -38,7 +50,7 @@ public class RoadNodeToSpeak {
     public String getInstructionText(Location loc) {
 
         if (roadNode == null) {
-            return "Dojechales do celu podróży";
+            return "Dojechales do celu";
         }
         float distance = getLocation().distanceTo(new GeoPoint(loc));
         for (Instruction instruction : getInstructionsCondition()) {

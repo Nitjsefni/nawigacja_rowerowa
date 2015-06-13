@@ -182,6 +182,9 @@ public class RouteActivity extends Activity implements Trackable {
         @Override
         public void run() {
             Travel travel = DataManager.getInstance().getTravel();
+            if (travel.isRoadChoosen()){
+                return;
+            }
             double totalLength = 0.0;
             double totalDuration = 0.0;
             for (RoadNode node : travel.getInstructionsNodes()) {
