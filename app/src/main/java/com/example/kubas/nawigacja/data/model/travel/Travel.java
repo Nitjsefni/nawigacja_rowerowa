@@ -17,6 +17,9 @@ import java.util.List;
 
 public class Travel implements Runnable {
     public static final int HISTORY_REFRESH_FREQUENCY = 1000;
+    private static final double LAT_TOLERANCE = 0;
+    private static final double DISTANCE_TOLERANCE = 0.05;
+    private static final double LON_TOLERANCE = 0;
     private Date start;
     private double length;
     private List<RoadElement> history = new ArrayList<>();
@@ -80,19 +83,79 @@ public class Travel implements Runnable {
 
     private void calculateRoadPart(Location actualLocation) {
         //TODO usuwanie minietych instrukcji
-        for (int i = 0; i < road.mRouteHigh.size(); i++) {
-            GeoPoint lastPoint = road.mRouteHigh.get(i);
-            GeoPoint nextPoint = road.mRouteHigh.get(i + 1);
-            //jesli miedzy last i next to usun wszystko wczesniejsze niz last i skoncz szukanie
-            //jesli ponizej last to nic nie rob,
-            // jesli powyzej, to szukaj dalej
-        }
+        removeElements(road.mRouteHigh, getElementsToCutNumber(actualLocation, road.mRouteHigh));
+        removeElements(road.mNodes, getElementsToCutNumber(actualLocation, road.mNodes));
         //na podstawie road.mRouteHigh usun¹æ nale¿y road.mNodes, albo tym samym algorytmem co przed chwila.
-        if (!nextInstructionNode.isSameRoadNode(road.mNodes.get(0))) {
-            setNextInstructionNode(road.mNodes.get(0));
+        if (road.mRouteHigh.size() < 2) {
+            setNextInstructionNode(null);
         }
-
+        if (!nextInstructionNode.isSameRoadNode(road.mNodes.get(1))) {
+            setNextInstructionNode(road.mNodes.get(1));
+        }
         //TODO jeœli zwiêksza siê odleg³oœæ do nastêpnego punktu, to znaczy ¿e coœ nie tak i duza szansa, ze trzeba przeliczyc trase.
+    }
+
+    public boolean isOnRoad(Location location) {
+        return isPointOnRoad(location, road.mRouteHigh, 0);
+    }
+
+    private void removeElements(List mRouteHigh, int elementsToCutNumber) {
+        for (int i = 0; i < elementsToCutNumber; i++) {
+            mRouteHigh.remove(i);
+        }
+    }
+
+    private int getElementsToCutNumber(Location actualLocation, List mRouteHigh) {
+        for (int i = 0; i < mRouteHigh.size(); i++) {
+            if (!isPointOnRoad(actualLocation, mRouteHigh, i)) {
+                continue;
+            }
+            return i;
+        }
+        return 0;
+    }
+
+    private boolean isPointOnRoad(Location actualLocation, List mRouteHigh, int i) {
+        GeoPoint lastPoint = getGeoPoint(mRouteHigh.get(i));
+        GeoPoint nextPoint = getGeoPoint(mRouteHigh.get(i + 1));
+        return !isOutsideRoadBorder(lastPoint, nextPoint) &&
+                getDistanceFromLine(lastPoint, nextPoint, actualLocation) <= DISTANCE_TOLERANCE;
+    }
+
+    private boolean isOutsideRoadBorder(GeoPoint lastPoint, GeoPoint nextPoint) {
+        double maxLat = Math.max(lastPoint.getLatitude(), nextPoint.getLatitude()) + LAT_TOLERANCE;
+        double minLat = Math.min(lastPoint.getLatitude(), nextPoint.getLatitude()) + LAT_TOLERANCE;
+        double maxLon = Math.max(lastPoint.getLongitude(), nextPoint.getLongitude() + LON_TOLERANCE);
+        double minLon = Math.min(lastPoint.getLongitude(), nextPoint.getLongitude() + LON_TOLERANCE);
+        return lastPoint.getLatitude() > maxLat || lastPoint.getLatitude() < minLat ||
+                lastPoint.getLongitude() > maxLon || lastPoint.getLongitude() < minLon;
+    }
+
+    private GeoPoint getGeoPoint(Object object) {
+        if (object.getClass().equals(GeoPoint.class)) {
+            return (GeoPoint) object;
+        }
+        if (object.getClass().equals(RoadNode.class)) {
+            return ((RoadNode) object).mLocation;
+        }
+        return new GeoPoint(0, 0);
+    }
+
+    private double getDistanceFromLine(GeoPoint p1, GeoPoint p2, Location point) {
+        double a;
+        double c;
+        double b;
+        if (p1.getLongitude() == p2.getLongitude()) {
+            a = 1;
+            b = 0;
+            c = p1.getLongitude();
+        } else {
+            a = (p1.getLatitude() - p2.getLatitude()) / (p1.getLongitude() - p2.getLongitude());
+            c = p2.getLatitude() - a * p2.getLongitude();
+            b = -1;
+        }
+        double d = (a * point.getLongitude() + b * point.getLatitude() + c) / Math.sqrt(a * a + b * b);
+        return 0;
     }
 
     private void addToTravelHistory(Location actualLocation) {

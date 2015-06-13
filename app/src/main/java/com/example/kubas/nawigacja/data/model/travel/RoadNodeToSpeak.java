@@ -38,7 +38,7 @@ public class RoadNodeToSpeak {
     public String getInstructionText(Location loc) {
 
         if (roadNode == null) {
-            return "Dojechales do celu podr�y";
+            return "Dojechales do celu podróży";
         }
         float distance = getLocation().distanceTo(new GeoPoint(loc));
         for (Instruction instruction : getInstructionsCondition()) {
