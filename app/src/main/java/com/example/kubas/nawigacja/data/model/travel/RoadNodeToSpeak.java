@@ -24,7 +24,8 @@ public class RoadNodeToSpeak {
 
     public GeoPoint getLocation() {
         if (roadNode == null) {
-            return new GeoPoint(0,0);
+            //TODO - do poprawy
+            return new GeoPoint(0, 0);
         }
         return roadNode.mLocation;
     }
@@ -53,12 +54,21 @@ public class RoadNodeToSpeak {
             return "Dojechales do celu";
         }
         float distance = getLocation().distanceTo(new GeoPoint(loc));
+        Instruction instruction = getInstruction(distance);
+        if (instruction != null) {
+            getInstructionsCondition().remove(instruction);
+            return instruction.textOfInstruction(distance, getInstruction());
+        }
+        return null;
+    }
+
+    private Instruction getInstruction(float distance) {
         for (Instruction instruction : getInstructionsCondition()) {
             if (instruction.getFrom() < distance && instruction.getTo() > distance) {
-                return instruction.textOfInstruction(distance, getInstruction());
+
+                return instruction;
             }
         }
-
         return null;
     }
 

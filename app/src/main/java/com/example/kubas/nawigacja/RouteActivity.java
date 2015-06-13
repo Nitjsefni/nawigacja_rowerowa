@@ -182,7 +182,7 @@ public class RouteActivity extends Activity implements Trackable {
         @Override
         public void run() {
             Travel travel = DataManager.getInstance().getTravel();
-            if (travel.isRoadChoosen()){
+            if (!travel.isRoadChoosen()){
                 return;
             }
             double totalLength = 0.0;
@@ -229,12 +229,17 @@ public class RouteActivity extends Activity implements Trackable {
                 waypoints.add(points.getEndPoint().getGeoPoint());
             }
             try {
-                Road road = roadManager.getRoad(waypoints);
-                Travel travel = new Travel();
-                travel.setRoad(road);
-                DataManager.getInstance().setTravel(travel);
-                routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this));
-                startView.setTravel(travel);
+                final Road road = roadManager.getRoad(waypoints);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Travel travel = new Travel();
+                        travel.setRoad(road);
+                        DataManager.getInstance().setTravel(travel);
+                        routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this));
+                        startView.setTravel(travel);
+                    }
+                });
                 runOnUiThread(startView);
             } catch (Exception e) {
                 Log.e(this.getClass().getName(), e.getMessage(), e);
