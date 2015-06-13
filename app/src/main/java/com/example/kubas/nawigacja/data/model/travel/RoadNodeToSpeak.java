@@ -24,7 +24,7 @@ public class RoadNodeToSpeak {
 
     public GeoPoint getLocation() {
         if (roadNode == null) {
-            return null;
+            return new GeoPoint(0,0);
         }
         return roadNode.mLocation;
     }
