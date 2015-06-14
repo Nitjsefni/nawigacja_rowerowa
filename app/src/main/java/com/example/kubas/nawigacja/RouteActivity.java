@@ -117,7 +117,7 @@ public class RouteActivity extends Activity implements Trackable {
                 final AlertDialog counter = new AlertDialog.Builder(RouteActivity.this).create();
                 // Set up the buttons
                 counter.setView(InputDialogView);
-
+                InputDialogView.findViewById();
 
                 counter.show();
             }
