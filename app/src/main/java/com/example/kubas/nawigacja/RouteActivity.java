@@ -2,12 +2,16 @@ package com.example.kubas.nawigacja;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,6 +54,7 @@ public class RouteActivity extends Activity implements Trackable {
     private RouteViewManager routeViewManager;
     private RefreshRoute refreshView;
     private StartRoute startView;
+    private PowerManager.WakeLock mWakeLock;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +106,10 @@ public class RouteActivity extends Activity implements Trackable {
 
         routeViewManager = new RouteViewManager(this, points);
 
-
+        PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                getClass().getName());
+        mWakeLock.acquire();
         new Thread(roadFromServer).start();
         showPosition = new ShowPosition(this, 5000);
         ImageButton goToCounter = (ImageButton) findViewById(R.id.imgBtn_goToCounter);
@@ -152,13 +160,25 @@ public class RouteActivity extends Activity implements Trackable {
     }
 
     @Override
-    protected void onStop() {
+    protected void onResume() {
+        super.onResume();
+        showPosition = new ShowPosition(this, 5000);
+    }
+
+    @Override
+    protected void onPause() {
         if (showPosition != null) {
             showPosition.stop();
         }
+
         super.onStop();
     }
 
+    @Override
+    protected void onDestroy() {
+        mWakeLock.release();
+        super.onDestroy();
+    }
 
     private interface StartRoute extends Runnable {
         void setTravel(Travel travel);
@@ -215,7 +235,14 @@ public class RouteActivity extends Activity implements Trackable {
             this.travel = travel;
         }
     }
-
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnected()) {
+            return true;
+        }
+        return false;
+    }
     private class RefreshViewWithRouting implements RefreshRoute {
 
         private Location loc;
@@ -237,7 +264,17 @@ public class RouteActivity extends Activity implements Trackable {
 
             MapView map = (MapView) findViewById(R.id.map2);
             if (!travel.isOnRoad(loc)) {
-                routeViewManager.speakNewRoad();
+                if(RouteActivity.isOnline(RouteActivity.this))
+                {
+                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
+                    finish();
+                    startActivity(getIntent());
+                }
+                else
+                {
+                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
+                }
+
 
 
                 //albo restart
@@ -250,14 +287,17 @@ public class RouteActivity extends Activity implements Trackable {
                     totalDuration += node.mDuration;
                     totalLength += node.mLength * 1000;
                 }
+                float distance2 = travel.getNextInstructionNode().getLocation().distanceTo(new GeoPoint(loc));
                 int distance = Math.round(gpsManager.getActualPosition().distanceTo(travel.getNextInstructionNode().getLocation()));
                 map.getController().setZoom(17);
                 map.getController().setCenter(new GeoPoint(loc));
                 Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", R.drawable.arrow, "");
 
                 routeViewManager.refreshOverlays(currentPositionMarker);
-
-                routeViewManager.rotateMap(loc, gpsManager.getActualLocation());
+                Location nextNode = new Location("gps");
+                nextNode.setLatitude(travel.getNextInstructionNode().getLocation().getLatitudeE6()/1E6);
+                nextNode.setLongitude(travel.getNextInstructionNode().getLocation().getLongitudeE6()/1E6);
+                routeViewManager.rotateMap(loc, nextNode);
                 routeViewManager.printSpeed(loc);
                 routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
                 routeViewManager.setRouteSummary(totalLength, totalDuration);
@@ -403,14 +443,16 @@ public class RouteActivity extends Activity implements Trackable {
 
         private void setInstructionView(RoadNodeToSpeak node, double length) {
             TextView txtV_Route_InstructionNode = (TextView) activity.findViewById(R.id.txtV_Route_InstructionNode);
+            TextView txtV_Route_DistanceNode = (TextView) activity.findViewById(R.id.txtV_Route_DistanceNode);
+            txtV_Route_DistanceNode.setText(RoutingUtil.getFormattedDistance(length));
             if (node.getInstruction() == txtV_Route_InstructionNode.getText()) {
                 return;
             }
             TypedArray iconIds = activity.getResources().obtainTypedArray(R.array.direction_icons);
             ImageView maneuverImg = (ImageView) activity.findViewById(R.id.maneuverImg);
-            TextView txtV_Route_DistanceNode = (TextView) activity.findViewById(R.id.txtV_Route_DistanceNode);
+
             txtV_Route_InstructionNode.setText(node.getInstruction());
-            txtV_Route_DistanceNode.setText(RoutingUtil.getFormattedDistance(length));
+
             int iconId = iconIds.getResourceId(node.getManeuverType(), R.drawable.ic_empty);
             if (iconId != R.drawable.ic_empty) {
                 Drawable icon2 = activity.getResources().getDrawable(iconId);
@@ -460,9 +502,15 @@ public class RouteActivity extends Activity implements Trackable {
             textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         }
 
-        private void speakNewRoad() {
+        private void speakNewRoad(boolean online) {
             String text;
-            text = "Wyjechałeś poza trasę, proszę zawróć";
+            if(online)
+            {
+                text = "Wyjechałeś poza trasę, wyznaczanie nowej trasy";
+            }
+            else {
+                text = "Wyjechałeś poza trasę, proszę zawróć";
+            }
             if (text == null) {
                 return;
             }

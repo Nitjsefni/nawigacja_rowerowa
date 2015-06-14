@@ -18,18 +18,29 @@ import java.util.Calendar;
 
 public class CounterActivity extends Activity {
     private RefreshTask refreshTask;
-
+    private boolean czy_z_menu = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speed_counter);
         refreshTask = new RefreshTask(DataManager.getInstance().getTravel());
         ImageButton goToMap = (ImageButton) findViewById(R.id.imgBtn_GoMap);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+
+            czy_z_menu = extras.getBoolean("czy_z_menu",false);
+
+        }
         goToMap.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent k = new Intent(CounterActivity.this, RouteActivity.class);
-                k.putExtra("resume", true);
-                startActivity(k);
+                if(czy_z_menu) {
+                    Intent k = new Intent(CounterActivity.this, MapActivity.class);
+                    //k.putExtra("resume", true);
+                    startActivity(k);
+                }
+                else {
+                    onBackPressed();
+                }
             }
         });
     }

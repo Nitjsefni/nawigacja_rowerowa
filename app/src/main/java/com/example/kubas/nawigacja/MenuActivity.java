@@ -97,6 +97,12 @@ public class MenuActivity extends Activity implements Listener {
     }
 
     public void showCounter(View view) {
-        startActivity(new Intent(getApplicationContext(), CounterActivity.class));
+        Bundle b = new Bundle();
+
+        Intent k =new Intent(getApplicationContext(), CounterActivity.class);
+
+        b.putBoolean("czy_z_menu", true);
+        k.putExtras(b);
+        startActivity(k);
     }
 }
