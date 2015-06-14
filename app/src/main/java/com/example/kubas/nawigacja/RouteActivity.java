@@ -274,7 +274,7 @@ public class RouteActivity extends Activity implements Trackable {
 
         public void run() {
             final Travel travel = DataManager.getInstance().getTravel();
-            if (travel == null || travel.isRoadChoosen()) {
+            if (travel == null || !travel.isRoadChoosen()) {
                 refreshView = null;
                 startView = null;
                 return;
