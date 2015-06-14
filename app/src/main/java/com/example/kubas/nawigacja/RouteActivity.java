@@ -1,7 +1,6 @@
 package com.example.kubas.nawigacja;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -10,7 +9,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -21,7 +19,6 @@ import com.example.kubas.nawigacja.client.OwnOSRMRoadManager;
 import com.example.kubas.nawigacja.client.SavedRouteOSMRRoadManager;
 import com.example.kubas.nawigacja.data.DataManager;
 import com.example.kubas.nawigacja.data.model.GeoPosition;
-import com.example.kubas.nawigacja.data.model.Route;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.data.model.travel.RoadNodeToSpeak;
 import com.example.kubas.nawigacja.data.model.travel.Travel;
@@ -51,6 +48,7 @@ public class RouteActivity extends Activity implements Trackable {
     private RefreshRoute refreshView;
     private StartRoute startView;
     private CounterActivity counterac;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +67,53 @@ public class RouteActivity extends Activity implements Trackable {
         if (extras == null) {
             return;
         }
-        RoutePoints points = (RoutePoints) extras.get("points");
+        RoadManager roadManager;
+        int routeId = extras.getInt("routeId", -1);
+        boolean resume = extras.getBoolean("resume", false);
+        Runnable roadFromServer;
+        RoutePoints points;
+        DataManager dataManager = DataManager.getInstance();
+
+        if (resume) {
+            points = dataManager.getTravel().getPoints();
+        } else {
+            points = (RoutePoints) extras.get("points");
+            findStartPoint(points);
+        }
+        if (points==null){
+            points = new RoutePoints();
+        }
+        if (routeId == -1) {
+            roadManager = new OwnOSRMRoadManager();
+            refreshView = new RefreshViewWithRouting(points, roadManager);
+            startView = new StartViewWithRouting(map);
+        } else {
+            roadManager = new SavedRouteOSMRRoadManager(routeId);
+            refreshView = null;
+            startView = new StartViewWithoutRouting(map);
+        }
+        if (resume) {
+            roadFromServer = new ResumeRoad();
+        } else {
+            roadFromServer = new GetRoadFromServer(points, roadManager);
+        }
+
+        routeViewManager = new RouteViewManager(this, points);
+
+
+        new Thread(roadFromServer).start();
+        showPosition = new ShowPosition(this, 5000);
+        ImageButton goToCounter = (ImageButton) findViewById(R.id.imgBtn_goToCounter);
+        goToCounter.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), CounterActivity.class));
+            }
+        });
+
+
+    }
+
+    private void findStartPoint(RoutePoints points) {
         if (points.getStartPoint() == null) {
             GeoPoint actualPosition = gpsManager.getActualPosition();
             while (actualPosition == null) {
@@ -88,43 +132,6 @@ public class RouteActivity extends Activity implements Trackable {
             }
             points.setStartPoint(new GeoPosition("Aktualna pozycja", actualPosition));
         }
-        routeViewManager = new RouteViewManager(this, points);
-        RoadManager roadManager;
-        int routeId = extras.getInt("routeId", -1);
-        Runnable roadFromServer;
-        if (routeId == -1) {
-            roadManager = new OwnOSRMRoadManager();
-            refreshView = new RefreshViewWithRouting(points, roadManager);
-            startView = new StartViewWithRouting(map);
-            roadFromServer = new GetRoadFromServer(points, roadManager);
-        } else {
-            roadManager = new SavedRouteOSMRRoadManager(routeId);
-            refreshView = null;
-            startView = new StartViewWithoutRouting(map);
-            roadFromServer = new GetRoadFromServer(points, roadManager);
-        }
-
-        new Thread(roadFromServer).start();
-        showPosition = new ShowPosition(this, 5000);
-        ImageButton goToCounter = (ImageButton) findViewById(R.id.imgBtn_goToCounter);
-        goToCounter.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-
-                LayoutInflater inflater = LayoutInflater.from(RouteActivity.this);
-                final View InputDialogView = inflater.inflate(
-                        R.layout.activity_speed_counter, null);
-                final AlertDialog counter = new AlertDialog.Builder(RouteActivity.this).create();
-                // Set up the buttons
-                counter.setView(InputDialogView);
-
-
-                counter.show();
-            }
-        });
-
-
-
     }
 
 
@@ -206,15 +213,16 @@ public class RouteActivity extends Activity implements Trackable {
     }
 
     private class RefreshViewWithRouting implements RefreshRoute {
+        Runnable roadFromServer;
         private Location loc;
         private RoutePoints points;
         private RoadManager roadManager;
-        Runnable roadFromServer;
 
         public RefreshViewWithRouting(RoutePoints points, RoadManager roadManager) {
             this.points = points;
             this.roadManager = roadManager;
         }
+
         @Override
         public void run() {
             Travel travel = DataManager.getInstance().getTravel();
@@ -253,8 +261,7 @@ public class RouteActivity extends Activity implements Trackable {
                 //albo restart
                 //finish();
                 //startActivity(getIntent());
-            }
-            else {
+            } else {
                 double totalLength = 0.0;
                 double totalDuration = 0.0;
                 for (RoadNode node : travel.getInstructionsNodes()) {
@@ -280,6 +287,32 @@ public class RouteActivity extends Activity implements Trackable {
             this.loc = loc;
         }
     }
+
+    private class ResumeRoad implements Runnable {
+
+        public void run() {
+            final Travel travel = DataManager.getInstance().getTravel();
+            if (travel == null || travel.getRoad() == null) {
+                refreshView = null;
+                startView = null;
+                return;
+            }
+            try {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(travel.getRoad(), Color.RED, 8, RouteActivity.this));
+                        startView.setTravel(travel);
+                    }
+                });
+                runOnUiThread(startView);
+            } catch (Exception e) {
+                Log.e(this.getClass().getName(), e.getMessage(), e);
+            }
+        }
+    }
+
 
     private class GetRoadFromServer implements Runnable {
         private RoutePoints points;
@@ -442,6 +475,7 @@ public class RouteActivity extends Activity implements Trackable {
             }
             textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         }
+
         private void speakNewRoad() {
             String text;
             text = "Wyjechałeś poza trasę, wytyczanie nowej trasy";

@@ -27,7 +27,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:background="@android:drawable/ic_menu_mapmode"
-        android:focusableInTouchMode="false" />
+        android:onClick="viewMap" />
 
     <LinearLayout
         android:orientation="vertical"
@@ -51,7 +51,7 @@
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@drawable/radious_space"
                 android:layout_margin="10dp" >
 
                 <LinearLayout
@@ -89,10 +89,10 @@
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
-                        android:textSize="30dp"
+                        android:textSize="35sp"
                         android:layout_above="@+id/hugeTitle"
                         android:layout_marginBottom="7dp"
-                        android:layout_marginRight="20dp"
+                        android:layout_marginRight="20dp" />
                         android:gravity="bottom" />
                 </LinearLayout>
 
@@ -124,7 +124,7 @@
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@drawable/radious_space"
                 android:layout_margin="10dp"
                 android:onClick="showSpeed">
 
@@ -152,7 +152,7 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="false"
-                    android:textSize="35dp"
+                    android:textSize="40sp"
                     android:layout_toLeftOf="@+id/textView2"
                     android:layout_toStartOf="@+id/textView2"
                     android:layout_marginRight="2dp"
@@ -178,7 +178,7 @@
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@drawable/radious_space"
                 android:layout_margin="10dp"
                 android:onClick="showHour">
 
@@ -226,7 +226,7 @@
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@drawable/radious_space"
                 android:layout_margin="10dp"
                 android:onClick="showAvgSpeed">
 
@@ -254,7 +254,7 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="false"
-                    android:textSize="35dp"
+                    android:textSize="35sp"
                     android:layout_toLeftOf="@+id/textView9"
                     android:layout_toStartOf="@+id/textView9"
                     android:layout_marginRight="2dp"
@@ -281,7 +281,7 @@
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@drawable/radious_space"
                 android:layout_margin="10dp"
                 android:onClick="showTime">
 
@@ -344,7 +344,7 @@
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@drawable/radious_space"
                 android:layout_margin="10dp"
                 android:onClick="showDistance">
 
@@ -398,7 +398,7 @@
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@drawable/radious_space"
                 android:layout_margin="10dp"
                 android:onClick="showHight">
 
