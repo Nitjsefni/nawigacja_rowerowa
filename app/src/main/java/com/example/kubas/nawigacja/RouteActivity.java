@@ -80,7 +80,7 @@ public class RouteActivity extends Activity implements Trackable {
             points = (RoutePoints) extras.get("points");
             findStartPoint(points);
         }
-        if (points==null){
+        if (points == null) {
             points = new RoutePoints();
         }
         if (routeId == -1) {
@@ -273,7 +273,6 @@ public class RouteActivity extends Activity implements Trackable {
                 map.getController().setCenter(new GeoPoint(loc));
                 Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", R.drawable.arrow, "");
 
-
                 routeViewManager.refreshOverlays(currentPositionMarker);
                 routeViewManager.rotateMap(loc);
                 routeViewManager.printSpeed(loc);
@@ -292,7 +291,7 @@ public class RouteActivity extends Activity implements Trackable {
 
         public void run() {
             final Travel travel = DataManager.getInstance().getTravel();
-            if (travel == null || travel.getRoad() == null) {
+            if (travel == null || travel.isRoadChoosen()) {
                 refreshView = null;
                 startView = null;
                 return;
@@ -301,10 +300,11 @@ public class RouteActivity extends Activity implements Trackable {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
-                        routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(travel.getRoad(), Color.RED, 8, RouteActivity.this));
+                        routeViewManager.setRoadOverlay(travel.getRoadOverlay(RouteActivity.this));
                         startView.setTravel(travel);
                     }
+
+
                 });
                 runOnUiThread(startView);
             } catch (Exception e) {
@@ -460,6 +460,7 @@ public class RouteActivity extends Activity implements Trackable {
             for (Overlay overlay : additional) {
                 map.getOverlays().add(overlay);
             }
+            printInstructionsAsPoints(DataManager.getInstance().getTravel().getInstructionsNodes(), map);
             map.invalidate();
         }
 

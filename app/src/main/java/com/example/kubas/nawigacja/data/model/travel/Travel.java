@@ -1,12 +1,16 @@
 package com.example.kubas.nawigacja.data.model.travel;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Handler;
 
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.gps.GPSManager;
 
+import org.osmdroid.bonuspack.overlays.Polyline;
 import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.util.GeoPoint;
 
@@ -222,11 +226,10 @@ public class Travel implements Runnable {
         return road != null;
     }
 
-    public Road getRoad() {
-        return road;
-    }
-
     public RoutePoints getPoints() {
         return points;
+    }
+    public Polyline getRoadOverlay(Context context) {
+        return RoadManager.buildRoadOverlay(road, Color.RED, 8, context);
     }
 }
