@@ -50,7 +50,6 @@ public class RouteActivity extends Activity implements Trackable {
     private RouteViewManager routeViewManager;
     private RefreshRoute refreshView;
     private StartRoute startView;
-    private CounterActivity counterac;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,31 +68,11 @@ public class RouteActivity extends Activity implements Trackable {
         if (extras == null) {
             return;
         }
-        RoutePoints points = (RoutePoints) extras.get("points");
-        if (points.getStartPoint() == null) {
-            GeoPoint actualPosition = gpsManager.getActualPosition();
-            while (actualPosition == null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Wyszukiwanie bieżacej lokalizacji", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                actualPosition = gpsManager.getActualPosition();
-            }
-            points.setStartPoint(new GeoPosition("Aktualna pozycja", actualPosition));
-        }
-        routeViewManager = new RouteViewManager(this, points);
         RoadManager roadManager;
         int routeId = extras.getInt("routeId", -1);
         boolean resume = extras.getBoolean("resume", false);
-        Runnable roadFromServer;
-
+        GetData roadFromServer;
+        RoutePoints points;
         DataManager dataManager = DataManager.getInstance();
 
         if (resume) {
@@ -109,7 +88,6 @@ public class RouteActivity extends Activity implements Trackable {
             roadManager = new OwnOSRMRoadManager();
             refreshView = new RefreshViewWithRouting(points, roadManager);
             startView = new StartViewWithRouting(map);
-            roadFromServer = new GetRoadFromServer(points, roadManager);
         } else {
             roadManager = new SavedRouteOSMRRoadManager(routeId);
             refreshView = null;
@@ -188,6 +166,9 @@ public class RouteActivity extends Activity implements Trackable {
 
     private interface RefreshRoute extends Runnable {
         void setLoc(Location loc);
+    }
+
+    private interface GetData extends Runnable {
     }
 
     private class StartViewWithRouting implements StartRoute {
@@ -289,7 +270,7 @@ public class RouteActivity extends Activity implements Trackable {
         }
     }
 
-    private class ResumeRoad implements Runnable {
+    private class ResumeRoad implements GetData {
 
         public void run() {
             final Travel travel = DataManager.getInstance().getTravel();
@@ -316,7 +297,7 @@ public class RouteActivity extends Activity implements Trackable {
     }
 
 
-    private class GetRoadFromServer implements Runnable {
+    private class GetRoadFromServer implements GetData {
         private RoutePoints points;
         private RoadManager roadManager;
 
