@@ -11,6 +11,8 @@ public class ActualLocationManager {
     private int locationCount;
     private float locationWeight;
     private String gpsStatus;
+    private String gpsProvider;
+    private int gpsStatusStatus;
     private Location previousLocation;
 
     public Location getActualLocation() {
@@ -82,8 +84,27 @@ public class ActualLocationManager {
     public String getGpsStatus() {
         return gpsStatus;
     }
+    public String getGpsStatusProvider() {
+        return gpsProvider;
+    }
+    public int getGpsStatusStatus() {
+        return gpsStatusStatus;
+    }
 
     public void setGpsStatus(String gpsStatus) {
         this.gpsStatus = gpsStatus;
+
+
+    }
+    public void setGpsStatus(String gpsStatus, String provider) {
+        this.gpsStatus = gpsStatus;
+        this.gpsProvider = provider;
+
+    }
+    public void setGpsStatus(String gpsStatus, String provider, int status) {
+        this.gpsStatus = gpsStatus;
+        this.gpsProvider = provider;
+        this.gpsStatusStatus = status;
+
     }
 }

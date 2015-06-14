@@ -9,8 +9,8 @@
         android:layout_alignParentTop="true"
         android:background="#ff9c9c9c"
         android:id="@+id/relativeLayout2"
-        android:layout_toLeftOf="@+id/imageButton3"
-        android:layout_toStartOf="@+id/imageButton3">
+        android:layout_toLeftOf="@+id/imgBtn_goToCounter"
+        android:layout_toStartOf="@+id/imgBtn_goToCounter">
 
         <TextView
             android:layout_width="wrap_content"
@@ -44,7 +44,7 @@
             android:textStyle="bold"
             android:textColor="#ffffffff"
             android:layout_alignParentTop="true"
-            android:layout_toStartOf="@+id/imageButton3"
+            android:layout_toStartOf="@+id/imgBtn_goToCounter"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_marginRight="5dp" />
@@ -91,14 +91,14 @@
         android:layout_toRightOf="@+id/maneuverImg"
         android:gravity="center_vertical|right"
         android:background="#ff9c9c9c"
-        android:layout_toLeftOf="@+id/imageButton3"
-        android:layout_toStartOf="@+id/imageButton3"
+        android:layout_toLeftOf="@+id/imgBtn_goToCounter"
+        android:layout_toStartOf="@+id/imgBtn_goToCounter"
         android:paddingRight="10dp" />
 
     <ImageButton
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:id="@+id/imageButton3"
+        android:id="@+id/imgBtn_goToCounter"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"

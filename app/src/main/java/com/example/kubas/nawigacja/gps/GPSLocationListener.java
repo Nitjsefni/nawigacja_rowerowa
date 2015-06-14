@@ -25,17 +25,20 @@ public class GPSLocationListener implements LocationListener {
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        actualLocationManager.setGpsStatus("Zmieniono status "+provider+" na "+status);
+        actualLocationManager.setGpsStatus("Zmieniono status "+provider+" na "+status, provider, status);
+        Log.i("GPS status changed", "Zmieniono status "+provider+" na "+status);
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        actualLocationManager.setGpsStatus("Sledzenie uruchomione z wykorzystaniem "+provider);
+        actualLocationManager.setGpsStatus("Sledzenie uruchomione z wykorzystaniem "+provider, provider);
+        Log.i("GPS status changed","Sledzenie uruchomione z wykorzystaniem "+provider);
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        actualLocationManager.setGpsStatus("Utracono sygnał "+provider);
+        actualLocationManager.setGpsStatus("Utracono sygnał "+provider, provider);
+        Log.i("GPS status changed","Utracono sygnał "+provider);
     }
 
 }

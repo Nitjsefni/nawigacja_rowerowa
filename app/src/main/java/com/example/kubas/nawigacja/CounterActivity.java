@@ -1,10 +1,12 @@
 package com.example.kubas.nawigacja;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.kubas.nawigacja.data.DataManager;
@@ -22,9 +24,18 @@ public class CounterActivity extends Activity {
         setContentView(R.layout.activity_speed_counter);
         refreshTask = new RefreshTask(DataManager.getInstance().getTravel());
         refreshTask.refreshValues();
+        ImageButton goToMap = (ImageButton) findViewById(R.id.imgBtn_GoMap);
+        goToMap.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent k = new Intent(CounterActivity.this, MapActivity.class);
+                startActivity(k);
+            }
+        });
     }
 
     public void viewMap(View view) {
+        Intent k = new Intent(CounterActivity.this, MapActivity.class);
+        startActivity(k);
     }
 
     @Override
@@ -39,9 +50,16 @@ public class CounterActivity extends Activity {
         super.onDestroy();
     }
 
-    private void stopRefreshTask() {
+    public void getCounter()
+    {
+        refreshTask = new RefreshTask(DataManager.getInstance().getTravel());
+        refreshTask.refreshValues();
+
+    }
+    public void stopRefreshTask() {
         refreshTask.stop();
     }
+
 
     public void showSpeed(View view) {
         refreshTask.setMode(CounterMode.SPEED);
@@ -67,7 +85,7 @@ public class CounterActivity extends Activity {
         refreshTask.setMode(CounterMode.HEIGHT);
     }
 
-    private class RefreshTask implements Runnable {
+    public class RefreshTask implements Runnable {
         private Travel travel;
         private Handler handler;
         private boolean isActive = true;

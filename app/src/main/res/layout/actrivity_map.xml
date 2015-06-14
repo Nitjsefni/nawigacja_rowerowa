@@ -21,7 +21,8 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:textColor="#ffffffff"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:background="#ffff0d0b" />
     </RelativeLayout>
     <org.osmdroid.views.MapView android:id="@+id/map"
         android:layout_width="fill_parent"
