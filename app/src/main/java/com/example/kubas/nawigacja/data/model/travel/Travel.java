@@ -194,8 +194,7 @@ public class Travel implements Runnable {
             c = p2.getLatitude() - a * p2.getLongitude();
             b = -1;
         }
-        double d = (a * point.getLongitude() + b * point.getLatitude() + c) / Math.sqrt(a * a + b * b);
-        return 0;
+        return (a * point.getLongitude() + b * point.getLatitude() + c) / Math.sqrt(a * a + b * b);
     }
 
     private void addToTravelHistory(Location actualLocation) {
@@ -229,6 +228,7 @@ public class Travel implements Runnable {
     public RoutePoints getPoints() {
         return points;
     }
+
     public Polyline getRoadOverlay(Context context) {
         return RoadManager.buildRoadOverlay(road, Color.RED, 8, context);
     }
