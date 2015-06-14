@@ -93,7 +93,7 @@ public class RouteActivity extends Activity implements Trackable {
         int routeId = extras.getInt("routeId", -1);
         boolean resume = extras.getBoolean("resume", false);
         Runnable roadFromServer;
-        RoutePoints points;
+
         DataManager dataManager = DataManager.getInstance();
 
         if (resume) {
@@ -236,7 +236,7 @@ public class RouteActivity extends Activity implements Trackable {
     }
 
     private class RefreshViewWithRouting implements RefreshRoute {
-        Runnable roadFromServer;
+
         private Location loc;
         private RoutePoints points;
         private RoadManager roadManager;
