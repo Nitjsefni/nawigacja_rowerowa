@@ -191,7 +191,7 @@ public class Travel implements Runnable {
             b = -1;
         }
         double d = (a * point.getLongitude() + b * point.getLatitude() + c) / Math.sqrt(a * a + b * b);
-        return 0;
+        return d;
     }
 
     private void addToTravelHistory(Location actualLocation) {

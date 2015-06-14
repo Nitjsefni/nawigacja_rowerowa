@@ -117,7 +117,7 @@ public class RouteActivity extends Activity implements Trackable {
                 final AlertDialog counter = new AlertDialog.Builder(RouteActivity.this).create();
                 // Set up the buttons
                 counter.setView(InputDialogView);
-                InputDialogView.findViewById();
+                //InputDialogView.findViewById();
 
                 counter.show();
             }
@@ -225,30 +225,7 @@ public class RouteActivity extends Activity implements Trackable {
             MapView map = (MapView) findViewById(R.id.map2);
             if (!travel.isOnRoad(loc)) {
                 routeViewManager.speakNewRoad();
-                GeoPoint actualPosition = gpsManager.getActualPosition();
-                while (actualPosition == null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Wyszukiwanie bieżacej lokalizacji", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    actualPosition = gpsManager.getActualPosition();
-                }
 
-                points.setStartPoint(new GeoPosition("Aktualna pozycja", actualPosition));
-                showPosition.stop();
-                roadManager = new OwnOSRMRoadManager();
-                refreshView = new RefreshViewWithRouting(points, roadManager);
-                startView = new StartViewWithRouting(map);
-                roadFromServer = new GetRoadFromServer(points, roadManager);
-                new Thread(roadFromServer).start();
-                showPosition = new ShowPosition(RouteActivity.this, 5000);
 
                 //albo restart
                 //finish();
@@ -268,7 +245,8 @@ public class RouteActivity extends Activity implements Trackable {
 
 
                 routeViewManager.refreshOverlays(currentPositionMarker);
-                routeViewManager.rotateMap(loc);
+
+                routeViewManager.rotateMap(loc, gpsManager.getActualLocation());
                 routeViewManager.printSpeed(loc);
                 routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
                 routeViewManager.setRouteSummary(totalLength, totalDuration);
@@ -444,7 +422,7 @@ public class RouteActivity extends Activity implements Trackable {
         }
         private void speakNewRoad() {
             String text;
-            text = "Wyjechałeś poza trasę, wytyczanie nowej trasy";
+            text = "Wyjechałeś poza trasę, proszę zawróć";
             if (text == null) {
                 return;
             }
@@ -452,10 +430,11 @@ public class RouteActivity extends Activity implements Trackable {
         }
 
 
-        public void rotateMap(Location loc) {
+        public void rotateMap(Location loc, Location loc1) {
             MapView map = (MapView) activity.findViewById(R.id.map2);
             if (loc.hasBearing()) {
-                map.setMapOrientation(loc.getBearing());
+               // map.setMapOrientation(loc.getBearing());
+                map.setMapOrientation(loc1.bearingTo(loc));
             }
         }
 
