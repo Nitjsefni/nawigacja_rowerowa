@@ -54,6 +54,9 @@ public class Travel implements Runnable {
         return start;
     }
 
+    /**
+     * @return length in meters
+     */
     public double getLength() {
         return length;
     }
@@ -62,12 +65,14 @@ public class Travel implements Runnable {
         if (getDuration() == 0) {
             return 0;
         }
-        return getLength() / getDuration();
+        return getLength() / (getDuration() / 1000);
     }
 
+    /**
+     * @return time in milie
+     */
     public long getDuration() {
-        long milliseconds = Calendar.getInstance().getTime().getTime() - getStart().getTime();
-        return milliseconds / 1000 / 60;
+        return Calendar.getInstance().getTime().getTime() - getStart().getTime();
     }
 
 

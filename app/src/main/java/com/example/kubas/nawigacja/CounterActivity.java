@@ -76,7 +76,7 @@ public class CounterActivity extends Activity {
         public RefreshTask(Travel travel) {
             this.travel = travel;
             handler = new Handler();
-            handler.postDelayed(this, 1500);
+            handler.postDelayed(this, 0);
         }
 
         @Override
@@ -84,7 +84,7 @@ public class CounterActivity extends Activity {
             refreshValues();
             refreshMainView();
             if (isActive) {
-                handler.postDelayed(this, 900);
+                handler.postDelayed(this, 1000);
             }
         }
 
@@ -99,8 +99,8 @@ public class CounterActivity extends Activity {
             setText(findViewById(R.id.speed), location.getSpeed() * 3.6);
             setText(findViewById(R.id.hour), Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + Calendar.getInstance().get(Calendar.MINUTE));
             setText(findViewById(R.id.averageSpeed), travel.getAverageSpeed());
-            setText(findViewById(R.id.traVelLength), String.valueOf(Math.round(travel.getLength() * 100) / 100));
-            setText(findViewById(R.id.travelTime), travel.getDuration() / 1000);
+            setText(findViewById(R.id.traVelLength), String.valueOf(Math.round(travel.getLength()/ 100) / 10));
+            setText(findViewById(R.id.travelTime), travel.getDuration() / 1000 / 60);
             setText(findViewById(R.id.height), location.getAltitude());
         }
 
