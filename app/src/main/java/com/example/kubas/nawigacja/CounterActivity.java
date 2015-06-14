@@ -6,6 +6,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -23,19 +24,18 @@ public class CounterActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speed_counter);
         refreshTask = new RefreshTask(DataManager.getInstance().getTravel());
-        refreshTask.refreshValues();
         ImageButton goToMap = (ImageButton) findViewById(R.id.imgBtn_GoMap);
-        goToMap.setOnClickListener(new View.OnClickListener() {
+        goToMap.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent k = new Intent(CounterActivity.this, MapActivity.class);
+                Intent k = new Intent(CounterActivity.this, RouteActivity.class);
+                k.putExtra("resume", true);
                 startActivity(k);
             }
         });
     }
 
     public void viewMap(View view) {
-        Intent k = new Intent(CounterActivity.this, MapActivity.class);
-        startActivity(k);
+        startActivity(new Intent(CounterActivity.this, RouteActivity.class).putExtra("resume", true));
     }
 
     @Override
@@ -50,16 +50,9 @@ public class CounterActivity extends Activity {
         super.onDestroy();
     }
 
-    public void getCounter()
-    {
-        refreshTask = new RefreshTask(DataManager.getInstance().getTravel());
-        refreshTask.refreshValues();
-
-    }
     public void stopRefreshTask() {
         refreshTask.stop();
     }
-
 
     public void showSpeed(View view) {
         refreshTask.setMode(CounterMode.SPEED);
@@ -117,7 +110,7 @@ public class CounterActivity extends Activity {
             setText(findViewById(R.id.speed), location.getSpeed() * 3.6);
             setText(findViewById(R.id.hour), Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + Calendar.getInstance().get(Calendar.MINUTE));
             setText(findViewById(R.id.averageSpeed), travel.getAverageSpeed());
-            setText(findViewById(R.id.traVelLength), String.valueOf(Math.round(travel.getLength()/ 100) / 10));
+            setText(findViewById(R.id.traVelLength), String.valueOf(Math.round(travel.getLength() / 100) / 10));
             setText(findViewById(R.id.travelTime), travel.getDuration() / 1000 / 60);
             setText(findViewById(R.id.height), location.getAltitude());
         }

@@ -221,4 +221,12 @@ public class Travel implements Runnable {
     public boolean isRoadChoosen() {
         return road != null;
     }
+
+    public Road getRoad() {
+        return road;
+    }
+
+    public RoutePoints getPoints() {
+        return points;
+    }
 }
