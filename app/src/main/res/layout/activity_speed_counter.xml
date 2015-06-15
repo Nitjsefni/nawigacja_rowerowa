@@ -54,31 +54,27 @@
                 android:background="@drawable/radious_space"
                 android:layout_margin="10dp" >
 
-                <LinearLayout
+                <RelativeLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:id="@+id/linearLayout5"
                     android:layout_above="@+id/hugeTitle"
-                    android:gravity="center_horizontal">
+                    android:gravity="center">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="0.0"
-                        android:gravity="right|bottom"
+                        android:gravity="bottom|right"
                         android:id="@+id/hugeValue"
+                        android:textSize="55dp"
+
+                        android:singleLine="true"
                         android:layout_alignParentTop="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentStart="false"
-                        android:textSize="60dp"
-                        android:layout_toLeftOf="@+id/hugeJed"
-                        android:layout_toStartOf="@+id/hugeJed"
-                        android:layout_marginRight="2dp"
-                        android:layout_above="@+id/hugeTitle"
-                        android:layout_marginBottom="0dp"
-                        android:singleLine="true" />
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginRight="5dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -86,15 +82,15 @@
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="km/h"
                         android:id="@+id/hugeJed"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignParentEnd="true"
                         android:textSize="35sp"
-                        android:layout_above="@+id/hugeTitle"
-                        android:layout_marginBottom="7dp"
-                        android:layout_marginRight="20dp" />
-                        android:gravity="bottom" />
-                </LinearLayout>
+
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@+id/hugeValue"
+                        android:layout_toEndOf="@+id/hugeValue" /><![CDATA[
+
+                    android:gravity="bottom" />
+                ]]>
+                </RelativeLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -171,7 +167,7 @@
                     android:layout_alignParentStart="true"
                     android:gravity="center_horizontal|top"
                     android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="10dp" />
+                    android:layout_marginBottom="6dp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -195,7 +191,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
                     android:layout_above="@+id/textView12"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="3dp"
                     android:gravity="center_horizontal|bottom" />
 
                 <TextView
@@ -210,7 +206,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginBottom="10dp" />
+                    android:layout_marginBottom="6dp" />
 
             </RelativeLayout>
 
@@ -273,7 +269,7 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:gravity="center_horizontal|top"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="6dp"
                     android:singleLine="true" />
             </RelativeLayout>
 
@@ -312,11 +308,11 @@
                     android:textSize="35dp"
                     android:layout_toLeftOf="@+id/textView14"
                     android:layout_toStartOf="@+id/textView14"
-                    android:layout_marginRight="2dp"
                     android:layout_above="@+id/textView16"
                     android:layout_marginBottom="5dp"
                     android:singleLine="true"
-                    android:textIsSelectable="false" />
+                    android:textIsSelectable="false"
+                    android:layout_marginRight="10dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -330,7 +326,7 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:gravity="center_horizontal|top"
-                    android:layout_marginBottom="10dp" />
+                    android:layout_marginBottom="6dp" />
             </RelativeLayout>
         </LinearLayout>
 
@@ -391,7 +387,7 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:gravity="center_horizontal|top"
-                    android:layout_marginBottom="10dp" />
+                    android:layout_marginBottom="6dp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -445,7 +441,8 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:gravity="center_horizontal|top"
-                    android:layout_marginBottom="10dp" />
+                    android:layout_marginBottom="6dp"
+                    android:textSize="19dp" />
             </RelativeLayout>
         </LinearLayout>
 

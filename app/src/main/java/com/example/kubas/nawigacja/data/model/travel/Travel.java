@@ -297,10 +297,21 @@ public class Travel implements Runnable {
     }
 
     public float getActualBearing() {
+        double startLat = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLatitude());
+        double startLong = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLongitude());
+        double endLat = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLatitude());
+        double endLong = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLongitude());
         if (road.mRouteHigh.size() < 2) {
             return 0;
         }
-        return RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).bearingTo(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)));
+        //dist = RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).distanceTo(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)));
+
+        // *** Code to calculate where the arrow should point ***
+        Double angle = Math.atan2((RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLatitude() - RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLatitude()), RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLongitude() - RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLongitude());
+        angle = Math.toDegrees(angle);
+
+        float f = Float.parseFloat(angle.toString());
+        return f;
     }
 
     public List<GeoPoint> getRoadPoints() {

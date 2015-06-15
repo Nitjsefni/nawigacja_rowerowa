@@ -1,6 +1,7 @@
 package com.example.kubas.nawigacja;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -24,6 +25,7 @@ import com.example.kubas.nawigacja.client.SavedRouteOSMRRoadManager;
 import com.example.kubas.nawigacja.data.DataManager;
 import com.example.kubas.nawigacja.data.Times;
 import com.example.kubas.nawigacja.data.model.GeoPosition;
+import com.example.kubas.nawigacja.data.model.Route;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.data.model.travel.RoadNodeToSpeak;
 import com.example.kubas.nawigacja.data.model.travel.Travel;
@@ -257,18 +259,18 @@ public class RouteActivity extends Activity implements Trackable {
             }
 
             MapView map = (MapView) findViewById(R.id.map2);
-//            if (!travel.isOnRoad(loc)) {
-//                if (RouteActivity.isOnline(RouteActivity.this)) {
-//                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
-//                    points.setStartPoint(null);
-//                    findStartPoint(points);
-//                    finish();
-//                    getIntent().putExtra("points", points);
-//                    startActivity(getIntent());
-//                } else {
-//                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
-//                }
-//            } else {
+           if (!travel.isOnRoad(loc)) {
+                if (RouteActivity.isOnline(RouteActivity.this)) {
+                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
+                    points.setStartPoint(null);
+                    findStartPoint(points);
+                    finish();
+                    getIntent().putExtra("points", points);
+                    startActivity(getIntent());
+                } else {
+                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
+                }
+            } else {
             double totalLength = 0.0;
             double totalDuration = 0.0;
             for (RoadNode node : travel.getInstructionsNodes()) {
@@ -287,7 +289,7 @@ public class RouteActivity extends Activity implements Trackable {
             routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
             routeViewManager.setRouteSummary(totalLength, totalDuration);
             routeViewManager.speakInstruction(travel.getNextInstructionNode(), loc);
-//            }
+            }
         }
 
 
@@ -385,7 +387,7 @@ public class RouteActivity extends Activity implements Trackable {
                 @Override
                 public void onInit(int status) {
                     if (status != TextToSpeech.ERROR) {
-                        textToSpeech.setLanguage(new Locale("pl"));
+                        textToSpeech.setLanguage(new Locale("PL"));
                     }
                 }
             });
@@ -512,8 +514,11 @@ public class RouteActivity extends Activity implements Trackable {
 
 
         public void rotateMap(Travel travel) {
+
             MapView map = (MapView) activity.findViewById(R.id.map2);
-            map.setMapOrientation(travel.getActualBearing());
+
+                map.setMapOrientation(travel.getActualBearing());
+
         }
 
     }

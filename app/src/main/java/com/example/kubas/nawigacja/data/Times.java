@@ -8,5 +8,5 @@ public class Times {
     public static final int SEND_POSITION_FREQUENCY_TIME = 5000;
     public static final int SHOW_POSITION_FREQUENCY_TIME = 1000;
 
-    public static final boolean ALGORITHM_INCRESE_ACCURACY_ENABLED = false;
+    public static final boolean ALGORITHM_INCRESE_ACCURACY_ENABLED = true;
 }
