@@ -287,16 +287,15 @@ public class RouteActivity extends Activity implements Trackable {
                     totalDuration += node.mDuration;
                     totalLength += node.mLength * 1000;
                 }
-                float distance2 = travel.getNextInstructionNode().getLocation().distanceTo(new GeoPoint(loc));
-                int distance = Math.round(gpsManager.getActualPosition().distanceTo(travel.getNextInstructionNode().getLocation()));
+                GeoPoint location = travel.getNextInstructionNode().getLocation();
+                float distance2 = location.distanceTo(new GeoPoint(loc));
+                int distance = Math.round(gpsManager.getActualPosition().distanceTo(location));
                 map.getController().setZoom(17);
                 map.getController().setCenter(new GeoPoint(loc));
                 Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", R.drawable.arrow, "");
 
                 routeViewManager.refreshOverlays(currentPositionMarker);
-                Location nextNode = new Location("gps");
-                nextNode.setLatitude(travel.getNextInstructionNode().getLocation().getLatitudeE6()/1E6);
-                nextNode.setLongitude(travel.getNextInstructionNode().getLocation().getLongitudeE6()/1E6);
+                Location nextNode = RoutingUtil.convertToLocation(location);
                 routeViewManager.rotateMap(loc, nextNode);
                 routeViewManager.printSpeed(loc);
                 routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
@@ -304,6 +303,8 @@ public class RouteActivity extends Activity implements Trackable {
                 routeViewManager.speakInstruction(travel.getNextInstructionNode(), loc);
             }
         }
+
+
 
         public void setLoc(Location loc) {
             this.loc = loc;

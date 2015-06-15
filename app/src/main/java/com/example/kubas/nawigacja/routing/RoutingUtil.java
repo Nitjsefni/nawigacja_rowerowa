@@ -1,5 +1,9 @@
 package com.example.kubas.nawigacja.routing;
 
+import android.location.Location;
+
+import org.osmdroid.util.GeoPoint;
+
 public class RoutingUtil {
 
     public static String getFormattedDistance(double meters) {
@@ -40,5 +44,11 @@ public class RoutingUtil {
         } else {
             return (Math.round(kilometers * 1000)) + " " + m2;
         }
+    }
+    public static Location convertToLocation(GeoPoint location) {
+        Location nextNode = new Location("gps");
+        nextNode.setLatitude(location.getLatitude());
+        nextNode.setLongitude(location.getLongitude());
+        return nextNode;
     }
 }
