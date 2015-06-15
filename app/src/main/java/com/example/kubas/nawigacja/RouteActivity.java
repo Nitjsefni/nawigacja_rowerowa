@@ -480,7 +480,7 @@ public class RouteActivity extends Activity implements Trackable {
             for (Overlay overlay : additional) {
                 map.getOverlays().add(overlay);
             }
-            printNodesAsPoints(DataManager.getInstance().getTravel().getRoadPoints(), map);
+//            printNodesAsPoints(DataManager.getInstance().getTravel().getRoadPoints(), map);
             map.invalidate();
         }
 
