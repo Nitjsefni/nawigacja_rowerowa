@@ -115,6 +115,13 @@ public class Travel implements Runnable {
         return road.mDuration;
     }
 
+    public Location bindPointToRoadLine(Location location) {
+        if (road.mRouteHigh.size() < 2) {
+            return location;
+        }
+        return getLocationOnLine(road.mRouteHigh.get(0), road.mRouteHigh.get(1), location);
+    }
+
     @Override
     public void run() {
         Location actualLocation = gpsManager.getActualLocation();
@@ -166,7 +173,6 @@ public class Travel implements Runnable {
 
     private List<GeoPoint> removeElements(List mRouteHigh, int elementsToCutNumber) {
         List<GeoPoint> removed = new ArrayList<>();
-
         for (int i = 0; i < elementsToCutNumber; i++) {
             removed.add(getGeoPoint(mRouteHigh.get(0)));
             mRouteHigh.remove(0);
@@ -201,6 +207,11 @@ public class Travel implements Runnable {
     }
 
     private double getDistanceFromLine(GeoPoint p1, GeoPoint p2, Location point) {
+        Location location = getLocationOnLine(p1, p2, point);
+        return location.distanceTo(point);
+    }
+
+    private Location getLocationOnLine(GeoPoint p1, GeoPoint p2, Location point) {
         double a;
         double c;
         double b;
@@ -239,7 +250,7 @@ public class Travel implements Runnable {
         Location location = new Location(point);
         location.setLatitude(y);
         location.setLongitude(x);
-        return location.distanceTo(point);
+        return location;
     }
 
     private double getLimit(double p1Longitude, double p2Longitude, double value) {
@@ -310,8 +321,7 @@ public class Travel implements Runnable {
         Double angle = Math.atan2((RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLatitude() - RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLatitude()), RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLongitude() - RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLongitude());
         angle = Math.toDegrees(angle);
 
-        float f = Float.parseFloat(angle.toString());
-        return f;
+        return Float.parseFloat(angle.toString());
     }
 
     public List<GeoPoint> getRoadPoints() {

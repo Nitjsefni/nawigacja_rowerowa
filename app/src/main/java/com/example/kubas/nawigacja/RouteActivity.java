@@ -259,18 +259,18 @@ public class RouteActivity extends Activity implements Trackable {
             }
 
             MapView map = (MapView) findViewById(R.id.map2);
-           if (!travel.isOnRoad(loc)) {
-                if (RouteActivity.isOnline(RouteActivity.this)) {
-                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
-                    points.setStartPoint(null);
-                    findStartPoint(points);
-                    finish();
-                    getIntent().putExtra("points", points);
-                    startActivity(getIntent());
-                } else {
-                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
-                }
-            } else {
+//            if (!travel.isOnRoad(loc)) {
+//                if (RouteActivity.isOnline(RouteActivity.this)) {
+//                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
+//                    points.setStartPoint(null);
+//                    findStartPoint(points);
+//                    finish();
+//                    getIntent().putExtra("points", points);
+//                    startActivity(getIntent());
+//                } else {
+//                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
+//                }
+//        }
             double totalLength = 0.0;
             double totalDuration = 0.0;
             for (RoadNode node : travel.getInstructionsNodes()) {
@@ -282,14 +282,14 @@ public class RouteActivity extends Activity implements Trackable {
             map.getController().setZoom(17);
             map.getController().setCenter(new GeoPoint(loc));
             Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", R.drawable.arrow, "");
-
+// to jest wersja z dowiązywaniem do aktualnej drogi
+//            Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(travel.bindPointToRoadLine(loc)), "Aktualna pozycja", R.drawable.arrow, "");
             routeViewManager.refreshOverlays(currentPositionMarker);
             routeViewManager.rotateMap(travel);
             routeViewManager.printSpeed(loc);
             routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
             routeViewManager.setRouteSummary(totalLength, totalDuration);
             routeViewManager.speakInstruction(travel.getNextInstructionNode(), loc);
-            }
         }
 
 
@@ -387,7 +387,7 @@ public class RouteActivity extends Activity implements Trackable {
                 @Override
                 public void onInit(int status) {
                     if (status != TextToSpeech.ERROR) {
-                        textToSpeech.setLanguage(new Locale("PL"));
+                        textToSpeech.setLanguage(new Locale("pl"));
                     }
                 }
             });
@@ -409,11 +409,12 @@ public class RouteActivity extends Activity implements Trackable {
                 map.getOverlays().add(nodeMarker);
             }
         }
+
         @Deprecated
         public void printNodesAsPoints(List<GeoPoint> instructions, MapView map) {
             for (int i = 0; i < instructions.size(); i++) {
                 GeoPoint node = instructions.get(i);
-                Marker nodeMarker = createMarker(node, "Step " + i, R.drawable.marker_node,"");
+                Marker nodeMarker = createMarker(node, "Step " + i, R.drawable.marker_node, "");
                 map.getOverlays().add(nodeMarker);
             }
         }
