@@ -3,10 +3,10 @@ package com.example.kubas.nawigacja.data.model.travel;
 import com.example.kubas.nawigacja.routing.RoutingUtil;
 
 public enum Instruction {
-    BEGIN(100, Integer.MAX_VALUE, "Za ", true),
-    FAR(50, 100, "Za ", true),
-    MID(15, 30, "Za ", true),
-    SHORT(0, 10, "", false);
+    BEGIN(150, Integer.MAX_VALUE, "Za ", true),
+    FAR(70, 130, "Za ", true),
+    MID(30, 60, "Za ", true),
+    SHORT(0, 25, "", false);
 
     private final int from;
     private final int to;
