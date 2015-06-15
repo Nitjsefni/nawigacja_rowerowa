@@ -1,7 +1,6 @@
 package com.example.kubas.nawigacja;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -14,7 +13,6 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -24,8 +22,8 @@ import android.widget.Toast;
 import com.example.kubas.nawigacja.client.OwnOSRMRoadManager;
 import com.example.kubas.nawigacja.client.SavedRouteOSMRRoadManager;
 import com.example.kubas.nawigacja.data.DataManager;
+import com.example.kubas.nawigacja.data.Times;
 import com.example.kubas.nawigacja.data.model.GeoPosition;
-import com.example.kubas.nawigacja.data.model.Route;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.data.model.travel.RoadNodeToSpeak;
 import com.example.kubas.nawigacja.data.model.travel.Travel;
@@ -55,6 +53,16 @@ public class RouteActivity extends Activity implements Trackable {
     private RefreshRoute refreshView;
     private StartRoute startView;
     private PowerManager.WakeLock mWakeLock;
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +119,7 @@ public class RouteActivity extends Activity implements Trackable {
                 getClass().getName());
         mWakeLock.acquire();
         new Thread(roadFromServer).start();
-        showPosition = new ShowPosition(this, 5000);
+        showPosition = new ShowPosition(this, Times.SHOW_POSITION_FREQUENCY_TIME);
         ImageButton goToCounter = (ImageButton) findViewById(R.id.imgBtn_goToCounter);
         goToCounter.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -143,7 +151,6 @@ public class RouteActivity extends Activity implements Trackable {
         }
     }
 
-
     public void refreshMapPosition(final Location loc) {
         if (refreshView != null) {
             refreshView.setLoc(loc);
@@ -162,7 +169,7 @@ public class RouteActivity extends Activity implements Trackable {
     @Override
     protected void onResume() {
         super.onResume();
-        showPosition = new ShowPosition(this, 5000);
+        showPosition = new ShowPosition(this, Times.SHOW_POSITION_FREQUENCY_TIME);
     }
 
     @Override
@@ -235,20 +242,13 @@ public class RouteActivity extends Activity implements Trackable {
             this.travel = travel;
         }
     }
-    public static boolean isOnline(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnected()) {
-            return true;
-        }
-        return false;
-    }
+
     private class RefreshViewWithRouting implements RefreshRoute {
 
+        Runnable roadFromServer;
         private Location loc;
         private RoutePoints points;
         private RoadManager roadManager;
-        Runnable roadFromServer;
 
         public RefreshViewWithRouting(RoutePoints points, RoadManager roadManager) {
             this.points = points;
@@ -263,47 +263,38 @@ public class RouteActivity extends Activity implements Trackable {
             }
 
             MapView map = (MapView) findViewById(R.id.map2);
-            if (!travel.isOnRoad(loc)) {
-                if(RouteActivity.isOnline(RouteActivity.this))
-                {
-                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
-                    finish();
-                    startActivity(getIntent());
-                }
-                else
-                {
-                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
-                }
-
-
-
-                //albo restart
-                //finish();
-                //startActivity(getIntent());
-            } else {
-                double totalLength = 0.0;
-                double totalDuration = 0.0;
-                for (RoadNode node : travel.getInstructionsNodes()) {
-                    totalDuration += node.mDuration;
-                    totalLength += node.mLength * 1000;
-                }
-                GeoPoint location = travel.getNextInstructionNode().getLocation();
-                float distance2 = location.distanceTo(new GeoPoint(loc));
-                int distance = Math.round(gpsManager.getActualPosition().distanceTo(location));
-                map.getController().setZoom(17);
-                map.getController().setCenter(new GeoPoint(loc));
-                Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", R.drawable.arrow, "");
-
-                routeViewManager.refreshOverlays(currentPositionMarker);
-                Location nextNode = RoutingUtil.convertToLocation(location);
-                routeViewManager.rotateMap(loc, nextNode);
-                routeViewManager.printSpeed(loc);
-                routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
-                routeViewManager.setRouteSummary(totalLength, totalDuration);
-                routeViewManager.speakInstruction(travel.getNextInstructionNode(), loc);
+//            if (!travel.isOnRoad(loc)) {
+//                if (RouteActivity.isOnline(RouteActivity.this)) {
+//                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
+//                    points.setStartPoint(null);
+//                    findStartPoint(points);
+//                    finish();
+//                    getIntent().putExtra("points", points);
+//                    startActivity(getIntent());
+//                } else {
+//                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
+//                }
+//            } else {
+            double totalLength = 0.0;
+            double totalDuration = 0.0;
+            for (RoadNode node : travel.getInstructionsNodes()) {
+                totalDuration += node.mDuration;
+                totalLength += node.mLength * 1000;
             }
-        }
+            GeoPoint nextNodeGeoPoint = travel.getNextInstructionNode().getLocation();
+            int distance = Math.round(gpsManager.getActualPosition().distanceTo(nextNodeGeoPoint));
+            map.getController().setZoom(17);
+            map.getController().setCenter(new GeoPoint(loc));
+            Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", R.drawable.arrow, "");
 
+            routeViewManager.refreshOverlays(currentPositionMarker);
+            routeViewManager.rotateMap(travel);
+            routeViewManager.printSpeed(loc);
+            routeViewManager.setInstructionView(travel.getNextInstructionNode(), distance);
+            routeViewManager.setRouteSummary(totalLength, totalDuration);
+            routeViewManager.speakInstruction(travel.getNextInstructionNode(), loc);
+//            }
+        }
 
 
         public void setLoc(Location loc) {
@@ -421,6 +412,15 @@ public class RouteActivity extends Activity implements Trackable {
                 map.getOverlays().add(nodeMarker);
             }
         }
+        @Deprecated
+        public void printNodesAsPoints(List<GeoPoint> instructions, MapView map) {
+            for (int i = 0; i < instructions.size(); i++) {
+                GeoPoint node = instructions.get(i);
+                Marker nodeMarker = createMarker(node, "Step " + i, R.drawable.marker_node, Road.getLengthDurationText(100, 12));
+                nodeMarker.setSnippet("aaa");
+                map.getOverlays().add(nodeMarker);
+            }
+        }
 
         private Marker createMarker(GeoPoint point, String name, int resourceToShow, String description) {
             MapView map = (MapView) activity.findViewById(R.id.map2);
@@ -486,7 +486,7 @@ public class RouteActivity extends Activity implements Trackable {
             for (Overlay overlay : additional) {
                 map.getOverlays().add(overlay);
             }
-            printInstructionsAsPoints(DataManager.getInstance().getTravel().getInstructionsNodes(), map);
+            printNodesAsPoints(DataManager.getInstance().getTravel().getRoadPoints(), map);
             map.invalidate();
         }
 
@@ -505,11 +505,9 @@ public class RouteActivity extends Activity implements Trackable {
 
         private void speakNewRoad(boolean online) {
             String text;
-            if(online)
-            {
+            if (online) {
                 text = "Wyjechałeś poza trasę, wyznaczanie nowej trasy";
-            }
-            else {
+            } else {
                 text = "Wyjechałeś poza trasę, proszę zawróć";
             }
             if (text == null) {
@@ -519,12 +517,9 @@ public class RouteActivity extends Activity implements Trackable {
         }
 
 
-        public void rotateMap(Location loc, Location loc1) {
+        public void rotateMap(Travel travel) {
             MapView map = (MapView) activity.findViewById(R.id.map2);
-            if (loc.hasBearing()) {
-               // map.setMapOrientation(loc.getBearing());
-                map.setMapOrientation(loc1.bearingTo(loc));
-            }
+            map.setMapOrientation(travel.getActualBearing());
         }
 
     }

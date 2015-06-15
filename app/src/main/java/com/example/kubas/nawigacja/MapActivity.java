@@ -8,6 +8,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.example.kubas.nawigacja.data.Times;
 import com.example.kubas.nawigacja.gps.GPSManager;
 import com.example.kubas.nawigacja.tracking.SendPosition;
 import com.example.kubas.nawigacja.tracking.ShowPosition;
@@ -60,7 +61,7 @@ public class MapActivity extends Activity implements Trackable {
         }
         setMapStartPoint(gp);
         map.invalidate();
-        showPosition = new ShowPosition(this, 5000);
+        showPosition = new ShowPosition(this, Times.SHOW_POSITION_FREQUENCY_TIME);
         // startTracking();
         ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -78,7 +79,7 @@ public class MapActivity extends Activity implements Trackable {
 
     public void startTracking() {
 
-        sendPosition = new SendPosition(this, 5000);
+        sendPosition = new SendPosition(this, Times.SEND_POSITION_FREQUENCY_TIME);
         map.getOverlays().clear();
         Location loc;
 
@@ -140,7 +141,7 @@ public class MapActivity extends Activity implements Trackable {
         }
         roadOverlay.setPoints(route);
         mapController.setZoom(17);
-        mapController.setCenter(route.get(route.size()-1));
+        mapController.setCenter(route.get(route.size() - 1));
 
         map.getOverlays().add(roadOverlay);
         map.invalidate();

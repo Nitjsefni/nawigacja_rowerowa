@@ -8,13 +8,13 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 
+import com.example.kubas.nawigacja.data.Times;
+
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
 
 public class GPSManager {
-    private static int gpsRefreshTime;
-    private static int increaseAccuracyAlgorithmDuration;
     private static GPSManager instance;
     private ActualLocationManager actualLocationManager;
     private LocationManager locationManager;
@@ -31,9 +31,6 @@ public class GPSManager {
     private static void loadSettings(Context context) {
         SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(context);
-        gpsRefreshTime = sharedPref.getInt("gpsRefreshTime", 500);
-        increaseAccuracyAlgorithmDuration = sharedPref.getInt("increaseAccuracyAlgorithmDuration", 4000);
-
     }
 
     public static void init(Context context) throws Exception {
@@ -55,7 +52,7 @@ public class GPSManager {
     }
 
     public GeoPoint getActualPosition() {
-        if (getActualLocation()==null){
+        if (getActualLocation() == null) {
             return null;
         }
         return new GeoPoint(getActualLocation());
@@ -65,12 +62,12 @@ public class GPSManager {
         ArrayList<String> gpsstatus = new ArrayList<String>();
         String text = actualLocationManager.getGpsStatus();
         gpsstatus.add(text);
-        text =  actualLocationManager.getGpsStatusProvider();
+        text = actualLocationManager.getGpsStatusProvider();
         gpsstatus.add(text);
         text = String.valueOf(actualLocationManager.getGpsStatusStatus());
         gpsstatus.add(text);
-        return   gpsstatus;
-   }
+        return gpsstatus;
+    }
 
     public void stop() {
         locationManager.removeUpdates(locationListener);
@@ -79,41 +76,29 @@ public class GPSManager {
 
 
     private void start() throws Exception {
-        Location loc = null;
         boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
         if (isGPSEnabled) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, gpsRefreshTime, 0, locationListener);
-            loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if(loc != null) {
-                actualLocationManager.setLocation(loc);
-            }
-
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Times.GPS_REFRESH_TIME, 0, locationListener);
         }
         if (isNetworkEnabled) {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, gpsRefreshTime, 0, locationListener);
-            loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            actualLocationManager.setLocation(loc);
-
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, Times.GPS_REFRESH_TIME, 0, locationListener);
         }
-        if (loc == null) {
-            throw new Exception("Nie można uruchomić GPS");
-        }
-        accuracyAlgorithm = new IncreaseAccuracyAlgorithm(increaseAccuracyAlgorithmDuration, actualLocationManager);
+        accuracyAlgorithm = new IncreaseAccuracyAlgorithm(actualLocationManager);
     }
 
     private class IncreaseAccuracyAlgorithm implements Runnable {
+        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         private Handler handler;
         private boolean isActive;
         private ActualLocationManager actualLocationManager;
-        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        public IncreaseAccuracyAlgorithm(int increaseAccuracyAlgorithmDuration, ActualLocationManager actualLocationManager) {
+
+        public IncreaseAccuracyAlgorithm(ActualLocationManager actualLocationManager) {
             this.actualLocationManager = actualLocationManager;
             isActive = true;
             handler = new Handler();
-            handler.postDelayed(this, increaseAccuracyAlgorithmDuration);
+            handler.postDelayed(this, Times.ALGORITHM_INCREASE_ACCURACY_TIME);
         }
 
         @Override
@@ -178,7 +163,7 @@ public class GPSManager {
 
             }*/
             if (isActive) {
-                handler.postDelayed(this, increaseAccuracyAlgorithmDuration);
+                handler.postDelayed(this, Times.ALGORITHM_INCREASE_ACCURACY_TIME);
             }
         }
 

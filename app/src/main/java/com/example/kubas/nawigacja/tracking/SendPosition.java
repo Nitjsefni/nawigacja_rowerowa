@@ -5,15 +5,13 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.example.kubas.nawigacja.gps.GPSManager;
-import com.example.kubas.nawigacja.tracking.Trackable;
 
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class  SendPosition implements Runnable {
+public class SendPosition implements Runnable {
     private GPSManager gpsManager = GPSManager.getInstance();
     private boolean stopped = false;
     private Handler handler;

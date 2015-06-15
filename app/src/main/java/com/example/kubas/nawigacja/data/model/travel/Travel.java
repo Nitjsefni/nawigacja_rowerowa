@@ -5,8 +5,10 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Handler;
 
+import com.example.kubas.nawigacja.data.Times;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.gps.GPSManager;
+import com.example.kubas.nawigacja.routing.RoutingUtil;
 
 import org.osmdroid.bonuspack.overlays.Polyline;
 import org.osmdroid.bonuspack.routing.Road;
@@ -21,10 +23,8 @@ import java.util.Date;
 import java.util.List;
 
 public class Travel implements Runnable {
-    public static final int HISTORY_REFRESH_FREQUENCY = 1000;
-    private static final double LAT_TOLERANCE = 0;
-    private static final double DISTANCE_TOLERANCE = 0.05;
-    private static final double LON_TOLERANCE = 0;
+    private static final double DISTANCE_TOLERANCE = 5;
+    private static final double DISTANCE_OUTSIDE_ROAD_TOLERANCE = 15;
     private Date start;
     private double length;
     private List<RoadElement> history = new ArrayList<>();
@@ -38,7 +38,7 @@ public class Travel implements Runnable {
     public Travel() {
         this.start = Calendar.getInstance().getTime();
         this.handler = new Handler();
-        this.handler.postDelayed(this, HISTORY_REFRESH_FREQUENCY);
+        this.handler.postDelayed(this, Times.HISTORY_REFRESH_FREQUENCY);
     }
 
     public Travel(Road road, RoutePoints points) {
@@ -47,11 +47,19 @@ public class Travel implements Runnable {
         this.points = points;
         setNextInstructionNode(road.mNodes.get(0));
         //tymczasowo - poki serwer nie wysyla poczatku i konca
-        RoadNode roadNode = new RoadNode();
-        roadNode.mLocation = points.getStartPoint().getGeoPoint();
-        roadNode.mInstructions = "Punkt strartowy";
-        road.mNodes.add(0, roadNode);
-//        road.mNodes.add(new RoadNode());
+        if (points.getStartPoint() != null) {
+            RoadNode startNode = new RoadNode();
+            startNode.mLocation = points.getStartPoint().getGeoPoint();
+            startNode.mInstructions = "Punkt strartowy";
+            road.mNodes.add(0, startNode);
+
+        }
+        if (points.getEndPoint() != null) {
+            RoadNode endNode = new RoadNode();
+            endNode.mLocation = points.getEndPoint().getGeoPoint();
+            endNode.mInstructions = "Punkt docelowy";
+            road.mNodes.add(endNode);
+        }
     }
 
     public Date getStart() {
@@ -69,7 +77,7 @@ public class Travel implements Runnable {
         if (getDuration() == 0) {
             return 0;
         }
-        return getLength() / (getDuration() / 1000);
+        return 3.6 * getLength() / (getDuration() / 1000);
     }
 
     /**
@@ -112,7 +120,7 @@ public class Travel implements Runnable {
         if (road != null) {
             calculateRoadPart(actualLocation);
         }
-        handler.postDelayed(this, HISTORY_REFRESH_FREQUENCY);
+        handler.postDelayed(this, Times.HISTORY_REFRESH_FREQUENCY);
     }
 
     private void calculateRoadPart(Location actualLocation) {
@@ -120,6 +128,7 @@ public class Travel implements Runnable {
         removeElements(road.mNodes, getElementsToCutNumber(actualLocation, road.mNodes));
         if (road.mRouteHigh.size() < 2) {
             setNextInstructionNode(null);
+            return;
         }
         if (!nextInstructionNode.isSameRoadNode(road.mNodes.get(1))) {
             setNextInstructionNode(road.mNodes.get(1));
@@ -136,7 +145,7 @@ public class Travel implements Runnable {
             return true;
         }
         calculateRoadPart(location);
-        return isPointOnRoad(location, road.mRouteHigh, 0);
+        return isPointOnRoad(location, road.mRouteHigh, 0, DISTANCE_OUTSIDE_ROAD_TOLERANCE);
     }
 
     private void removeElements(List mRouteHigh, int elementsToCutNumber) {
@@ -146,8 +155,8 @@ public class Travel implements Runnable {
     }
 
     private int getElementsToCutNumber(Location actualLocation, List mRouteHigh) {
-        for (int i = 0; i < mRouteHigh.size(); i++) {
-            if (!isPointOnRoad(actualLocation, mRouteHigh, i)) {
+        for (int i = 0; i < mRouteHigh.size() - 1; i++) {
+            if (!isPointOnRoad(actualLocation, mRouteHigh, i, DISTANCE_TOLERANCE)) {
                 continue;
             }
             return i;
@@ -155,20 +164,10 @@ public class Travel implements Runnable {
         return 0;
     }
 
-    private boolean isPointOnRoad(Location actualLocation, List mRouteHigh, int i) {
+    private boolean isPointOnRoad(Location actualLocation, List mRouteHigh, int i, double tolerance) {
         GeoPoint lastPoint = getGeoPoint(mRouteHigh.get(i));
         GeoPoint nextPoint = getGeoPoint(mRouteHigh.get(i + 1));
-        return !isOutsideRoadBorder(lastPoint, nextPoint) &&
-                getDistanceFromLine(lastPoint, nextPoint, actualLocation) <= DISTANCE_TOLERANCE;
-    }
-
-    private boolean isOutsideRoadBorder(GeoPoint lastPoint, GeoPoint nextPoint) {
-        double maxLat = Math.max(lastPoint.getLatitude(), nextPoint.getLatitude()) + LAT_TOLERANCE;
-        double minLat = Math.min(lastPoint.getLatitude(), nextPoint.getLatitude()) + LAT_TOLERANCE;
-        double maxLon = Math.max(lastPoint.getLongitude(), nextPoint.getLongitude() + LON_TOLERANCE);
-        double minLon = Math.min(lastPoint.getLongitude(), nextPoint.getLongitude() + LON_TOLERANCE);
-        return lastPoint.getLatitude() > maxLat || lastPoint.getLatitude() < minLat ||
-                lastPoint.getLongitude() > maxLon || lastPoint.getLongitude() < minLon;
+        return getDistanceFromLine(lastPoint, nextPoint, actualLocation) <= tolerance;
     }
 
     private GeoPoint getGeoPoint(Object object) {
@@ -178,23 +177,60 @@ public class Travel implements Runnable {
         if (object.getClass().equals(RoadNode.class)) {
             return ((RoadNode) object).mLocation;
         }
-        return new GeoPoint(0, 0);
+        return null;
     }
 
     private double getDistanceFromLine(GeoPoint p1, GeoPoint p2, Location point) {
         double a;
         double c;
         double b;
-        if (p1.getLongitude() == p2.getLongitude()) {
+        // obliczenie współrzędnych prostopadłej prostej
+        double bParallel;
+        double aParallel;
+        double cParallel;
+        if (p1.getLatitude() == p2.getLatitude()) {
+            a = 0;
+            b = 1;
+            c = -1 * p1.getLatitude();
+            aParallel = 1;
+            bParallel = 0;
+            cParallel = -1 * point.getLongitude();
+        } else if (p1.getLongitude() == p2.getLongitude()) {
+            aParallel = 0;
+            bParallel = 1;
+            cParallel = -1 * point.getLatitude();
             a = 1;
             b = 0;
-            c = p1.getLongitude();
+            c = -1 * p1.getLongitude();
         } else {
+            //x=lon
             a = (p1.getLatitude() - p2.getLatitude()) / (p1.getLongitude() - p2.getLongitude());
-            c = p2.getLatitude() - a * p2.getLongitude();
             b = -1;
+            c = p2.getLatitude() - a * p2.getLongitude();
+            aParallel = -1 / a;
+            cParallel = point.getLatitude() - aParallel * point.getLongitude();
+            bParallel = -1;
         }
-        return (a * point.getLongitude() + b * point.getLatitude() + c) / Math.sqrt(a * a + b * b);
+        double y = (-c * aParallel + cParallel) / (b * aParallel - bParallel * a);
+        double x = (-b * y - c) / a;
+
+        y = getLimit(p1.getLatitude(), p2.getLatitude(), y);
+        x = getLimit(p1.getLongitude(), p2.getLongitude(), x);
+        Location location = new Location(point);
+        location.setLatitude(y);
+        location.setLongitude(x);
+        return location.distanceTo(point);
+    }
+
+    private double getLimit(double p1Longitude, double p2Longitude, double value) {
+        double max = Math.max(p1Longitude, p2Longitude);
+        double min = Math.min(p1Longitude, p2Longitude);
+        if (value > max) {
+            return max;
+        } else if (value < min) {
+            return min;
+        }
+        return value;
     }
 
     private void addToTravelHistory(Location actualLocation) {
@@ -231,5 +267,23 @@ public class Travel implements Runnable {
 
     public Polyline getRoadOverlay(Context context) {
         return RoadManager.buildRoadOverlay(road, Color.RED, 8, context);
+    }
+
+    public GeoPoint getNextRoadPoint() {
+        if (road.mRouteHigh.size() > 1) {
+            return road.mRouteHigh.get(1);
+        }
+        return null;
+    }
+
+    public float getActualBearing() {
+        if (road.mRouteHigh.size() < 2) {
+            return 0;
+        }
+        return RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).bearingTo(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)));
+    }
+
+    public List<GeoPoint> getRoadPoints() {
+        return road.mRouteHigh;
     }
 }

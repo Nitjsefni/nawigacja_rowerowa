@@ -1,7 +1,8 @@
 package com.example.kubas.nawigacja.gps;
 
 import android.location.Location;
-import android.util.Log;
+
+import com.example.kubas.nawigacja.data.Times;
 
 public class ActualLocationManager {
     private static int ACCURACY_LIMIT = 50;
@@ -17,18 +18,15 @@ public class ActualLocationManager {
 
     public Location getActualLocation() {
         Location location = actualLocation;
-        if (location != null && location.getAccuracy() > 7) {
-            location = getAverageLocation(location);
+        if (Times.ALGORITHM_INCRESE_ACCURACY_ENABLED) {
+            if (location != null && location.getAccuracy() > 7) {
+                location = getAverageLocation(location);
+            }
         }
         if (location == null) {
             location = previousLocation;
         }
-
         return location;
-    }
-
-    private boolean isAverageLocationAvaliable() {
-        return getAvgLatitude() != 0 || getAvgLongitude() != 0 || getAvgAccuracy() != 0;
     }
 
     private Location getAverageLocation(Location location) {
@@ -84,27 +82,27 @@ public class ActualLocationManager {
     public String getGpsStatus() {
         return gpsStatus;
     }
+
+    public void setGpsStatus(String gpsStatus) {
+        this.gpsStatus = gpsStatus;
+    }
+
     public String getGpsStatusProvider() {
         return gpsProvider;
     }
+
     public int getGpsStatusStatus() {
         return gpsStatusStatus;
     }
 
-    public void setGpsStatus(String gpsStatus) {
-        this.gpsStatus = gpsStatus;
-
-
-    }
     public void setGpsStatus(String gpsStatus, String provider) {
         this.gpsStatus = gpsStatus;
         this.gpsProvider = provider;
-
     }
+
     public void setGpsStatus(String gpsStatus, String provider, int status) {
         this.gpsStatus = gpsStatus;
         this.gpsProvider = provider;
         this.gpsStatusStatus = status;
-
     }
 }

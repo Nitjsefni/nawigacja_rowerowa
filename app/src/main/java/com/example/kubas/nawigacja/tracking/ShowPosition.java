@@ -5,26 +5,19 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.example.kubas.nawigacja.gps.GPSManager;
-import com.example.kubas.nawigacja.tracking.Trackable;
-
-import org.osmdroid.util.GeoPoint;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class ShowPosition implements Runnable {
     private GPSManager gpsManager = GPSManager.getInstance();
     private Handler handler;
     private Trackable trackable;
-    private int delayTimeInMilisecounds;
+    private int delayTimeInMillisecounds;
     private boolean stopped;
 
-    public ShowPosition(Trackable trackable, int delayTimeInMilisecounds) {
+    public ShowPosition(Trackable trackable, int delayTimeInMillisecounds) {
         this.trackable = trackable;
-        this.delayTimeInMilisecounds = delayTimeInMilisecounds;
+        this.delayTimeInMillisecounds = delayTimeInMillisecounds;
         handler = new Handler();
-        handler.postDelayed(this, delayTimeInMilisecounds);
+        handler.postDelayed(this, 0);
     }
 
     private void refresh() {
@@ -41,7 +34,7 @@ public class ShowPosition implements Runnable {
     public void run() {
         refresh();
         if (!stopped) {
-            handler.postDelayed(this, delayTimeInMilisecounds);
+            handler.postDelayed(this, delayTimeInMillisecounds);
         }
     }
 

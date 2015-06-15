@@ -1,16 +1,15 @@
 package com.example.kubas.nawigacja;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.kubas.nawigacja.data.DataManager;
+import com.example.kubas.nawigacja.data.Times;
 import com.example.kubas.nawigacja.data.model.travel.Travel;
 import com.example.kubas.nawigacja.gps.GPSManager;
 
@@ -18,7 +17,7 @@ import java.util.Calendar;
 
 public class CounterActivity extends Activity {
     private RefreshTask refreshTask;
-    private boolean czy_z_menu = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,26 +26,17 @@ public class CounterActivity extends Activity {
         ImageButton goToMap = (ImageButton) findViewById(R.id.imgBtn_GoMap);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-
-            czy_z_menu = extras.getBoolean("czy_z_menu",false);
-
-        }
-        goToMap.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                if(czy_z_menu) {
-                    Intent k = new Intent(CounterActivity.this, MapActivity.class);
-                    //k.putExtra("resume", true);
-                    startActivity(k);
-                }
-                else {
-                    onBackPressed();
-                }
+            boolean czyZMenu = extras.getBoolean("czy_z_menu", false);
+            if (czyZMenu) {
+                goToMap.setVisibility(View.INVISIBLE);
             }
-        });
+        }
+
     }
 
     public void viewMap(View view) {
-        startActivity(new Intent(CounterActivity.this, RouteActivity.class).putExtra("resume", true));
+        onBackPressed();
+//        startActivity(new Intent(CounterActivity.this, RouteActivity.class).putExtra("resume", true));
     }
 
     @Override
@@ -106,7 +96,7 @@ public class CounterActivity extends Activity {
             refreshValues();
             refreshMainView();
             if (isActive) {
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, Times.COUNTER_REFRESH_TIME);
             }
         }
 

@@ -46,6 +46,9 @@ public class RoutingUtil {
         }
     }
     public static Location convertToLocation(GeoPoint location) {
+        if (null==location){
+            return null;
+        }
         Location nextNode = new Location("gps");
         nextNode.setLatitude(location.getLatitude());
         nextNode.setLongitude(location.getLongitude());
