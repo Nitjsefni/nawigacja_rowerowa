@@ -57,17 +57,13 @@ public class RouteActivity extends Activity implements Trackable {
     public static boolean isOnline(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnected()) {
-            return true;
-        }
-        return false;
+        return netInfo != null && netInfo.isConnected();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_route);
-
     }
 
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -126,8 +122,6 @@ public class RouteActivity extends Activity implements Trackable {
                 startActivity(new Intent(getApplicationContext(), CounterActivity.class));
             }
         });
-
-
     }
 
     private void findStartPoint(RoutePoints points) {
@@ -404,6 +398,7 @@ public class RouteActivity extends Activity implements Trackable {
                 RoadNode node = instructions.get(i);
                 Marker nodeMarker = createMarker(node.mLocation, "Step " + i, R.drawable.marker_node, Road.getLengthDurationText(node.mLength * 1000, node.mDuration));
                 nodeMarker.setSnippet(node.mInstructions);
+
                 int iconId = iconIds.getResourceId(node.mManeuverType, R.drawable.ic_empty);
                 if (iconId != R.drawable.ic_empty) {
                     Drawable icon2 = activity.getResources().getDrawable(iconId);
@@ -416,8 +411,7 @@ public class RouteActivity extends Activity implements Trackable {
         public void printNodesAsPoints(List<GeoPoint> instructions, MapView map) {
             for (int i = 0; i < instructions.size(); i++) {
                 GeoPoint node = instructions.get(i);
-                Marker nodeMarker = createMarker(node, "Step " + i, R.drawable.marker_node, Road.getLengthDurationText(100, 12));
-                nodeMarker.setSnippet("aaa");
+                Marker nodeMarker = createMarker(node, "Step " + i, R.drawable.marker_node,"");
                 map.getOverlays().add(nodeMarker);
             }
         }
@@ -426,7 +420,7 @@ public class RouteActivity extends Activity implements Trackable {
             MapView map = (MapView) activity.findViewById(R.id.map2);
             Marker marker = new Marker(map);
             marker.setPosition(point);
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
             Drawable drawable = activity.getResources().getDrawable(resourceToShow);
             marker.setIcon(drawable);
             marker.setTitle(name);

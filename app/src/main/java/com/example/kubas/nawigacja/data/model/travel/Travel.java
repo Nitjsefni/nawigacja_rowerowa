@@ -23,8 +23,8 @@ import java.util.Date;
 import java.util.List;
 
 public class Travel implements Runnable {
-    private static final double DISTANCE_TOLERANCE = 5;
-    private static final double DISTANCE_OUTSIDE_ROAD_TOLERANCE = 15;
+    private static final double DISTANCE_TOLERANCE = 20;
+    private static final double DISTANCE_OUTSIDE_ROAD_TOLERANCE = 45;
     private Date start;
     private double length;
     private List<RoadElement> history = new ArrayList<>();
@@ -52,6 +52,7 @@ public class Travel implements Runnable {
             startNode.mLocation = points.getStartPoint().getGeoPoint();
             startNode.mInstructions = "Punkt strartowy";
             road.mNodes.add(0, startNode);
+            road.mRouteHigh.add(0, startNode.mLocation);
 
         }
         if (points.getEndPoint() != null) {
@@ -59,6 +60,7 @@ public class Travel implements Runnable {
             endNode.mLocation = points.getEndPoint().getGeoPoint();
             endNode.mInstructions = "Punkt docelowy";
             road.mNodes.add(endNode);
+            road.mRouteHigh.add(endNode.mLocation);
         }
     }
 
@@ -124,14 +126,28 @@ public class Travel implements Runnable {
     }
 
     private void calculateRoadPart(Location actualLocation) {
-        removeElements(road.mRouteHigh, getElementsToCutNumber(actualLocation, road.mRouteHigh));
-        removeElements(road.mNodes, getElementsToCutNumber(actualLocation, road.mNodes));
+        List<GeoPoint> removed = removeElements(road.mRouteHigh, getElementsToCutNumber(actualLocation, road.mRouteHigh));
+        removeElementsByExample(road.mNodes, removed);
         if (road.mRouteHigh.size() < 2) {
             setNextInstructionNode(null);
             return;
         }
         if (!nextInstructionNode.isSameRoadNode(road.mNodes.get(1))) {
             setNextInstructionNode(road.mNodes.get(1));
+        }
+    }
+
+    private void removeElementsByExample(List<RoadNode> roadNodes, List<GeoPoint> removed) {
+        List<RoadNode> toRemove = new ArrayList<>();
+        for (RoadNode roadNode : roadNodes) {
+            if (removed.contains(roadNode.mLocation)) {
+                toRemove.add(roadNode);
+            } else {
+                break;
+            }
+        }
+        for (RoadNode roadNode : toRemove) {
+            roadNodes.remove(roadNode);
         }
     }
 
@@ -148,10 +164,14 @@ public class Travel implements Runnable {
         return isPointOnRoad(location, road.mRouteHigh, 0, DISTANCE_OUTSIDE_ROAD_TOLERANCE);
     }
 
-    private void removeElements(List mRouteHigh, int elementsToCutNumber) {
+    private List<GeoPoint> removeElements(List mRouteHigh, int elementsToCutNumber) {
+        List<GeoPoint> removed = new ArrayList<>();
+
         for (int i = 0; i < elementsToCutNumber; i++) {
-            mRouteHigh.remove(i);
+            removed.add(getGeoPoint(mRouteHigh.get(0)));
+            mRouteHigh.remove(0);
         }
+        return removed;
     }
 
     private int getElementsToCutNumber(Location actualLocation, List mRouteHigh) {
@@ -211,7 +231,7 @@ public class Travel implements Runnable {
             cParallel = point.getLatitude() - aParallel * point.getLongitude();
             bParallel = -1;
         }
-        double y = (-c * aParallel + cParallel) / (b * aParallel - bParallel * a);
+        double y = (c * aParallel - a * cParallel) / (bParallel * a - aParallel * b);
         double x = (-b * y - c) / a;
 
         y = getLimit(p1.getLatitude(), p2.getLatitude(), y);
