@@ -1,5 +1,9 @@
 package com.example.kubas.nawigacja.data.model;
 
+import android.location.Location;
+
+import com.example.kubas.nawigacja.routing.RoutingUtil;
+
 import org.osmdroid.util.GeoPoint;
 
 import java.io.Serializable;
@@ -52,5 +56,9 @@ public class GeoPosition implements Serializable {
 
     public String getDescription() {
         return getLat() + " " + getLng();
+    }
+
+    public Location getLocation() {
+        return RoutingUtil.convertToLocation(geoPoint);
     }
 }

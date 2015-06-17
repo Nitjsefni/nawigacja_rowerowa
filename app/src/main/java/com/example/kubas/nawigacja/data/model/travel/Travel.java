@@ -8,7 +8,6 @@ import android.os.Handler;
 import com.example.kubas.nawigacja.data.Times;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.gps.GPSManager;
-import com.example.kubas.nawigacja.routing.RoutingUtil;
 
 import org.osmdroid.bonuspack.overlays.Polyline;
 import org.osmdroid.bonuspack.routing.Road;
@@ -23,8 +22,8 @@ import java.util.Date;
 import java.util.List;
 
 public class Travel implements Runnable {
-    private static final double DISTANCE_TOLERANCE = 20;
-    private static final double DISTANCE_OUTSIDE_ROAD_TOLERANCE = 45;
+    private static final double DISTANCE_TOLERANCE = 10;
+    private static final double DISTANCE_OUTSIDE_ROAD_TOLERANCE = 40;
     private Date start;
     private double length;
     private List<RoadElement> history = new ArrayList<>();
@@ -48,19 +47,11 @@ public class Travel implements Runnable {
         setNextInstructionNode(road.mNodes.get(0));
         //tymczasowo - poki serwer nie wysyla poczatku i konca
         if (points.getStartPoint() != null) {
-            RoadNode startNode = new RoadNode();
-            startNode.mLocation = points.getStartPoint().getGeoPoint();
-            startNode.mInstructions = "Punkt strartowy";
-            road.mNodes.add(0, startNode);
-            road.mRouteHigh.add(0, startNode.mLocation);
+            road.mRouteHigh.add(0, points.getStartPoint().getGeoPoint());
 
         }
         if (points.getEndPoint() != null) {
-            RoadNode endNode = new RoadNode();
-            endNode.mLocation = points.getEndPoint().getGeoPoint();
-            endNode.mInstructions = "Punkt docelowy";
-            road.mNodes.add(endNode);
-            road.mRouteHigh.add(endNode.mLocation);
+            road.mRouteHigh.add(points.getEndPoint().getGeoPoint());
         }
     }
 
@@ -135,12 +126,12 @@ public class Travel implements Runnable {
     private void calculateRoadPart(Location actualLocation) {
         List<GeoPoint> removed = removeElements(road.mRouteHigh, getElementsToCutNumber(actualLocation, road.mRouteHigh));
         removeElementsByExample(road.mNodes, removed);
-        if (road.mRouteHigh.size() < 2) {
+        if (road.mRouteHigh.size() < 1) {
             setNextInstructionNode(null);
             return;
         }
-        if (!nextInstructionNode.isSameRoadNode(road.mNodes.get(1))) {
-            setNextInstructionNode(road.mNodes.get(1));
+        if (!nextInstructionNode.isSameRoadNode(road.mNodes.get(0))) {
+            setNextInstructionNode(road.mNodes.get(0));
         }
     }
 
@@ -171,16 +162,19 @@ public class Travel implements Runnable {
         return isPointOnRoad(location, road.mRouteHigh, 0, DISTANCE_OUTSIDE_ROAD_TOLERANCE);
     }
 
-    private List<GeoPoint> removeElements(List mRouteHigh, int elementsToCutNumber) {
+    private List<GeoPoint> removeElements(List<GeoPoint> mRouteHigh, int elementsToCutNumber) {
         List<GeoPoint> removed = new ArrayList<>();
         for (int i = 0; i < elementsToCutNumber; i++) {
-            removed.add(getGeoPoint(mRouteHigh.get(0)));
+            removed.add(mRouteHigh.get(0));
             mRouteHigh.remove(0);
+        }
+        if (!mRouteHigh.isEmpty()) {
+            removed.add(mRouteHigh.get(0));
         }
         return removed;
     }
 
-    private int getElementsToCutNumber(Location actualLocation, List mRouteHigh) {
+    private int getElementsToCutNumber(Location actualLocation, List<GeoPoint> mRouteHigh) {
         for (int i = 0; i < mRouteHigh.size() - 1; i++) {
             if (!isPointOnRoad(actualLocation, mRouteHigh, i, DISTANCE_TOLERANCE)) {
                 continue;
@@ -190,20 +184,10 @@ public class Travel implements Runnable {
         return 0;
     }
 
-    private boolean isPointOnRoad(Location actualLocation, List mRouteHigh, int i, double tolerance) {
-        GeoPoint lastPoint = getGeoPoint(mRouteHigh.get(i));
-        GeoPoint nextPoint = getGeoPoint(mRouteHigh.get(i + 1));
+    private boolean isPointOnRoad(Location actualLocation, List<GeoPoint> mRouteHigh, int i, double tolerance) {
+        GeoPoint lastPoint = mRouteHigh.get(i);
+        GeoPoint nextPoint = mRouteHigh.get(i + 1);
         return getDistanceFromLine(lastPoint, nextPoint, actualLocation) <= tolerance;
-    }
-
-    private GeoPoint getGeoPoint(Object object) {
-        if (object.getClass().equals(GeoPoint.class)) {
-            return (GeoPoint) object;
-        }
-        if (object.getClass().equals(RoadNode.class)) {
-            return ((RoadNode) object).mLocation;
-        }
-        return null;
     }
 
     private double getDistanceFromLine(GeoPoint p1, GeoPoint p2, Location point) {
@@ -308,20 +292,20 @@ public class Travel implements Runnable {
     }
 
     public float getActualBearing() {
-        double startLat = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLatitude());
-        double startLong = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLongitude());
-        double endLat = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLatitude());
-        double endLong = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLongitude());
+//        double startLat = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLatitude());
+//        double startLong = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLongitude());
+//        double endLat = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLatitude());
+//        double endLong = Math.toRadians(RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLongitude());
         if (road.mRouteHigh.size() < 2) {
             return 0;
         }
         //dist = RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).distanceTo(RoutingUtil.convertToLocation(road.mRouteHigh.get(1)));
 
         // *** Code to calculate where the arrow should point ***
-        Double angle = Math.atan2((RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLatitude() - RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLatitude()), RoutingUtil.convertToLocation(road.mRouteHigh.get(1)).getLongitude() - RoutingUtil.convertToLocation(road.mRouteHigh.get(0)).getLongitude());
-        angle = Math.toDegrees(angle);
+        double angle = Math.atan2((road.mRouteHigh.get(1).getLatitude() - road.mRouteHigh.get(0).getLatitude()), road.mRouteHigh.get(1).getLongitude() - road.mRouteHigh.get(0).getLongitude());
+        angle = Math.toDegrees(angle) - 90;
 
-        return Float.parseFloat(angle.toString());
+        return (float) angle;
     }
 
     public List<GeoPoint> getRoadPoints() {

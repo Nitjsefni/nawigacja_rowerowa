@@ -1,7 +1,6 @@
 package com.example.kubas.nawigacja;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -25,7 +24,6 @@ import com.example.kubas.nawigacja.client.SavedRouteOSMRRoadManager;
 import com.example.kubas.nawigacja.data.DataManager;
 import com.example.kubas.nawigacja.data.Times;
 import com.example.kubas.nawigacja.data.model.GeoPosition;
-import com.example.kubas.nawigacja.data.model.Route;
 import com.example.kubas.nawigacja.data.model.RoutePoints;
 import com.example.kubas.nawigacja.data.model.travel.RoadNodeToSpeak;
 import com.example.kubas.nawigacja.data.model.travel.Travel;
@@ -39,6 +37,9 @@ import org.osmdroid.bonuspack.overlays.Polyline;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.RoadNode;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -74,7 +75,6 @@ public class RouteActivity extends Activity implements Trackable {
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        map.getController().setZoom(14);
         Bundle extras = getIntent().getExtras();
         if (extras == null) {
             return;
@@ -90,19 +90,18 @@ public class RouteActivity extends Activity implements Trackable {
             points = dataManager.getTravel().getPoints();
         } else {
             points = (RoutePoints) extras.get("points");
-            findStartPoint(points);
         }
         if (points == null) {
             points = new RoutePoints();
         }
         if (routeId == -1) {
             roadManager = new OwnOSRMRoadManager();
-            refreshView = new RefreshViewWithRouting(points, roadManager);
+            refreshView = new RefreshViewWithRouting(points);
             startView = new StartViewWithRouting(map);
         } else {
             roadManager = new SavedRouteOSMRRoadManager(routeId);
             refreshView = null;
-            startView = new StartViewWithoutRouting(map);
+            startView = new StartViewWithoutRouting();
         }
         if (resume) {
             roadFromServer = new ResumeRoad();
@@ -110,8 +109,8 @@ public class RouteActivity extends Activity implements Trackable {
             roadFromServer = new GetRoadFromServer(points, roadManager);
         }
 
-        routeViewManager = new RouteViewManager(this, points);
-
+        routeViewManager = new RouteViewManager(this);
+        routeViewManager.zoomAndCenterMap(14, null);
         PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 getClass().getName());
@@ -126,26 +125,7 @@ public class RouteActivity extends Activity implements Trackable {
         });
     }
 
-    private void findStartPoint(RoutePoints points) {
-        if (points.getStartPoint() == null) {
-            GeoPoint actualPosition = gpsManager.getActualPosition();
-            while (actualPosition == null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Wyszukiwanie bieżacej lokalizacji", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                actualPosition = gpsManager.getActualPosition();
-            }
-            points.setStartPoint(new GeoPosition("Aktualna pozycja", actualPosition));
-        }
-    }
+
 
     public void refreshMapPosition(final Location loc) {
         if (refreshView != null) {
@@ -219,16 +199,10 @@ public class RouteActivity extends Activity implements Trackable {
     }
 
     private class StartViewWithoutRouting implements StartRoute {
-        private final MapView map;
         private Travel travel;
 
-        public StartViewWithoutRouting(MapView map) {
-            this.map = map;
-        }
-
-
         public void run() {
-            map.getController().setZoom(14);
+            routeViewManager.zoomAndCenterMap(14, null);
             routeViewManager.refreshOverlays();
             routeViewManager.setRouteSummary(travel.getTotalRoadLength(), travel.getTotalRoadDuration());
         }
@@ -241,14 +215,11 @@ public class RouteActivity extends Activity implements Trackable {
 
     private class RefreshViewWithRouting implements RefreshRoute {
 
-        Runnable roadFromServer;
         private Location loc;
         private RoutePoints points;
-        private RoadManager roadManager;
 
-        public RefreshViewWithRouting(RoutePoints points, RoadManager roadManager) {
+        public RefreshViewWithRouting(RoutePoints points) {
             this.points = points;
-            this.roadManager = roadManager;
         }
 
         @Override
@@ -258,7 +229,6 @@ public class RouteActivity extends Activity implements Trackable {
                 return;
             }
 
-            MapView map = (MapView) findViewById(R.id.map2);
 //            if (!travel.isOnRoad(loc)) {
 //                if (RouteActivity.isOnline(RouteActivity.this)) {
 //                    routeViewManager.speakNewRoad(RouteActivity.isOnline(RouteActivity.this));
@@ -279,11 +249,17 @@ public class RouteActivity extends Activity implements Trackable {
             }
             GeoPoint nextNodeGeoPoint = travel.getNextInstructionNode().getLocation();
             int distance = Math.round(gpsManager.getActualPosition().distanceTo(nextNodeGeoPoint));
-            map.getController().setZoom(17);
-            map.getController().setCenter(new GeoPoint(loc));
-            Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", R.drawable.arrow, "");
-// to jest wersja z dowiązywaniem do aktualnej drogi
-//            Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(travel.bindPointToRoadLine(loc)), "Aktualna pozycja", R.drawable.arrow, "");
+//            Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(loc), "Aktualna pozycja", R.drawable.arrow, "");
+            // to jest wersja z dowiązywaniem do aktualnej drogi
+            Location locationOnRoad;
+            if (travel.isOnRoad(loc)) {
+                locationOnRoad = travel.bindPointToRoadLine(loc);
+            } else {
+                locationOnRoad = loc;
+            }
+            routeViewManager.zoomAndCenterMap(17, locationOnRoad);
+
+            Marker currentPositionMarker = routeViewManager.createMarker(new GeoPoint(locationOnRoad), "Aktualna pozycja", R.drawable.arrow, "");
             routeViewManager.refreshOverlays(currentPositionMarker);
             routeViewManager.rotateMap(travel);
             routeViewManager.printSpeed(loc);
@@ -291,7 +267,6 @@ public class RouteActivity extends Activity implements Trackable {
             routeViewManager.setRouteSummary(totalLength, totalDuration);
             routeViewManager.speakInstruction(travel.getNextInstructionNode(), loc);
         }
-
 
         public void setLoc(Location loc) {
             this.loc = loc;
@@ -335,6 +310,7 @@ public class RouteActivity extends Activity implements Trackable {
         }
 
         public void run() {
+            findStartPoint(points);
             ArrayList<GeoPoint> waypoints = new ArrayList<>();
             if (points.isStartPoint()) {
                 waypoints.add(points.getStartPoint().getGeoPoint());
@@ -354,11 +330,32 @@ public class RouteActivity extends Activity implements Trackable {
                         DataManager.getInstance().setTravel(travel);
                         routeViewManager.setRoadOverlay(RoadManager.buildRoadOverlay(road, Color.RED, 8, RouteActivity.this));
                         startView.setTravel(travel);
+                        routeViewManager.setPoints(points);
                     }
                 });
                 runOnUiThread(startView);
             } catch (Exception e) {
                 Log.e(this.getClass().getName(), e.getMessage(), e);
+            }
+        }
+        private void findStartPoint(RoutePoints points) {
+            if (points.getStartPoint() == null) {
+                GeoPoint actualPosition = gpsManager.getActualPosition();
+                while (actualPosition == null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Wyszukiwanie bieżacej lokalizacji", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    actualPosition = gpsManager.getActualPosition();
+                }
+                points.setStartPoint(new GeoPosition("Aktualna pozycja", actualPosition));
             }
         }
     }
@@ -368,21 +365,25 @@ public class RouteActivity extends Activity implements Trackable {
         private Marker endMarker, startMarker, viaMarker;
         private Polyline roadOverlay;
         private TextToSpeech textToSpeech;
+        private MapMode mode = MapMode.ROUTING;
 
-        public RouteViewManager(Activity activity, RoutePoints points) {
+        public RouteViewManager(Activity activity) {
             this.activity = activity;
 
             MapView map = (MapView) activity.findViewById(R.id.map2);
-            if (points.getStartPoint() != null) {
-                map.getController().setCenter(points.getStartPoint().getGeoPoint());
-                startMarker = createMarker(points.getStartPoint().getGeoPoint(), "Punkt poczatkowy", R.drawable.marker_departure, points.getStartPoint().getDescription());
-            }
-            if (points.getEndPoint() != null) {
-                endMarker = createMarker(points.getEndPoint().getGeoPoint(), "Punkt koncowy", R.drawable.marker_destination, points.getEndPoint().getDescription());
-            }
-            if (points.getMidPoint() != null) {
-                viaMarker = createMarker(points.getMidPoint().getGeoPoint(), "Punkt posredni", R.drawable.marker_via, points.getMidPoint().getDescription());
-            }
+            map.setMapListener(new MapListener() {
+                @Override
+                public boolean onScroll(ScrollEvent scrollEvent) {
+//                    mode = MapMode.PREVIEW;
+                    return false;
+                }
+
+                @Override
+                public boolean onZoom(ZoomEvent zoomEvent) {
+                    //                    mode = MapMode.PREVIEW;
+                    return false;
+                }
+            });
             textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
                 @Override
                 public void onInit(int status) {
@@ -391,6 +392,19 @@ public class RouteActivity extends Activity implements Trackable {
                     }
                 }
             });
+        }
+
+        public void setPoints(RoutePoints points) {
+            if (points.getStartPoint() != null) {
+                zoomAndCenterMap(0, points.getStartPoint().getLocation());
+                startMarker = createMarker(points.getStartPoint().getGeoPoint(), "Punkt poczatkowy", R.drawable.marker_departure, points.getStartPoint().getDescription());
+            }
+            if (points.getEndPoint() != null) {
+                endMarker = createMarker(points.getEndPoint().getGeoPoint(), "Punkt koncowy", R.drawable.marker_destination, points.getEndPoint().getDescription());
+            }
+            if (points.getMidPoint() != null) {
+                viaMarker = createMarker(points.getMidPoint().getGeoPoint(), "Punkt posredni", R.drawable.marker_via, points.getMidPoint().getDescription());
+            }
         }
 
         @Deprecated
@@ -513,14 +527,22 @@ public class RouteActivity extends Activity implements Trackable {
             textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         }
 
-
         public void rotateMap(Travel travel) {
-
             MapView map = (MapView) activity.findViewById(R.id.map2);
-
-                map.setMapOrientation(travel.getActualBearing());
-
+            map.setMapOrientation(travel.getActualBearing());
         }
 
+        public void zoomAndCenterMap(int zoom, Location location) {
+            MapView map = (MapView) findViewById(R.id.map2);
+            if (mode == MapMode.PREVIEW) {
+                return;
+            }
+            if (zoom > 0) {
+                map.getController().setZoom(zoom);
+            }
+            if (location != null) {
+                map.getController().setCenter(new GeoPoint(location));
+            }
+        }
     }
 }

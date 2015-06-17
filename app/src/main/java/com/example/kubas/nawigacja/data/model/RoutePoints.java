@@ -9,6 +9,7 @@ public class RoutePoints implements Serializable {
     GeoPosition startPoint;
     GeoPosition endPoint;
     GeoPosition midPoint;
+    RoadType type;
     List<GeoPosition> midPoints = new ArrayList<>();
 
     public GeoPosition getStartPoint() {
