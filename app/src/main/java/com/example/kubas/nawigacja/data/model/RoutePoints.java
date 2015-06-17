@@ -6,26 +6,18 @@ import java.util.Collections;
 import java.util.List;
 
 public class RoutePoints implements Serializable {
-    GeoPosition startPoint;
-    GeoPosition endPoint;
-    GeoPosition midPoint;
-    RoadType type;
-    List<GeoPosition> midPoints = new ArrayList<>();
+    private GeoPosition startPoint;
+    private GeoPosition endPoint;
+    private GeoPosition midPoint;
+    private List<GeoPosition> midPoints = new ArrayList<>();
+    private RoadType roadType = new RoadType();
 
     public GeoPosition getStartPoint() {
         return startPoint;
     }
 
-    public void setStartPoint(GeoPosition startPoint) {
-        this.startPoint = startPoint;
-    }
-
     public GeoPosition getEndPoint() {
         return endPoint;
-    }
-
-    public void setEndPoint(GeoPosition endPoint) {
-        this.endPoint = endPoint;
     }
 
     public List<GeoPosition> getMidPoints() {
@@ -40,20 +32,32 @@ public class RoutePoints implements Serializable {
         return midPoint;
     }
 
-    public void setMidPoint(GeoPosition midPoint) {
-        this.midPoint = midPoint;
-    }
-
     public boolean isMidPoint() {
         return midPoint != null;
     }
 
+    public void setMidPoint(GeoPosition midPoint) {
+        this.midPoint = midPoint;
+    }
+
     public boolean isStartPoint() {
-        return startPoint!=null;
+        return startPoint != null;
+    }
+
+    public void setStartPoint(GeoPosition startPoint) {
+        this.startPoint = startPoint;
     }
 
     public boolean isEndPoint() {
-        return endPoint!=null;
+        return endPoint != null;
+    }
+
+    public void setEndPoint(GeoPosition endPoint) {
+        this.endPoint = endPoint;
+    }
+
+    public RoadType getRoadType() {
+        return roadType;
     }
 
     public enum PointType {

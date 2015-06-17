@@ -95,7 +95,7 @@ public class RouteActivity extends Activity implements Trackable {
             points = new RoutePoints();
         }
         if (routeId == -1) {
-            roadManager = new OwnOSRMRoadManager();
+            roadManager = new OwnOSRMRoadManager(points.getRoadType());
             refreshView = new RefreshViewWithRouting(points);
             startView = new StartViewWithRouting(map);
         } else {
@@ -124,7 +124,6 @@ public class RouteActivity extends Activity implements Trackable {
             }
         });
     }
-
 
 
     public void refreshMapPosition(final Location loc) {
@@ -334,10 +333,20 @@ public class RouteActivity extends Activity implements Trackable {
                     }
                 });
                 runOnUiThread(startView);
-            } catch (Exception e) {
+            } catch (final Exception e) {
+                startView = null;
+                refreshView = null;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
                 Log.e(this.getClass().getName(), e.getMessage(), e);
+
             }
         }
+
         private void findStartPoint(RoutePoints points) {
             if (points.getStartPoint() == null) {
                 GeoPoint actualPosition = gpsManager.getActualPosition();
