@@ -5,8 +5,8 @@ import com.example.kubas.nawigacja.routing.RoutingUtil;
 public enum Instruction {
     BEGIN(500, Integer.MAX_VALUE, "Za ", true),
     FAR(300, 500, "Za ", true),
-    MID(50, 300, "Za ", true),
-    SHORT(0, 50, "", false);
+    MID(30, 300, "Za ", true),
+    SHORT(0, 30, "", false);
 
     private final int from;
     private final int to;
